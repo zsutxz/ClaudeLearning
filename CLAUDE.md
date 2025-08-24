@@ -3,88 +3,55 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ### 🔄 Project Awareness & Context
-- **Always read `PLANNING.md`** at the start of a new conversation to understand the project's architecture, goals, style, and constraints.
-- **Check `TASK.md`** before starting a new task. If the task isn't listed, add it with a brief description and today's date.
-- **Use consistent naming conventions, file structure, and architecture patterns** as described in `PLANNING.md`.
-- **Use venv_linux** (the virtual environment) whenever executing Python commands, including for unit tests.
+- **Check `PRPs/` directory** before starting a new task. PRPs contain comprehensive implementation guides for features.
+- **Use consistent naming conventions, file structure, and architecture patterns** as described in existing PRPs.
+- **Always read the specific PRP file** related to the feature you're implementing.
 
 ### 🧱 Code Structure & Modularity
-- **Never create a file longer than 500 lines of code.** If a file approaches this limit, refactor by splitting it into modules or helper files.
 - **Organize code into clearly separated modules**, grouped by feature or responsibility.
-  For agents this looks like:
-    - `agent.py` - Main agent definition and execution logic 
-    - `tools.py` - Tool functions used by the agent 
-    - `prompts.py` - System prompts
-- **Use clear, consistent imports** (prefer relative imports within packages).
-- **Use python_dotenv and load_env()** for environment variables.
+- **Use clear, consistent imports** and follow existing patterns in the codebase.
+- **For HTML/JavaScript projects**: Keep all code in a single HTML file when specified, or organize into separate CSS/JS files for larger projects.
 
 ### 🧪 Testing & Reliability
-- **Always create Pytest unit tests for new features** (functions, classes, routes, etc).
-- **After updating any logic**, check whether existing unit tests need to be updated. If so, do it.
-- **Tests should live in a `/tests` folder** mirroring the main app structure.
-  - Include at least:
-    - 1 test for expected use
-    - 1 edge case
-    - 1 failure case
+- **Test HTML/JavaScript features** in multiple browsers to ensure compatibility.
+- **Verify functionality** matches the requirements specified in the PRP.
+- **Check for cross-browser compatibility** and responsive design.
 
 ### ✅ Task Completion
-- **Mark completed tasks in `TASK.md`** immediately after finishing them.
-- Add new sub-tasks or TODOs discovered during development to `TASK.md` under a "Discovered During Work" section.
+- **Mark completed tasks in the PRP file** immediately after finishing them.
+- Add new sub-tasks or TODOs discovered during development to the PRP under a "Discovered During Work" section.
 
 ### 📎 Style & Conventions
-- **Use Python** as the primary language for backend development.
-- **Use React/JavaScript** for frontend development.
-- **Follow PEP8**, use type hints, and format with `black` for Python code.
-- **Use `pydantic` for data validation**.
-- Use `FastAPI` for APIs and `SQLAlchemy` or `SQLModel` for ORM if applicable.
-- Write **docstrings for every function** using the Google style:
-  ```python
-  def example():
-      """
-      Brief summary.
-
-      Args:
-          param1 (type): Description.
-
-      Returns:
-          type: Description.
-      """
-  ```
+- **Use HTML5, CSS3, and modern JavaScript (ES6+)** for frontend development.
+- **Follow existing code patterns** in the codebase.
+- Write **comments for complex logic** explaining the why, not just the what.
 
 ### 📚 Documentation & Explainability
-- **Update `README.md`** when new features are added, dependencies change, or setup steps are modified.
 - **Comment non-obvious code** and ensure everything is understandable to a mid-level developer.
-- When writing complex logic, **add an inline `# Reason:` comment** explaining the why, not just the what.
+- When writing complex logic, **add inline comments** explaining the why, not just the what.
 
 ### 🧠 AI Behavior Rules
 - **Never assume missing context. Ask questions if uncertain.**
 - **Never hallucinate libraries or functions** – only use known, verified packages.
 - **Always confirm file paths and module names** exist before referencing them in code or tests.
-- **Never delete or overwrite existing code** unless explicitly instructed to or if part of a task from `TASK.md`.
+- **Never delete or overwrite existing code** unless explicitly instructed to or if part of a task from the PRP.
 
 ### ⚙️ Development Commands
-- **Linting**: `ruff check src/` or `ruff check src/ --fix` to auto-fix issues
-- **Type checking**: `mypy src/`
-- **Running tests**: `pytest tests/ -v` or `python -m pytest tests/ -v`
-- **Run single test**: `pytest tests/test_file.py::test_function -v`
-
-For React/Vite projects:
-- **Development server**: `npm run dev`
-- **Build**: `npm run build`
-- **Preview**: `npm run preview`
-- **Linting**: `npm run lint`
+- **Testing HTML files**: Open in browser or use local server
+- **For development**: Use browser developer tools for debugging
 
 ### 🏗️ Project Architecture
-This repository follows a modular architecture pattern where functionality is organized into separate modules based on features or responsibilities. The project uses PRP (Problem Resolution Protocol) templates for implementing new features, which can be found in the `PRPs/templates/` directory.
+This repository follows a PRP (Problem Resolution Protocol) driven architecture where functionality is implemented based on comprehensive PRP templates. The project uses PRP templates for implementing new features, which can be found in the `PRPs/templates/` directory.
 
 The project structure includes:
 - `PRPs/` - Contains PRP templates and documentation for feature implementation
 - `examples/` - Example code and implementations
 - `tools/` - Utility tools and scripts
 - `.claude/` - Claude Code configuration and settings
+- `src/` - Source code directory with assets and components
 
 ### 🔧 Common Development Tasks
 1. **Implementing new features**: Use the PRP template from `PRPs/templates/prp_base.md` as a guide
-2. **Testing**: Write unit tests using pytest following the existing patterns
-3. **Code quality**: Run ruff for linting and mypy for type checking before committing
+2. **Testing**: Test features in browser and verify cross-browser compatibility
+3. **Code quality**: Follow existing patterns and maintain consistent styling
 4. **Documentation**: Update relevant documentation files when making changes
