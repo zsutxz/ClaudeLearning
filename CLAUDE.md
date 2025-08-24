@@ -32,8 +32,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Add new sub-tasks or TODOs discovered during development to `TASK.md` under a "Discovered During Work" section.
 
 ### 📎 Style & Conventions
-- **Use Python** as the primary language.
-- **Follow PEP8**, use type hints, and format with `black`.
+- **Use Python** as the primary language for backend development.
+- **Use React/JavaScript** for frontend development.
+- **Follow PEP8**, use type hints, and format with `black` for Python code.
 - **Use `pydantic` for data validation**.
 - Use `FastAPI` for APIs and `SQLAlchemy` or `SQLModel` for ORM if applicable.
 - Write **docstrings for every function** using the Google style:
@@ -57,7 +58,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### 🧠 AI Behavior Rules
 - **Never assume missing context. Ask questions if uncertain.**
-- **Never hallucinate libraries or functions** – only use known, verified Python packages.
+- **Never hallucinate libraries or functions** – only use known, verified packages.
 - **Always confirm file paths and module names** exist before referencing them in code or tests.
 - **Never delete or overwrite existing code** unless explicitly instructed to or if part of a task from `TASK.md`.
 
@@ -66,6 +67,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Type checking**: `mypy src/`
 - **Running tests**: `pytest tests/ -v` or `python -m pytest tests/ -v`
 - **Run single test**: `pytest tests/test_file.py::test_function -v`
+
+For React/Vite projects:
+- **Development server**: `npm run dev`
+- **Build**: `npm run build`
+- **Preview**: `npm run preview`
+- **Linting**: `npm run lint`
 
 ### 🏗️ Project Architecture
 This repository follows a modular architecture pattern where functionality is organized into separate modules based on features or responsibilities. The project uses PRP (Problem Resolution Protocol) templates for implementing new features, which can be found in the `PRPs/templates/` directory.
