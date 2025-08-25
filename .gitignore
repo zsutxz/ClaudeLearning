@@ -1,10 +1,12 @@
-# Unity Project
+# Unity Project Ignore Rules
+# Ignore the entire UnityProject directory
 UnityProject/
 
-# Existing rules
-./UnityProject/logs/*
-./UnityProject/Temp/*
-./UnityProject/obj/*
-./UnityProject/library/*
-./UnityProject/.vs/*
-./UnityProject/Packages/*
+# Specific Unity directories to ignore (if UnityProject/ rule above doesn't work properly)
+UnityProject/logs/
+UnityProject/Temp/
+UnityProject/obj/
+UnityProject/library/
+UnityProject/.vs/
+UnityProject/Packages/
+UnityProject/ProjectSettings/
