@@ -1,7 +1,3 @@
-# Unity Project Ignore Rules
-# Ignore the entire UnityProject directory
-UnityProject/
-
 # Specific Unity directories to ignore (if UnityProject/ rule above doesn't work properly)
 UnityProject/logs/
 UnityProject/Temp/
