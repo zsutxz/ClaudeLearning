@@ -1,0 +1,10 @@
+# Unity Project
+UnityProject/
+
+# Existing rules
+./UnityProject/logs/*
+./UnityProject/Temp/*
+./UnityProject/obj/*
+./UnityProject/library/*
+./UnityProject/.vs/*
+./UnityProject/Packages/*
