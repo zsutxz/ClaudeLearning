@@ -18,7 +18,10 @@
       "Bash(python3 -m pytest:*)",
       "WebFetch(domain:docs.anthropic.com)",
       "WebFetch(domain:github.com)",
-      "mcp__filesystem__write_file"
+      "mcp__filesystem__write_file",
+      "mcp__filesystem__list_directory",
+      "mcp__filesystem__search_files",
+      "mcp__filesystem__create_directory"
     ],
     "deny": []
   }

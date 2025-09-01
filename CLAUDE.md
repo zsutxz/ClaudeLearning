@@ -22,7 +22,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Add new sub-tasks or TODOs discovered during development to the PRP under a "Discovered During Work" section.
 
 ### 📎 Style & Conventions
-- **Use HTML5, CSS3, and modern JavaScript (ES6+)** for frontend development.
 - **Follow existing code patterns** in the codebase.
 - Write **comments for complex logic** explaining the why, not just the what.
 
