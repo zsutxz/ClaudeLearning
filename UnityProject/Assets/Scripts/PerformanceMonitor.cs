@@ -9,8 +9,21 @@ public class PerformanceMonitor : MonoBehaviour
     private float frameRate;
     private float deltaTime;
     
+
+    void Start()
+    {
+        if (enablePerformanceMonitoring)
+        {
+            Application.targetFrameRate = targetFrameRate;
+        }
+    }
+
+    /// <summary>
+    /// Update performance metrics.
+    /// </summary>
     void Update()
     {
+        
         if (enablePerformanceMonitoring)
         {
             // Calculate frame rate
