@@ -8,10 +8,17 @@ public class RayTracingController : MonoBehaviour
     public float shadowSoftness = 0.5f;
     public int rayDepth = 3;
     
+    [Header("Quality Settings")]
+    public int maxRayDepth = 5;
+    public int minRayDepth = 1;
+    
     [Header("UI Elements")]
     public Slider reflectionSlider;
     public Slider shadowSlider;
     public Material rayTracingMaterial;
+    
+    // Singleton instance for access from PerformanceMonitor
+    public static RayTracingController Instance { get; private set; }
     
     void Start()
     {
