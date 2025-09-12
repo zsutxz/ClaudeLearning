@@ -24,5 +24,6 @@
       "mcp__filesystem__create_directory"
     ],
     "deny": []
-  }
+  },
+  "outputStyle": "default"
 }

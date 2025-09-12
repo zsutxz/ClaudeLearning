@@ -36,21 +36,42 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Never delete or overwrite existing code** unless explicitly instructed to or if part of a task from the PRP.
 
 ### ⚙️ Development Commands
-- **Testing HTML files**: Open in browser or use local server
+- **Testing TypeScript files**: Use jest for running tests
 - **For development**: Use browser developer tools for debugging
 
 ### 🏗️ Project Architecture
 This repository follows a PRP (Problem Resolution Protocol) driven architecture where functionality is implemented based on comprehensive PRP templates. The project uses PRP templates for implementing new features, which can be found in the `PRPs/templates/` directory.
+
+The project is a TypeScript library for fetching financial share data from multiple providers including Alpha Vantage, Yahoo Finance, and IEX Cloud.
 
 The project structure includes:
 - `PRPs/` - Contains PRP templates and documentation for feature implementation
 - `examples/` - Example code and implementations
 - `tools/` - Utility tools and scripts
 - `.claude/` - Claude Code configuration and settings
-- `src/` - Source code directory with assets and components
+- `src/` - Source code directory with components
+- `tests/` - Test files for the components
 
 ### 🔧 Common Development Tasks
 1. **Implementing new features**: Use the PRP template from `PRPs/templates/prp_base.md` as a guide
-2. **Testing**: Test features in browser and verify cross-browser compatibility
+2. **Testing**: Run tests with jest using `npm test` or the equivalent command
 3. **Code quality**: Follow existing patterns and maintain consistent styling
 4. **Documentation**: Update relevant documentation files when making changes
+
+### 📦 Project Dependencies and Structure
+- This is a TypeScript library with a modular structure
+- Core components are in `src/components/`:
+  - `shareDataFetcher.ts`: Main class for fetching share data
+  - `shareDataTypes.ts`: Type definitions and interfaces
+  - `shareDataCache.ts`: Cache implementation for fetched data
+- Tests are in the `tests/` directory and use jest
+- The library supports multiple financial data providers through a provider pattern
+
+### 🧪 Testing Approach
+- Tests are written using jest
+- Test files follow the naming pattern `*.test.ts`
+- Tests cover:
+  - Successful data fetching scenarios
+  - Error handling
+  - Cache functionality
+- Mocking is used for API calls to ensure tests are isolated and fast

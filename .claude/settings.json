@@ -2,22 +2,22 @@
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": "if [[ $CLAUDE_FILE_PATHS =~ \\.js$ ]]; then\n    prettier --write $CLAUDE_FILE_PATHS\nelif [[ $CLAUDE_FILE_PATHS =~ \\.py$ ]]; then\n    black $CLAUDE_FILE_PATHS\nfi",
+        "matcher": "mcp__filesystem__write_file",
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '\"\\(.tool_input.command) - \\(.tool_input.description // \"No description\")\"' >> ~/.claude/bash-command-log.txt"
+            "command": "echo PostToolUse hook triggered for mcp__filesystem__write_file >> .claude\\hook-test.log"
           }
         ]
       }
     ],
     "PreToolUse": [
       {
-        "matcher": "jq -r '\"\\(.tool_input.command) - \\(.tool_input.description // \"No description\")\"' >> ~/.claude/bash-command-log.txt",
+        "matcher": "mcp__filesystem__write_file",
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '\"\\(.tool_input.command) - \\(.tool_input.description // \"No description\")\"' >> ~/.claude/bash-command-log.txt"
+            "command": "echo PreToolUse hook triggered for mcp__filesystem__write_file >> .claude\\hook-test.log"
           }
         ]
       }
