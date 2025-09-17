@@ -17,6 +17,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Verify functionality** matches the requirements specified in the PRP.
 - **Check for cross-browser compatibility** and responsive design.
 
+
 ### ✅ Task Completion
 - **Mark completed tasks in the PRP file** immediately after finishing them.
 - Add new sub-tasks or TODOs discovered during development to the PRP under a "Discovered During Work" section.
