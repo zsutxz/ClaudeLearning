@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基础三消游戏</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        
+        .game-container {
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+        }
+        
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(8, 50px);
+            grid-gap: 2px;
+            margin: 20px auto;
+            background-color: #333;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        
+        .gem {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+        
+        .gem.special {
+            animation: pulse 1s infinite;
+            box-shadow: 0 0 10px gold;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .gem.swap-animation {
+            transition: transform 0.3s ease;
+        }
+        
+        .gem.match-animation {
+            animation: matchEffect 0.5s forwards;
+        }
+        
+        @keyframes matchEffect {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        
+        .gem.fall-animation {
+            transition: top 0.5s ease;
+        }
+        
+        .gem:hover {
+            transform: scale(1.1);
+        }
+        
+        .gem.selected {
+            border: 3px solid #fff;
+            box-shadow: 0 0 10px #fff;
+        }
+        
+        .controls {
+            margin: 20px 0;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        .score-board {
+            font-size: 20px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        
+        .moves {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>基础三消游戏</h1>
+        <div class="score-board">得分: <span id="score">0</span></div>
+        <div class="moves">剩余步数: <span id="moves">30</span></div>
+        <div class="game-board" id="gameBoard"></div>
+        <div class="controls">
+            <button onclick="resetGame()">重新开始</button>
+        </div>
+        
+        <div class="instructions">
+            <h3>游戏说明:</h3>
+            <p>1. 点击一个宝石，然后点击相邻的宝石进行交换</p>
+            <p>2. 形成三个或以上相同宝石的连线即可消除</p>
+            <p>3. 目标是在步数用完前获得尽可能高的分数</p>
+        </div>
+    </div>
+
+    <script>
+        // 游戏配置
+        const BOARD_SIZE = 8;
+        const GEM_TYPES = ['🔴', '🔵', '🟢', '🟡', '🟣', '🟠'];
+        const SPECIAL_GEMS = ['🌈', '🧨', '🔮']; // 彩虹 gem, 炸弹, 魔法球
+        const INITIAL_MOVES = 30;
+        
+        // 音效系统
+        let audioContext;
+        let sounds = {};
+        
+        // 游戏状态
+        let board = [];
+        let score = 0;
+        let moves = INITIAL_MOVES;
+        let selectedGem = null;
+        
+        // 初始化游戏
+        function initGame() {
+            board = [];
+            score = 0;
+            moves = INITIAL_MOVES;
+            selectedGem = null;
+            
+            document.getElementById('score').textContent = score;
+            document.getElementById('moves').textContent = moves;
+            
+            // 初始化音效
+            initAudio();
+            
+            createBoard();
+            renderBoard();
+        }
+        
+        // 初始化音效系统
+        function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                createSounds();
+            } catch (e) {
+                console.log('音频初始化失败:', e);
+            }
+        }
+        
+        // 创建音效
+        function createSounds() {
+            if (!audioContext) return;
+            
+            // 创建点击音效
+            sounds.click = createTone(440, 0.1); // A音
+            
+            // 创建匹配音效
+            sounds.match = createTone(523.25, 0.3); // C音
+            
+            // 创建特殊宝石音效
+            sounds.special = createTone(784, 0.5); // G音
+            
+            // 创建游戏结束音效
+            sounds.gameOver = createTone(220, 1); // A音低八度
+        }
+        
+        // 创建音调
+        function createTone(frequency, duration) {
+            return function() {
+                if (!audioContext) return;
+                
+                try {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.type = 'sine';
+                    oscillator.frequency.value = frequency;
+                    
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                    
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + duration);
+                } catch (e) {
+                    console.log('播放音效失败:', e);
+                }
+            };
+        }
+        
+        // 播放音效
+        function playSound(soundName) {
+            if (sounds[soundName]) {
+                sounds[soundName]();
+            }
+        }
+        
+        // 创建游戏板
+        function createBoard() {
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                board[i] = [];
+                for (let j = 0; j < BOARD_SIZE; j++) {
+                    board[i][j] = getRandomGem();
+                }
+            }
+            
+            // 确保初始状态没有已有匹配
+            while (hasMatches()) {
+                removeMatches();
+                fillEmptySpaces();
+            }
+        }
+        
+        // 获取随机宝石
+        function getRandomGem() {
+            return GEM_TYPES[Math.floor(Math.random() * GEM_TYPES.length)];
+        }
+        
+        // 渲染游戏板
+        function renderBoard() {
+            const gameBoard = document.getElementById('gameBoard');
+            gameBoard.innerHTML = '';
+            
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                for (let j = 0; j < BOARD_SIZE; j++) {
+                    const gem = document.createElement('div');
+                    gem.className = 'gem';
+                    gem.textContent = board[i][j];
+                    gem.dataset.row = i;
+                    gem.dataset.col = j;
+                    
+                    // 检查是否是特殊宝石
+                    if (SPECIAL_GEMS.includes(board[i][j])) {
+                        gem.classList.add('special');
+                    }
+                    
+                    gem.addEventListener('click', () => handleGemClick(i, j));
+                    gameBoard.appendChild(gem);
+                }
+            }
+        }
+        
+        // 处理宝石点击
+        function handleGemClick(row, col) {
+            // 如果没有剩余步数，游戏结束
+            if (moves <= 0) return;
+            
+            // 播放点击音效
+            playSound('click');
+            
+            // 如果没有选中宝石，选中当前宝石
+            if (!selectedGem) {
+                selectedGem = { row, col };
+                updateSelectionVisual(row, col);
+                return;
+            }
+            
+            // 如果点击的是已选中的宝石，取消选中
+            if (selectedGem.row === row && selectedGem.col === col) {
+                selectedGem = null;
+                clearSelectionVisual();
+                return;
+            }
+            
+            // 检查是否相邻
+            if (areAdjacent(selectedGem.row, selectedGem.col, row, col)) {
+                // 尝试交换
+                swapGems(selectedGem.row, selectedGem.col, row, col);
+                
+                // 检查是否有匹配
+                if (hasMatches()) {
+                    // 有效移动
+                    moves--;
+                    document.getElementById('moves').textContent = moves;
+                    
+                    // 处理匹配
+                    processMatches();
+                } else {
+                    // 无效移动，换回来
+                    swapGems(selectedGem.row, selectedGem.col, row, col);
+                }
+            } else {
+                // 不相邻，选择新的宝石
+                clearSelectionVisual();
+            }
+            
+            selectedGem = { row, col };
+            updateSelectionVisual(row, col);
+        }
+        
+        // 更新选中视觉效果
+        function updateSelectionVisual(row, col) {
+            clearSelectionVisual();
+            const gem = document.querySelector(`.gem[data-row="${row}"][data-col="${col}"]`);
+            if (gem) gem.classList.add('selected');
+        }
+        
+        // 清除选中视觉效果
+        function clearSelectionVisual() {
+            const selected = document.querySelector('.gem.selected');
+            if (selected) selected.classList.remove('selected');
+        }
+        
+        // 检查两个宝石是否相邻
+        function areAdjacent(row1, col1, row2, col2) {
+            const rowDiff = Math.abs(row1 - row2);
+            const colDiff = Math.abs(col1 - col2);
+            return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
+        }
+        
+        // 交换两个宝石
+        function swapGems(row1, col1, row2, col2) {
+            const temp = board[row1][col1];
+            board[row1][col1] = board[row2][col2];
+            board[row2][col2] = temp;
+            renderBoard();
+        }
+        
+        // 检查是否有匹配
+        function hasMatches() {
+            // 检查水平匹配
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                for (let j = 0; j < BOARD_SIZE - 2; j++) {
+                    if (board[i][j] !== '' && 
+                        board[i][j] === board[i][j+1] && 
+                        board[i][j] === board[i][j+2]) {
+                        return true;
+                    }
+                }
+            }
+            
+            // 检查垂直匹配
+            for (let i = 0; i < BOARD_SIZE - 2; i++) {
+                for (let j = 0; j < BOARD_SIZE; j++) {
+                    if (board[i][j] !== '' && 
+                        board[i][j] === board[i+1][j] && 
+                        board[i][j] === board[i+2][j]) {
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
+        }
+        
+        // 处理匹配
+        function processMatches() {
+            while (hasMatches()) {
+                const matches = findMatches();
+                animateMatches(matches);
+                setTimeout(() => {
+                    removeMatches(matches);
+                    updateScore(matches.length);
+                    fillEmptySpaces();
+                    renderBoard();
+                }, 500);
+            }
+        }
+        
+        // 查找所有匹配
+        function findMatches() {
+            const matches = [];
+            
+            // 查找水平匹配
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                let count = 1;
+                for (let j = 1; j < BOARD_SIZE; j++) {
+                    if (board[i][j] !== '' && board[i][j] === board[i][j-1]) {
+                        count++;
+                    } else {
+                        if (count >= 3) {
+                            // 创建特殊宝石
+                            if (count >= 5) {
+                                // 彩虹宝石 (5个或更多)
+                                const rainbowRow = i;
+                                const rainbowCol = j - Math.floor(count/2);
+                                board[rainbowRow][rainbowCol] = SPECIAL_GEMS[0];
+                            } else if (count === 4) {
+                                // 线清除宝石 (4个)
+                                const lineClearRow = i;
+                                const lineClearCol = j - Math.floor(count/2);
+                                board[lineClearRow][lineClearCol] = SPECIAL_GEMS[2];
+                            }
+                            
+                            for (let k = j - count; k < j; k++) {
+                                matches.push({row: i, col: k});
+                            }
+                        }
+                        count = 1;
+                    }
+                }
+                if (count >= 3) {
+                    // 创建特殊宝石
+                    if (count >= 5) {
+                        // 彩虹宝石 (5个或更多)
+                        const rainbowRow = i;
+                        const rainbowCol = BOARD_SIZE - Math.floor(count/2) + 1;
+                        board[rainbowRow][rainbowCol] = SPECIAL_GEMS[0];
+                    } else if (count === 4) {
+                        // 线清除宝石 (4个)
+                        const lineClearRow = i;
+                        const lineClearCol = BOARD_SIZE - Math.floor(count/2) + 1;
+                        board[lineClearRow][lineClearCol] = SPECIAL_GEMS[2];
+                    }
+                    
+                    for (let k = BOARD_SIZE - count; k < BOARD_SIZE; k++) {
+                        matches.push({row: i, col: k});
+                    }
+                }
+            }
+            
+            // 查找垂直匹配
+            for (let j = 0; j < BOARD_SIZE; j++) {
+                let count = 1;
+                for (let i = 1; i < BOARD_SIZE; i++) {
+                    if (board[i][j] !== '' && board[i][j] === board[i-1][j]) {
+                        count++;
+                    } else {
+                        if (count >= 3) {
+                            // 创建特殊宝石
+                            if (count >= 5) {
+                                // 彩虹宝石 (5个或更多)
+                                const rainbowRow = i - Math.floor(count/2);
+                                const rainbowCol = j;
+                                board[rainbowRow][rainbowCol] = SPECIAL_GEMS[0];
+                            } else if (count === 4) {
+                                // 线清除宝石 (4个)
+                                const lineClearRow = i - Math.floor(count/2);
+                                const lineClearCol = j;
+                                board[lineClearRow][lineClearCol] = SPECIAL_GEMS[2];
+                            }
+                            
+                            for (let k = i - count; k < i; k++) {
+                                matches.push({row: k, col: j});
+                            }
+                        }
+                        count = 1;
+                    }
+                }
+                if (count >= 3) {
+                    // 创建特殊宝石
+                    if (count >= 5) {
+                        // 彩虹宝石 (5个或更多)
+                        const rainbowRow = BOARD_SIZE - Math.floor(count/2) + 1;
+                        const rainbowCol = j;
+                        board[rainbowRow][rainbowCol] = SPECIAL_GEMS[0];
+                    } else if (count === 4) {
+                        // 线清除宝石 (4个)
+                        const lineClearRow = BOARD_SIZE - Math.floor(count/2) + 1;
+                        const lineClearCol = j;
+                        board[lineClearRow][lineClearCol] = SPECIAL_GEMS[2];
+                    }
+                    
+                    for (let k = BOARD_SIZE - count; k < BOARD_SIZE; k++) {
+                        matches.push({row: k, col: j});
+                    }
+                }
+            }
+            
+            // 去除重复的匹配
+            return matches.filter((match, index, self) => 
+                index === self.findIndex(m => m.row === match.row && m.col === match.col)
+            );
+        }
+        
+        // 移除匹配的宝石
+        function removeMatches(matches) {
+            matches.forEach(match => {
+                // 检查是否是特殊宝石
+                if (SPECIAL_GEMS.includes(board[match.row][match.col])) {
+                    // 处理特殊宝石效果
+                    activateSpecialGem(match.row, match.col, board[match.row][match.col]);
+                }
+                board[match.row][match.col] = '';
+            });
+        }
+        
+        // 动画匹配效果
+        function animateMatches(matches) {
+            matches.forEach(match => {
+                const gem = document.querySelector(`.gem[data-row="${match.row}"][data-col="${match.col}"]`);
+                if (gem) {
+                    gem.classList.add('match-animation');
+                }
+            });
+            
+            // 播放匹配音效
+            if (matches.length > 0) {
+                playSound('match');
+            }
+        }
+        
+        // 填充空位
+        function fillEmptySpaces() {
+            // 从下往上处理每一列
+            for (let j = 0; j < BOARD_SIZE; j++) {
+                let emptySpaces = 0;
+                for (let i = BOARD_SIZE - 1; i >= 0; i--) {
+                    if (board[i][j] === '') {
+                        emptySpaces++;
+                    } else if (emptySpaces > 0) {
+                        board[i + emptySpaces][j] = board[i][j];
+                        board[i][j] = '';
+                    }
+                }
+                
+                // 填充顶部的空位
+                for (let i = 0; i < emptySpaces; i++) {
+                    board[i][j] = getRandomGem();
+                }
+            }
+        }
+        
+        // 激活特殊宝石效果
+        function activateSpecialGem(row, col, gemType) {
+            // 播放特殊宝石音效
+            playSound('special');
+            
+            switch(gemType) {
+                case '🌈': // 彩虹宝石 - 清除所有同类型宝石
+                    // 彩虹宝石效果：清除所有同类型普通宝石
+                    for (let i = 0; i < BOARD_SIZE; i++) {
+                        for (let j = 0; j < BOARD_SIZE; j++) {
+                            if (GEM_TYPES.includes(board[i][j])) {
+                                board[i][j] = '';
+                            }
+                        }
+                    }
+                    break;
+                case '🧨': // 炸弹 - 清除3x3区域
+                    // 炸弹效果：清除3x3区域
+                    for (let i = Math.max(0, row - 1); i <= Math.min(BOARD_SIZE - 1, row + 1); i++) {
+                        for (let j = Math.max(0, col - 1); j <= Math.min(BOARD_SIZE - 1, col + 1); j++) {
+                            board[i][j] = '';
+                        }
+                    }
+                    break;
+                case '🔮': // 线清除宝石 - 清除整行或整列
+                    // 线清除效果：清除整行和整列
+                    for (let i = 0; i < BOARD_SIZE; i++) {
+                        board[i][col] = '';
+                    }
+                    for (let j = 0; j < BOARD_SIZE; j++) {
+                        board[row][j] = '';
+                    }
+                    break;
+            }
+        }
+        
+        // 更新分数
+        function updateScore(matchesCount) {
+            score += matchesCount * 10;
+            document.getElementById('score').textContent = score;
+            
+            // 检查游戏是否结束
+            if (moves <= 0) {
+                setTimeout(() => {
+                    alert(`游戏结束！您的最终得分是: ${score}`);
+                }, 300);
+            }
+        }
+        
+        // 重置游戏
+        function resetGame() {
+            initGame();
+        }
+        
+        // 初始化游戏
+        window.onload = initGame;
+    </script>
+</body>
+</html>
