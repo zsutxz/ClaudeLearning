@@ -7,6 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Use consistent naming conventions, file structure, and architecture patterns** as described in existing PRPs.
 - **Always read the specific PRP file** related to the feature you're implementing.
 
+
+
 ### 🧱 Code Structure & Modularity
 - **Organize code into clearly separated modules**, grouped by feature or responsibility.
 - **Use clear, consistent imports** and follow existing patterns in the codebase.
