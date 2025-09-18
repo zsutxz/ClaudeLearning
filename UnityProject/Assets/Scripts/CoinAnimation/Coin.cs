@@ -1,100 +1,94 @@
 using UnityEngine;
 using DG.Tweening;
 
-[System.Serializable]
-public struct CoinAnimationParams
-{
-    public float duration;              // Duration of the animation
-    public Vector3 startPosition;       // Starting position of the coin
-    public Vector3 endPosition;         // Ending position of the coin
-    public bool enableRotation;         // Whether to enable rotation effect
-    public float rotationSpeed;         // Speed of rotation if enabled
-    public bool enableScaling;          // Whether to enable scaling effect
-    public float startScale;            // Starting scale of the coin
-    public float endScale;              // Ending scale of the coin
-    public Ease easeType;               // Easing function for the animation
-}
-
+[RequireComponent(typeof(SpriteRenderer))]
 public class Coin : MonoBehaviour
 {
     [Header("Animation Parameters")]
-    public CoinAnimationParams animationParams;
+    public float duration = 1.0f;
+    public Vector3 startPosition = Vector3.zero;
+    public Vector3 endPosition = new Vector3(0, 2, 0);
+    public bool enableRotation = true;
+    public float rotationSpeed = 360f;
+    public bool enableScaling = true;
+    public float startScale = 1.0f;
+    public float endScale = 0.5f;
+    public Ease easeType = Ease.OutQuad;
     
-
     private Sequence animationSequence;
-    private Action<Coin> returnToPoolCallback;
-    private SpriteRenderer spriteRenderer;
+    private System.Action<Coin> onCompletionCallback;
+    private bool isAnimating = false;
     
     void Awake()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        // Load coin sprite from Resources if not already set
-        if (spriteRenderer.sprite == null)
+        // Initialize DOTween settings
+        DOTween.Init(true, true, LogBehaviour.ErrorsOnly);
+        DOTween.defaultEaseType = Ease.OutQuad;
+    }
+    
+    /// <summary>
+    /// Initializes the coin with start and end positions
+    /// </summary>
+    /// <param name="start">Start position</param>
+    /// <param name="end">End position</param>
+    public void Initialize(Vector3 start, Vector3 end)
+    {
+        startPosition = start;
+        endPosition = end;
+        transform.position = startPosition;
+        transform.localScale = Vector3.one * startScale;
+    }
+    
+    /// <summary>
+    /// Starts the coin flying animation
+    /// </summary>
+    /// <param name="onComplete">Callback when animation completes</param>
+    public void StartFlying(System.Action<Coin> onComplete = null)
+    {
+        if (isAnimating)
         {
-            var coinSprite = Resources.Load<Sprite>("icon02");
-            if (coinSprite != null) 
-                spriteRenderer.sprite = coinSprite;
-            else
-                Debug.LogWarning("Could not load coin sprite from Resources/icon02");
+            StopFlying();
         }
-    }
-    
-    /// <summary>
-    /// Initialize coin with parameters and return callback
-    /// </summary>
-    /// <param name="parameters">Animation parameters</param>
-    /// <param name="returnCallback">Callback to return coin to pool</param>
-    public void Initialize(CoinAnimationParams parameters, Action<Coin> returnCallback)
-    {
-        animationParams = parameters;
-        returnToPoolCallback = returnCallback;
-        transform.position = parameters.startPosition;
-        transform.localScale = Vector3.one * parameters.startScale;
-    }
-    
-    /// <summary>
-    /// Start the flying animation
-    /// </summary>
-    public void StartFlying()
-    {
-        // Clean up any existing animation
-        if (animationSequence != null)
-            animationSequence.Kill();
-            
+        
+        onCompletionCallback = onComplete;
+        isAnimating = true;
+        
+        // Reset position and scale
+        transform.position = startPosition;
+        transform.localScale = Vector3.one * startScale;
         
         // Create DOTween sequence
         animationSequence = DOTween.Sequence();
         
         // Movement tween
-        animationSequence.Append(transform.DOMove(animationParams.endPosition, animationParams.duration)
-            .SetEase(animationParams.easeType));
+        animationSequence.Append(transform.DOMove(endPosition, duration).SetEase(easeType));
         
         // Rotation tween if enabled
-        if (animationParams.enableRotation)
+        if (enableRotation)
         {
             animationSequence.Join(transform.DORotate(
-                new Vector3(0, 0, 360), animationParams.duration, RotateMode.FastBeyond360)
+                new Vector3(0, 0, 360), duration, RotateMode.FastBeyond360)
                 .SetEase(Ease.Linear)
                 .SetLoops(-1, LoopType.Incremental));
         }
         
         // Scaling tween if enabled
-        if (animationParams.enableScaling)
+        if (enableScaling)
         {
-            animationSequence.Join(transform.DOScale(animationParams.endScale, animationParams.duration)
-                .SetEase(animationParams.easeType));
+            animationSequence.Join(transform.DOScale(endScale, duration).SetEase(easeType));
         }
         
-        // Return to pool when animation completes
+        // Cleanup when animation completes
         animationSequence.OnComplete(() => {
-            ReturnToPool();
+            isAnimating = false;
+            onCompletionCallback?.Invoke(this);
         });
     }
     
     /// <summary>
-    /// Return coin to pool
+    /// Stops the current coin animation
     /// </summary>
-    public void ReturnToPool()
+    public void StopFlying()
     {
         if (animationSequence != null)
         {
@@ -102,18 +96,28 @@ public class Coin : MonoBehaviour
             animationSequence = null;
         }
         
-        // Deactivate and return to pool
+        isAnimating = false;
+    }
+    
+    /// <summary>
+    /// Resets the coin to its initial state
+    /// </summary>
+    public void ResetCoin()
+    {
+        StopFlying();
+        transform.position = startPosition;
+        transform.localScale = Vector3.one * startScale;
+        transform.rotation = Quaternion.identity;
         gameObject.SetActive(false);
-        returnToPoolCallback?.Invoke(this);
     }
     
     void OnDisable()
     {
-        // Clean up any running tweens
-        if (animationSequence != null)
-        {
-            animationSequence.Kill();
-            animationSequence = null;
-        }
+        StopFlying();
+    }
+    
+    void OnDestroy()
+    {
+        StopFlying();
     }
 }

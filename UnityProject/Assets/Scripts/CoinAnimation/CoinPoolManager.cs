@@ -6,20 +6,47 @@ public class CoinPoolManager : MonoBehaviour
     [Header("Pool Settings")]
     public GameObject coinPrefab;
     public int initialPoolSize = 10;
+    public int maxPoolSize = 50;
     
-    private Queue<Coin> coinPool = new Queue<Coin>();
-    private List<Coin> activeCoins = new List<Coin>();
+    private Queue<Coin> availableCoins;
+    private List<Coin> activeCoins;
+    private static CoinPoolManager instance;
+    
+    public static CoinPoolManager Instance
+    {
+        get
+        {
+            if (instance == null)
+            {
+                GameObject poolManagerObject = new GameObject("CoinPoolManager");
+                instance = poolManagerObject.AddComponent<CoinPoolManager>();
+            }
+            return instance;
+        }
+    }
     
     void Awake()
     {
-        InitializePool();
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+            InitializePool();
+        }
+        else if (instance != this)
+        {
+            Destroy(gameObject);
+        }
     }
     
     /// <summary>
-    /// Initialize pool with coins
+    /// Initializes the coin pool with the specified number of coins
     /// </summary>
     private void InitializePool()
     {
+        availableCoins = new Queue<Coin>();
+        activeCoins = new List<Coin>();
+        
         for (int i = 0; i < initialPoolSize; i++)
         {
             CreateNewCoin();
@@ -27,33 +54,49 @@ public class CoinPoolManager : MonoBehaviour
     }
     
     /// <summary>
-    /// Create a new coin and add to pool
+    /// Creates a new coin and adds it to the available pool
     /// </summary>
     /// <returns>The created coin</returns>
     private Coin CreateNewCoin()
     {
-        GameObject coinObj = Instantiate(coinPrefab, transform);
-        Coin coin = coinObj.GetComponent<Coin>();
-        coinObj.SetActive(false);
-        coinPool.Enqueue(coin);
+        if (coinPrefab == null)
+        {
+            Debug.LogError("Coin prefab is not assigned in CoinPoolManager");
+            return null;
+        }
+        
+        GameObject coinObject = Instantiate(coinPrefab);
+        Coin coin = coinObject.GetComponent<Coin>();
+        if (coin == null)
+        {
+            coin = coinObject.AddComponent<Coin>();
+        }
+        
+        coinObject.SetActive(false);
+        availableCoins.Enqueue(coin);
         return coin;
     }
     
     /// <summary>
-    /// Get a coin from the pool
+    /// Gets a coin from the pool
     /// </summary>
-    /// <returns>Available coin from pool</returns>
+    /// <returns>A coin from the pool, or null if pool is at maximum capacity</returns>
     public Coin GetCoin()
     {
         Coin coin;
-        if (coinPool.Count > 0)
+        
+        if (availableCoins.Count > 0)
         {
-            coin = coinPool.Dequeue();
+            coin = availableCoins.Dequeue();
+        }
+        else if (activeCoins.Count + availableCoins.Count < maxPoolSize)
+        {
+            coin = CreateNewCoin();
         }
         else
         {
-            // Create new coin if pool is empty
-            coin = CreateNewCoin();
+            Debug.LogWarning("Coin pool is at maximum capacity. Consider increasing maxPoolSize.");
+            return null;
         }
         
         coin.gameObject.SetActive(true);
@@ -62,24 +105,63 @@ public class CoinPoolManager : MonoBehaviour
     }
     
     /// <summary>
-    /// Return coin to pool
+    /// Returns a coin to the pool
     /// </summary>
-    /// <param name="coin">Coin to return</param>
+    /// <param name="coin">The coin to return</param>
     public void ReturnCoin(Coin coin)
     {
-        if (activeCoins.Contains(coin))
+        if (coin == null) return;
+        
+        if (activeCoins.Remove(coin))
         {
-            activeCoins.Remove(coin);
-            coinPool.Enqueue(coin);
+            coin.ResetCoin();
+            availableCoins.Enqueue(coin);
         }
     }
     
     /// <summary>
-    /// Get current pool statistics
+    /// Gets the current pool statistics
     /// </summary>
-    /// <returns>String with pool information</returns>
-    public string GetPoolStats()
+    /// <param name="availableCount">Number of available coins</param>
+    /// <param name="activeCount">Number of active coins</param>
+    /// <param name="totalCount">Total number of coins in pool</param>
+    public void GetPoolStats(out int availableCount, out int activeCount, out int totalCount)
     {
-        return $"Pool: {coinPool.Count} | Active: {activeCoins.Count}";
+        availableCount = availableCoins.Count;
+        activeCount = activeCoins.Count;
+        totalCount = availableCount + activeCount;
+    }
+    
+    /// <summary>
+    /// Clears the pool and destroys all coins
+    /// </summary>
+    public void ClearPool()
+    {
+        foreach (Coin coin in availableCoins)
+        {
+            if (coin != null && coin.gameObject != null)
+            {
+                Destroy(coin.gameObject);
+            }
+        }
+        
+        foreach (Coin coin in activeCoins)
+        {
+            if (coin != null && coin.gameObject != null)
+            {
+                Destroy(coin.gameObject);
+            }
+        }
+        
+        availableCoins.Clear();
+        activeCoins.Clear();
+    }
+    
+    void OnDestroy()
+    {
+        if (instance == this)
+        {
+            instance = null;
+        }
     }
 }
