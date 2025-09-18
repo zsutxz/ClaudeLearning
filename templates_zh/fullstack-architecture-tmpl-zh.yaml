@@ -1,0 +1,844 @@
+# <!-- 由BMAD™ Core提供支持 -->
+template:
+  id: fullstack-architecture-template-v2
+  name: 全栈架构文档
+  version: 2.0
+  output:
+    format: markdown
+    filename: docs/architecture.md
+    title: "{{project_name}} 全栈架构文档"
+
+workflow:
+  mode: interactive
+  elicitation: advanced-elicitation
+
+sections:
+  - id: introduction
+    title: 介绍
+    instruction: |
+      如果有可用的相关文档，请在开始之前查看以收集所有相关上下文。至少您应该可以访问docs/prd.md和docs/front-end-spec.md。如果找不到所需文档，请向用户询问。此模板创建一个统一的架构，涵盖后端和前端问题，以指导AI驱动的全栈开发。
+    elicit: true
+    content: |
+      本文档概述了{{project_name}}的完整全栈架构，包括后端系统、前端实现及其集成。它作为AI驱动开发的单一真实来源，确保整个技术栈的一致性。
+
+      这种统一的方法结合了传统上独立的后端和前端架构文档，简化了现代全栈应用程序的开发过程，在这些应用程序中，这些问题日益交织在一起。
+    sections:
+      - id: starter-template
+        title: 启动模板或现有项目
+        instruction: |
+          在继续进行架构设计之前，请检查项目是否基于任何启动模板或现有代码库：
+
+          1. 查看PRD和其他文档中是否提及：
+          - 全栈启动模板（例如，T3 Stack, MEAN/MERN starters, Django + React templates）
+          - Monorepo模板（例如，Nx, Turborepo starters）
+          - 平台特定启动器（例如，Vercel templates, AWS Amplify starters）
+          - 正在扩展或克隆的现有项目
+
+          2. 如果提到了启动模板或现有项目：
+          - 要求用户提供访问权限（链接、仓库或文件）
+          - 分析以了解预配置的选择和约束
+          - 注意已做出的架构决策
+          - 识别可以修改的内容vs必须保留的内容
+
+          3. 如果没有提到启动器但这是一个全新的项目：
+          - 根据技术偏好建议适当的全栈启动器
+          - 考虑平台特定选项（Vercel, AWS等）
+          - 让用户决定是否使用一个
+
+          4. 记录决策和它施加的任何约束
+
+          如果没有，请写"N/A - 全新项目"
+      - id: changelog
+        title: 变更日志
+        type: table
+        columns: [日期, 版本, 描述, 作者]
+        instruction: 跟踪文档版本和变更
+
+  - id: high-level-architecture
+    title: 高级架构
+    instruction: 本节包含建立基础的多个子节。一起呈现所有子节，然后征求对完整部分的反馈。
+    elicit: true
+    sections:
+      - id: technical-summary
+        title: 技术摘要
+        instruction: |
+          提供全面概述（4-6句话），涵盖：
+          - 整体架构风格和部署方法
+          - 前端框架和后端技术选择
+          - 前端和后端之间的关键集成点
+          - 基础设施平台和服务
+          - 此架构如何实现PRD目标
+      - id: platform-infrastructure
+        title: 平台和基础设施选择
+        instruction: |
+          基于PRD要求和技术假设，做出平台推荐：
+
+          1. 考虑常见模式（不是详尽的列表，使用您自己的最佳判断并根据需要搜索网络以了解新兴趋势）：
+          - **Vercel + Supabase**: 用于使用Next.js快速开发，内置身份验证/存储
+          - **AWS全栈**: 用于企业级扩展，具有Lambda, API Gateway, S3, Cognito
+          - **Azure**: 用于.NET生态系统或企业Microsoft环境
+          - **Google Cloud**: 用于ML/AI重应用或Google生态系统集成
+
+          2. 提供2-3个可行选项及其明确的优缺点
+          3. 做出推荐并说明理由
+          4. 获得明确的用户确认
+
+          记录选择和将使用的核心服务。
+        template: |
+          **平台:** {{selected_platform}}
+          **核心服务:** {{core_services_list}}
+          **部署主机和区域:** {{regions}}
+      - id: repository-structure
+        title: 仓库结构
+        instruction: |
+          基于PRD要求和平台选择定义仓库方法，解释您的理由或如果不确定向用户提问：
+
+          1. 对于现代全栈应用，monorepo通常是首选
+          2. 考虑工具（Nx, Turborepo, Lerna, npm workspaces）
+          3. 定义包/应用边界
+          4. 规划前端和后端之间的共享代码
+        template: |
+          **结构:** {{repo_structure_choice}}
+          **Monorepo工具:** {{monorepo_tool_if_applicable}}
+          **包组织:** {{package_strategy}}
+      - id: architecture-diagram
+        title: 高级架构图
+        type: mermaid
+        mermaid_type: graph
+        instruction: |
+          创建一个Mermaid图，显示完整的系统架构，包括：
+          - 用户入口点（web, mobile）
+          - 前端应用程序部署
+          - API层（REST/GraphQL）
+          - 后端服务
+          - 数据库和存储
+          - 外部集成
+          - CDN和缓存层
+
+          使用适当的图表类型以确保清晰度。
+      - id: architectural-patterns
+        title: 架构模式
+        instruction: |
+          列出将指导前端和后端开发的模式。包括模式：
+          - 整体架构（例如，Jamstack, Serverless, Microservices）
+          - 前端模式（例如，基于组件的, 状态管理）
+          - 后端模式（例如，存储库, CQRS, 事件驱动）
+          - 集成模式（例如，BFF, API网关）
+
+          对于每个模式，提供推荐和理由。
+        repeatable: true
+        template: "- **{{pattern_name}}:** {{pattern_description}} - _理由:_ {{rationale}}"
+        examples:
+          - "**Jamstack架构:** 静态站点生成与无服务器API - _理由:_ 内容丰富应用程序的最佳性能和可扩展性"
+          - "**基于组件的UI:** 可重用的React组件与TypeScript - _理由:_ 大型代码库的可维护性和类型安全性"
+          - "**存储库模式:** 抽象数据访问逻辑 - _理由:_ 启用测试和未来数据库迁移的灵活性"
+          - "**API网关模式:** 所有API调用的单一入口点 - _理由:_ 集中的身份验证、速率限制和监控"
+
+  - id: tech-stack
+    title: 技术栈
+    instruction: |
+      这是整个项目的确定性技术选择。与用户一起最终确定所有选择。此表是单一真实来源 - 所有开发必须使用这些确切版本。
+
+      要涵盖的关键领域：
+      - 前端和后端语言/框架
+      - 数据库和缓存
+      - 身份验证和授权
+      - API方法
+      - 前端和后端的测试工具
+      - 构建和部署工具
+      - 监控和日志
+
+      渲染后，立即征求反馈。
+    elicit: true
+    sections:
+      - id: tech-stack-table
+        title: 技术栈表
+        type: table
+        columns: [类别, 技术, 版本, 目的, 理由]
+        rows:
+          - ["前端语言", "{{fe_language}}", "{{version}}", "{{purpose}}", "{{why_chosen}}"]
+          - [
+              "前端框架",
+              "{{fe_framework}}",
+              "{{version}}",
+              "{{purpose}}",
+              "{{why_chosen}}",
+            ]
+          - [
+              "UI组件库",
+              "{{ui_library}}",
+              "{{version}}",
+              "{{purpose}}",
+              "{{why_chosen}}",
+            ]
+          - ["状态管理", "{{state_mgmt}}", "{{version}}", "{{purpose}}", "{{why_chosen}}"]
+          - ["后端语言", "{{be_language}}", "{{version}}", "{{purpose}}", "{{why_chosen}}"]
+          - [
+              "后端框架",
+              "{{be_framework}}",
+              "{{version}}",
+              "{{purpose}}",
+              "{{why_chosen}}",
+            ]
+          - ["API风格", "{{api_style}}", "{{version}}", "{{purpose}}", "{{why_chosen}}"]
+          - ["数据库", "{{database}}", "{{version}}", "{{purpose}}", "{{why_chosen}}"]
+          - ["缓存", "{{cache}}", "{{version}}", "{{purpose}}", "{{why_chosen}}"]
+          - ["文件存储", "{{storage}}", "{{version}}", "{{purpose}}", "{{why_chosen}}"]
+          - ["身份验证", "{{auth}}", "{{version}}", "{{purpose}}", "{{why_chosen}}"]
+          - ["前端测试", "{{fe_test}}", "{{version}}", "{{purpose}}", "{{why_chosen}}"]
+          - ["后端测试", "{{be_test}}", "{{version}}", "{{purpose}}", "{{why_chosen}}"]
+          - ["端到端测试", "{{e2e_test}}", "{{version}}", "{{purpose}}", "{{why_chosen}}"]
+          - ["构建工具", "{{build_tool}}", "{{version}}", "{{purpose}}", "{{why_chosen}}"]
+          - ["打包工具", "{{bundler}}", "{{version}}", "{{purpose}}", "{{why_chosen}}"]
+          - ["IaC工具", "{{iac_tool}}", "{{version}}", "{{purpose}}", "{{why_chosen}}"]
+          - ["CI/CD", "{{cicd}}", "{{version}}", "{{purpose}}", "{{why_chosen}}"]
+          - ["监控", "{{monitoring}}", "{{version}}", "{{purpose}}", "{{why_chosen}}"]
+          - ["日志", "{{logging}}", "{{version}}", "{{purpose}}", "{{why_chosen}}"]
+          - ["CSS框架", "{{css_framework}}", "{{version}}", "{{purpose}}", "{{why_chosen}}"]
+
+  - id: data-models
+    title: 数据模型
+    instruction: |
+      定义将在前端和后端之间共享的核心数据模型/实体：
+
+      1. 查看PRD要求并识别关键业务实体
+      2. 对于每个模型，解释其目的和关系
+      3. 包括关键属性和数据类型
+      4. 显示模型之间的关系
+      5. 创建可以在前端和后端共享的TypeScript接口
+      6. 与用户讨论设计决策
+
+      在转向数据库模式之前创建清晰的概念模型。
+    elicit: true
+    repeatable: true
+    sections:
+      - id: model
+        title: "{{model_name}}"
+        template: |
+          **目的:** {{model_purpose}}
+
+          **关键属性:**
+          - {{attribute_1}}: {{type_1}} - {{description_1}}
+          - {{attribute_2}}: {{type_2}} - {{description_2}}
+        sections:
+          - id: typescript-interface
+            title: TypeScript接口
+            type: code
+            language: typescript
+            template: "{{model_interface}}"
+          - id: relationships
+            title: 关系
+            type: bullet-list
+            template: "- {{relationship}}"
+
+  - id: api-spec
+    title: API规范
+    instruction: |
+      基于技术栈中的API风格选择：
+
+      1. 如果是REST API，创建OpenAPI 3.0规范
+      2. 如果是GraphQL，提供GraphQL模式
+      3. 如果是tRPC，显示路由器定义
+      4. 包括来自史诗/故事的所有端点
+      5. 基于数据模型定义请求/响应模式
+      6. 记录身份验证要求
+      7. 包括示例请求/响应
+
+      使用所选API风格的适当格式。如果没有API（例如，静态站点），请跳过此节。
+    elicit: true
+    sections:
+      - id: rest-api
+        title: REST API规范
+        condition: API风格是REST
+        type: code
+        language: yaml
+        template: |
+          openapi: 3.0.0
+          info:
+            title: {{api_title}}
+            version: {{api_version}}
+            description: {{api_description}}
+          servers:
+            - url: {{server_url}}
+              description: {{server_description}}
+      - id: graphql-api
+        title: GraphQL模式
+        condition: API风格是GraphQL
+        type: code
+        language: graphql
+        template: "{{graphql_schema}}"
+      - id: trpc-api
+        title: tRPC路由器定义
+        condition: API风格是tRPC
+        type: code
+        language: typescript
+        template: "{{trpc_routers}}"
+
+  - id: components
+    title: 组件
+    instruction: |
+      基于架构模式、技术栈和上述数据模型：
+
+      1. 识别跨全栈的主要逻辑组件/服务
+      2. 考虑前端和后端组件
+      3. 定义组件之间的明确边界和接口
+      4. 对于每个组件，指定：
+      - 主要职责
+      - 暴露的关键接口/API
+      - 对其他组件的依赖
+      - 基于技术栈选择的技术细节
+
+      5. 在需要时创建组件图
+    elicit: true
+    sections:
+      - id: component-list
+        repeatable: true
+        title: "{{component_name}}"
+        template: |
+          **职责:** {{component_description}}
+
+          **关键接口:**
+          - {{interface_1}}
+          - {{interface_2}}
+
+          **依赖:** {{dependencies}}
+
+          **技术栈:** {{component_tech_details}}
+      - id: component-diagrams
+        title: 组件图
+        type: mermaid
+        instruction: |
+          创建Mermaid图来可视化组件关系。选项：
+          - C4容器图用于高级视图
+          - 组件图用于详细的内部结构
+          - 序列图用于复杂的交互
+          选择最合适的以确保清晰度
+
+  - id: external-apis
+    title: 外部API
+    condition: 项目需要外部API集成
+    instruction: |
+      对于每个外部服务集成：
+
+      1. 基于PRD要求和组件设计识别需要的API
+      2. 如果文档URL未知，请向用户询问具体信息
+      3. 记录身份验证方法和安全考虑
+      4. 列出将使用的特定端点
+      5. 注意任何速率限制或使用约束
+
+      如果不需要外部API，请明确说明并跳到下一节。
+    elicit: true
+    repeatable: true
+    sections:
+      - id: api
+        title: "{{api_name}} API"
+        template: |
+          - **目的:** {{api_purpose}}
+          - **文档:** {{api_docs_url}}
+          - **基础URL(s):** {{api_base_url}}
+          - **身份验证:** {{auth_method}}
+          - **速率限制:** {{rate_limits}}
+
+          **使用的端点:**
+          - `{{method}} {{endpoint_path}}` - {{endpoint_purpose}}
+
+          **集成说明:** {{integration_considerations}}
+
+  - id: core-workflows
+    title: 核心工作流
+    type: mermaid
+    mermaid_type: sequence
+    instruction: |
+      使用序列图说明关键系统工作流：
+
+      1. 识别PRD中的关键用户旅程
+      2. 显示组件交互包括外部API
+      3. 包括前端和后端流
+      4. 包括错误处理路径
+      5. 记录异步操作
+      6. 根据需要创建高级和详细图
+
+      重点关注阐明架构决策或复杂交互的工作流。
+    elicit: true
+
+  - id: database-schema
+    title: 数据库模式
+    instruction: |
+      将概念数据模型转换为具体的数据库模式：
+
+      1. 使用技术栈中选择的数据库类型
+      2. 使用适当的符号创建模式定义
+      3. 包括索引、约束和关系
+      4. 考虑性能和可扩展性
+      5. 对于NoSQL，显示文档结构
+
+      以适合数据库类型的格式呈现模式（SQL DDL、JSON模式等）
+    elicit: true
+
+  - id: frontend-architecture
+    title: 前端架构
+    instruction: 定义前端特定的架构细节。在每个子节之后，注意用户是否想在继续之前进行细化。
+    elicit: true
+    sections:
+      - id: component-architecture
+        title: 组件架构
+        instruction: 基于所选框架定义组件组织和模式。
+        sections:
+          - id: component-organization
+            title: 组件组织
+            type: code
+            language: text
+            template: "{{component_structure}}"
+          - id: component-template
+            title: 组件模板
+            type: code
+            language: typescript
+            template: "{{component_template}}"
+      - id: state-management
+        title: 状态管理架构
+        instruction: 详细说明基于所选解决方案的状态管理方法。
+        sections:
+          - id: state-structure
+            title: 状态结构
+            type: code
+            language: typescript
+            template: "{{state_structure}}"
+          - id: state-patterns
+            title: 状态管理模式
+            type: bullet-list
+            template: "- {{pattern}}"
+      - id: routing-architecture
+        title: 路由架构
+        instruction: 基于框架选择定义路由结构。
+        sections:
+          - id: route-organization
+            title: 路由组织
+            type: code
+            language: text
+            template: "{{route_structure}}"
+          - id: protected-routes
+            title: 受保护路由模式
+            type: code
+            language: typescript
+            template: "{{protected_route_example}}"
+      - id: frontend-services
+        title: 前端服务层
+        instruction: 定义前端如何与后端通信。
+        sections:
+          - id: api-client-setup
+            title: API客户端设置
+            type: code
+            language: typescript
+            template: "{{api_client_setup}}"
+          - id: service-example
+            title: 服务示例
+            type: code
+            language: typescript
+            template: "{{service_example}}"
+
+  - id: backend-architecture
+    title: 后端架构
+    instruction: 定义后端特定的架构细节。考虑无服务器vs传统服务器方法。
+    elicit: true
+    sections:
+      - id: service-architecture
+        title: 服务架构
+        instruction: 基于平台选择，定义服务组织。
+        sections:
+          - id: serverless-architecture
+            condition: 选择无服务器架构
+            sections:
+              - id: function-organization
+                title: 函数组织
+                type: code
+                language: text
+                template: "{{function_structure}}"
+              - id: function-template
+                title: 函数模板
+                type: code
+                language: typescript
+                template: "{{function_template}}"
+          - id: traditional-server
+            condition: 选择传统服务器架构
+            sections:
+              - id: controller-organization
+                title: 控制器/路由组织
+                type: code
+                language: text
+                template: "{{controller_structure}}"
+              - id: controller-template
+                title: 控制器模板
+                type: code
+                language: typescript
+                template: "{{controller_template}}"
+      - id: database-architecture
+        title: 数据库架构
+        instruction: 定义数据库模式和访问模式。
+        sections:
+          - id: schema-design
+            title: 模式设计
+            type: code
+            language: sql
+            template: "{{database_schema}}"
+          - id: data-access-layer
+            title: 数据访问层
+            type: code
+            language: typescript
+            template: "{{repository_pattern}}"
+      - id: auth-architecture
+        title: 身份验证和授权
+        instruction: 定义身份验证实现细节。
+        sections:
+          - id: auth-flow
+            title: 身份验证流
+            type: mermaid
+            mermaid_type: sequence
+            template: "{{auth_flow_diagram}}"
+          - id: auth-middleware
+            title: 中间件/守卫
+            type: code
+            language: typescript
+            template: "{{auth_middleware}}"
+
+  - id: unified-project-structure
+    title: 统一项目结构
+    instruction: 创建一个适应前端和后端的monorepo结构。根据所选工具和框架进行调整。
+    elicit: true
+    type: code
+    language: plaintext
+    examples:
+      - |
+        {{project-name}}/
+        ├── .github/                    # CI/CD工作流
+        │   └── workflows/
+        │       ├── ci.yaml
+        │       └── deploy.yaml
+        ├── apps/                       # 应用程序包
+        │   ├── web/                    # 前端应用程序
+        │   │   ├── src/
+        │   │   │   ├── components/     # UI组件
+        │   │   │   ├── pages/          # 页面组件/路由
+        │   │   │   ├── hooks/          # 自定义React钩子
+        │   │   │   ├── services/       # API客户端服务
+        │   │   │   ├── stores/         # 状态管理
+        │   │   │   ├── styles/         # 全局样式/主题
+        │   │   │   └── utils/          # 前端工具
+        │   │   ├── public/             # 静态资产
+        │   │   ├── tests/              # 前端测试
+        │   │   └── package.json
+        │   └── api/                    # 后端应用程序
+        │       ├── src/
+        │       │   ├── routes/         # API路由/控制器
+        │       │   ├── services/       # 业务逻辑
+        │       │   ├── models/         # 数据模型
+        │       │   ├── middleware/     # Express/API中间件
+        │       │   ├── utils/          # 后端工具
+        │       │   └── {{serverless_or_server_entry}}
+        │       ├── tests/              # 后端测试
+        │       └── package.json
+        ├── packages/                   # 共享包
+        │   ├── shared/                 # 共享类型/工具
+        │   │   ├── src/
+        │   │   │   ├── types/          # TypeScript接口
+        │   │   │   ├── constants/      # 共享常量
+        │   │   │   └── utils/          # 共享工具
+        │   │   └── package.json
+        │   ├── ui/                     # 共享UI组件
+        │   │   ├── src/
+        │   │   └── package.json
+        │   └── config/                 # 共享配置
+        │       ├── eslint/
+        │       ├── typescript/
+        │       └── jest/
+        ├── infrastructure/             # IaC定义
+        │   └── {{iac_structure}}
+        ├── scripts/                    # 构建/部署脚本
+        ├── docs/                       # 文档
+        │   ├── prd.md
+        │   ├── front-end-spec.md
+        │   └── fullstack-architecture.md
+        ├── .env.example                # 环境模板
+        ├── package.json                # 根package.json
+        ├── {{monorepo_config}}         # Monorepo配置
+        └── README.md
+
+  - id: development-workflow
+    title: 开发工作流
+    instruction: 为全栈应用程序定义开发设置和工作流。
+    elicit: true
+    sections:
+      - id: local-setup
+        title: 本地开发设置
+        sections:
+          - id: prerequisites
+            title: 先决条件
+            type: code
+            language: bash
+            template: "{{prerequisites_commands}}"
+          - id: initial-setup
+            title: 初始设置
+            type: code
+            language: bash
+            template: "{{setup_commands}}"
+          - id: dev-commands
+            title: 开发命令
+            type: code
+            language: bash
+            template: |
+              # 启动所有服务
+              {{start_all_command}}
+
+              # 仅启动前端
+              {{start_frontend_command}}
+
+              # 仅启动后端
+              {{start_backend_command}}
+
+              # 运行测试
+              {{test_commands}}
+      - id: environment-config
+        title: 环境配置
+        sections:
+          - id: env-vars
+            title: 所需环境变量
+            type: code
+            language: bash
+            template: |
+              # 前端 (.env.local)
+              {{frontend_env_vars}}
+
+              # 后端 (.env)
+              {{backend_env_vars}}
+
+              # 共享
+              {{shared_env_vars}}
+
+  - id: deployment-architecture
+    title: 部署架构
+    instruction: 基于平台选择定义部署策略。
+    elicit: true
+    sections:
+      - id: deployment-strategy
+        title: 部署策略
+        template: |
+          **前端部署:**
+          - **平台:** {{frontend_deploy_platform}}
+          - **构建命令:** {{frontend_build_command}}
+          - **输出目录:** {{frontend_output_dir}}
+          - **CDN/边缘:** {{cdn_strategy}}
+
+          **后端部署:**
+          - **平台:** {{backend_deploy_platform}}
+          - **构建命令:** {{backend_build_command}}
+          - **部署方法:** {{deployment_method}}
+      - id: cicd-pipeline
+        title: CI/CD管道
+        type: code
+        language: yaml
+        template: "{{cicd_pipeline_config}}"
+      - id: environments
+        title: 环境
+        type: table
+        columns: [环境, 前端URL, 后端URL, 目的]
+        rows:
+          - ["开发", "{{dev_fe_url}}", "{{dev_be_url}}", "本地开发"]
+          - ["预生产", "{{staging_fe_url}}", "{{staging_be_url}}", "预生产测试"]
+          - ["生产", "{{prod_fe_url}}", "{{prod_be_url}}", "生产环境"]
+
+  - id: security-performance
+    title: 安全性和性能
+    instruction: 为全栈应用程序定义安全性和性能考虑。
+    elicit: true
+    sections:
+      - id: security-requirements
+        title: 安全要求
+        template: |
+          **前端安全:**
+          - CSP头: {{csp_policy}}
+          - XSS防护: {{xss_strategy}}
+          - 安全存储: {{storage_strategy}}
+
+          **后端安全:**
+          - 输入验证: {{validation_approach}}
+          - 速率限制: {{rate_limit_config}}
+          - CORS策略: {{cors_config}}
+
+          **身份验证安全:**
+          - 令牌存储: {{token_strategy}}
+          - 会话管理: {{session_approach}}
+          - 密码策略: {{password_requirements}}
+      - id: performance-optimization
+        title: 性能优化
+        template: |
+          **前端性能:**
+          - 包大小目标: {{bundle_size}}
+          - 加载策略: {{loading_approach}}
+          - 缓存策略: {{fe_cache_strategy}}
+
+          **后端性能:**
+          - 响应时间目标: {{response_target}}
+          - 数据库优化: {{db_optimization}}
+          - 缓存策略: {{be_cache_strategy}}
+
+  - id: testing-strategy
+    title: 测试策略
+    instruction: 为全栈应用程序定义全面的测试方法。
+    elicit: true
+    sections:
+      - id: testing-pyramid
+        title: 测试金字塔
+        type: code
+        language: text
+        template: |
+          端到端测试
+          /        \
+          集成测试
+          /            \
+          前端单元  后端单元
+      - id: test-organization
+        title: 测试组织
+        sections:
+          - id: frontend-tests
+            title: 前端测试
+            type: code
+            language: text
+            template: "{{frontend_test_structure}}"
+          - id: backend-tests
+            title: 后端测试
+            type: code
+            language: text
+            template: "{{backend_test_structure}}"
+          - id: e2e-tests
+            title: 端到端测试
+            type: code
+            language: text
+            template: "{{e2e_test_structure}}"
+      - id: test-examples
+        title: 测试示例
+        sections:
+          - id: frontend-test
+            title: 前端组件测试
+            type: code
+            language: typescript
+            template: "{{frontend_test_example}}"
+          - id: backend-test
+            title: 后端API测试
+            type: code
+            language: typescript
+            template: "{{backend_test_example}}"
+          - id: e2e-test
+            title: 端到端测试
+            type: code
+            language: typescript
+            template: "{{e2e_test_example}}"
+
+  - id: coding-standards
+    title: 编码标准
+    instruction: 为AI代理定义最小但关键的标准。只关注防止常见错误的项目特定规则。这些将被开发代理使用。
+    elicit: true
+    sections:
+      - id: critical-rules
+        title: 关键全栈规则
+        repeatable: true
+        template: "- **{{rule_name}}:** {{rule_description}}"
+        examples:
+          - "**类型共享:** 始终在packages/shared中定义类型并从中导入"
+          - "**API调用:** 从不进行直接HTTP调用，始终通过服务层"
+          - "**环境变量:** 使用zod进行验证并在共享包中定义模式"
+          - "**错误处理:** 始终使用try/catch包装异步操作"
+          - "**测试:** 每个组件/服务必须有相应的测试文件"
+          - "**日志记录:** 使用统一的日志记录库，从不使用console.log"
+          - "**身份验证:** 从不将认证逻辑硬编码在组件中"
+          - "**数据库:** 从不直接查询数据库，始终通过存储库模式"
+          - "**配置:** 从环境变量中读取配置，提供默认值和验证"
+
+  - id: monitoring-observability
+    title: 监控和可观察性
+    instruction: 定义全栈应用程序的监控和可观察性策略。
+    elicit: true
+    sections:
+      - id: logging-strategy
+        title: 日志记录策略
+        template: |
+          **结构化日志:**
+          - 格式: {{log_format}}
+          - 级别: {{log_levels}}
+          - 存储: {{log_storage}}
+
+          **日志上下文:**
+          - 请求ID: {{request_id_strategy}}
+          - 用户上下文: {{user_context}}
+          - 错误追踪: {{error_tracing}}
+      - id: metrics-monitoring
+        title: 指标和监控
+        template: |
+          **应用指标:**
+          - 响应时间: {{response_time_metrics}}
+          - 错误率: {{error_rate_metrics}}
+          - 吞吐量: {{throughput_metrics}}
+
+          **基础设施指标:**
+          - CPU/内存: {{system_metrics}}
+          - 数据库性能: {{db_metrics}}
+          - 缓存命中率: {{cache_metrics}}
+      - id: alerting-strategy
+        title: 告警策略
+        template: |
+          **告警规则:**
+          - 关键错误: {{critical_error_alerts}}
+          - 性能阈值: {{performance_thresholds}}
+          - 基础设施问题: {{infrastructure_alerts}}
+
+          **告警渠道:**
+          - Slack: {{slack_integration}}
+          - 邮件: {{email_notifications}}
+          - SMS: {{sms_alerts}}
+
+  - id: documentation-standards
+    title: 文档标准
+    instruction: 定义项目文档的标准和约定。
+    elicit: true
+    sections:
+      - id: doc-organization
+        title: 文档组织
+        template: |
+          **文档类型:**
+          - 架构文档: {{architecture_docs}}
+          - API文档: {{api_docs}}
+          - 用户指南: {{user_guides}}
+          - 部署指南: {{deployment_docs}}
+
+          **文档工具:**
+          - 格式: {{doc_format}}
+          - 生成工具: {{doc_generation}}
+          - 发布平台: {{doc_platform}}
+      - id: code-documentation
+        title: 代码文档
+        template: |
+          **内联注释:**
+          - 复杂逻辑: {{complex_logic_comments}}
+          - 公共API: {{public_api_docs}}
+          - 业务规则: {{business_rules_docs}}
+
+          **自动生成:**
+          - 类型定义: {{type_docs}}
+          - 组件属性: {{component_props_docs}}
+          - API端点: {{api_endpoint_docs}}
+
+  - id: next-steps
+    title: 下一步
+    sections:
+      - id: development-prompt
+        title: 开发代理提示
+        instruction: |
+          创建一个简短的提示，将工作移交给开发代理以开始实现。包括：
+          - 对此架构文档的引用
+          - 实现顺序建议
+          - 关键注意事项
+      - id: devops-prompt
+        title: DevOps代理提示
+        instruction: |
+          创建一个简短的提示，将工作移交给DevOps代理以设置基础设施。包括：
+          - 对此架构文档的引用
+          - 部署架构摘要
+          - 关键基础设施组件
