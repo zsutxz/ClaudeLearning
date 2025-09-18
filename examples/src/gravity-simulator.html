@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星球引力模拟器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #000;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        h1 {
+            margin-bottom: 10px;
+        }
+        
+        .controls {
+            margin: 15px 0;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        button {
+            padding: 8px 16px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        
+        button:hover {
+            background-color: #666;
+        }
+        
+        button:disabled {
+            background-color: #333;
+            cursor: not-allowed;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        #simulationCanvas {
+            border: 1px solid #444;
+            background-color: #111;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .color-box {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>星球引力模拟器</h1>
+    
+    <div class="controls">
+        <button id="startBtn">Start</button>
+        <button id="resetBtn">Reset</button>
+        
+        <div class="slider-container">
+            <label for="speedSlider">模拟速度:</label>
+            <input type="range" id="speedSlider" min="1" max="100" value="50">
+            <span id="speedValue">50</span>
+        </div>
+    </div>
+    
+    <canvas id="simulationCanvas" width="800" height="600"></canvas>
+    
+    <div class="legend">
+        <div class="legend-item">
+            <div class="color-box" style="background-color: red;"></div>
+            <span>星球 1 (质量: 1)</span>
+        </div>
+        <div class="legend-item">
+            <div class="color-box" style="background-color: green;"></div>
+            <span>星球 2 (质量: 3)</span>
+        </div>
+        <div class="legend-item">
+            <div class="color-box" style="background-color: blue;"></div>
+            <span>星球 3 (质量: 9)</span>
+        </div>
+        <div class="legend-item">
+            <div style="width: 20px; height: 3px; background-color: yellow;"></div>
+            <span>速度向量</span>
+        </div>
+        <div class="legend-item">
+            <div style="width: 20px; height: 3px; background-color: cyan;"></div>
+            <span>加速度向量</span>
+        </div>
+    </div>
+
+    <script>
+        // 获取canvas和上下文
+        const canvas = document.getElementById('simulationCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 控制元素
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedValue = document.getElementById('speedValue');
+        
+        // 物理常数
+        const G = 0.5; // 万有引力常数（调整以适应视觉效果）
+        
+        // 模拟状态
+        let isRunning = false;
+        let simulationSpeed = 50;
+        
+        // 星球类
+        class Planet {
+            constructor(x, y, vx, vy, mass, radius, color) {
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.ax = 0;
+                this.ay = 0;
+                this.mass = mass;
+                this.radius = radius;
+                this.color = color;
+                this.isDragging = false;
+                this.dragOffsetX = 0;
+                this.dragOffsetY = 0;
+            }
+            
+            // 绘制星球
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.closePath();
+            }
+            
+            // 绘制速度向量
+            drawVelocityVector() {
+                const scale = 5; // 向量缩放因子
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(this.x + this.vx * scale, this.y + this.vy * scale);
+                ctx.strokeStyle = 'yellow';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.closePath();
+            }
+            
+            // 绘制加速度向量
+            drawAccelerationVector() {
+                const scale = 100; // 向量缩放因子
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(this.x + this.ax * scale, this.y + this.ay * scale);
+                ctx.strokeStyle = 'cyan';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.closePath();
+            }
+            
+            // 更新位置（基于速度和加速度）
+            update(dt) {
+                if (!this.isDragging) {
+                    // 更新速度
+                    this.vx += this.ax * dt;
+                    this.vy += this.ay * dt;
+                    
+                    // 更新位置
+                    this.x += this.vx * dt;
+                    this.y += this.vy * dt;
+                    
+                    // 边界检测（可选：反弹或环绕）
+                    if (this.x - this.radius < 0) {
+                        this.x = this.radius;
+                        this.vx = -this.vx * 0.8; // 能量损失
+                    } else if (this.x + this.radius > canvas.width) {
+                        this.x = canvas.width - this.radius;
+                        this.vx = -this.vx * 0.8;
+                    }
+                    
+                    if (this.y - this.radius < 0) {
+                        this.y = this.radius;
+                        this.vy = -this.vy * 0.8;
+                    } else if (this.y + this.radius > canvas.height) {
+                        this.y = canvas.height - this.radius;
+                        this.vy = -this.vy * 0.8;
+                    }
+                }
+            }
+        }
+        
+        // 创建星球
+        const planets = [
+            new Planet(200, 300, 0, 0, 1, 20, 'red'),
+            new Planet(400, 300, 0, 0, 3, 30, 'green'),
+            new Planet(600, 300, 0, 0, 9, 40, 'blue')
+        ];
+        
+        // 计算星球间的引力
+        function calculateForces() {
+            // 重置加速度
+            planets.forEach(planet => {
+                planet.ax = 0;
+                planet.ay = 0;
+            });
+            
+            // 计算每对星球之间的引力
+            for (let i = 0; i < planets.length; i++) {
+                for (let j = i + 1; j < planets.length; j++) {
+                    const p1 = planets[i];
+                    const p2 = planets[j];
+                    
+                    // 计算距离
+                    const dx = p2.x - p1.x;
+                    const dy = p2.y - p1.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    // 避免距离过近导致的数值问题
+                    if (distance < p1.radius + p2.radius) continue;
+                    
+                    // 计算引力大小
+                    const force = G * p1.mass * p2.mass / (distance * distance);
+                    
+                    // 计算引力分量
+                    const fx = force * dx / distance;
+                    const fy = force * dy / distance;
+                    
+                    // 应用牛顿第三定律
+                    p1.ax += fx / p1.mass;
+                    p1.ay += fy / p1.mass;
+                    p2.ax -= fx / p2.mass;
+                    p2.ay -= fy / p2.mass;
+                }
+            }
+        }
+        
+        // 绘制所有星球和向量
+        function draw() {
+            // 清空画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制星球
+            planets.forEach(planet => {
+                planet.draw();
+            });
+            
+            // 绘制向量
+            planets.forEach(planet => {
+                planet.drawVelocityVector();
+                planet.drawAccelerationVector();
+            });
+        }
+        
+        // 更新模拟
+        function update(dt) {
+            if (isRunning) {
+                calculateForces();
+                planets.forEach(planet => planet.update(dt));
+            }
+            draw();
+        }
+        
+        // 动画循环
+        let lastTime = 0;
+        function animate(timestamp) {
+            if (!lastTime) lastTime = timestamp;
+            const deltaTime = (timestamp - lastTime) / 1000; // 转换为秒
+            lastTime = timestamp;
+            
+            // 应用模拟速度调节
+            const adjustedDt = deltaTime * (simulationSpeed / 50);
+            
+            update(adjustedDt);
+            requestAnimationFrame(animate);
+        }
+        
+        // 鼠标事件处理
+        let selectedPlanet = null;
+        
+        canvas.addEventListener('mousedown', (e) => {
+            if (isRunning) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // 检查是否点击了某个星球
+            for (let i = planets.length - 1; i >= 0; i--) {
+                const planet = planets[i];
+                const dx = planet.x - mouseX;
+                const dy = planet.y - mouseY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance <= planet.radius) {
+                    selectedPlanet = planet;
+                    planet.isDragging = true;
+                    planet.dragOffsetX = dx;
+                    planet.dragOffsetY = dy;
+                    break;
+                }
+            }
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            if (selectedPlanet && selectedPlanet.isDragging) {
+                const rect = canvas.getBoundingClientRect();
+                selectedPlanet.x = e.clientX - rect.left - selectedPlanet.dragOffsetX;
+                selectedPlanet.y = e.clientY - rect.top - selectedPlanet.dragOffsetY;
+                draw();
+            }
+        });
+        
+        canvas.addEventListener('mouseup', () => {
+            if (selectedPlanet) {
+                selectedPlanet.isDragging = false;
+                selectedPlanet = null;
+            }
+        });
+        
+        canvas.addEventListener('mouseleave', () => {
+            if (selectedPlanet) {
+                selectedPlanet.isDragging = false;
+                selectedPlanet = null;
+            }
+        });
+        
+        // 按钮事件处理
+        startBtn.addEventListener('click', () => {
+            isRunning = !isRunning;
+            startBtn.textContent = isRunning ? 'Pause' : 'Start';
+        });
+        
+        resetBtn.addEventListener('click', () => {
+            isRunning = false;
+            startBtn.textContent = 'Start';
+            
+            // 重置星球位置和速度
+            planets[0].x = 200;
+            planets[0].y = 300;
+            planets[0].vx = 0;
+            planets[0].vy = 0;
+            
+            planets[1].x = 400;
+            planets[1].y = 300;
+            planets[1].vx = 0;
+            planets[1].vy = 0;
+            
+            planets[2].x = 600;
+            planets[2].y = 300;
+            planets[2].vx = 0;
+            planets[2].vy = 0;
+            
+            draw();
+        });
+        
+        // 滑动条事件处理
+        speedSlider.addEventListener('input', () => {
+            simulationSpeed = parseInt(speedSlider.value);
+            speedValue.textContent = simulationSpeed;
+        });
+        
+        // 初始化
+        draw();
+        requestAnimationFrame(animate);
+    </script>
+</body>
+</html>
