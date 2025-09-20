@@ -8,6 +8,11 @@ public class CoinAnimationSystem : MonoBehaviour
     public int initialPoolSize = 10;
     public int maxPoolSize = 50;
     
+    [Header("Waterfall Cascade Settings")]
+    public float cascadeRadius = 3.0f;
+    public LayerMask coinLayerMask = 1 << 0; // Default layer
+    public int maxCascadeCoins = 10;
+    
     private CoinPoolManager coinPoolManager;
     private static CoinAnimationSystem instance;
     
@@ -142,6 +147,74 @@ public class CoinAnimationSystem : MonoBehaviour
                     onComplete?.Invoke();
                 }
             });
+        }
+    }
+    
+    /// <summary>
+    /// Triggers a waterfall cascade effect from a collection point
+    /// </summary>
+    /// <param name="collectionPoint">Point where the initial coin was collected</param>
+    /// <param name="targetPosition">Target position for collected coins</param>
+    public void TriggerWaterfallCascade(Vector3 collectionPoint, Vector3 targetPosition)
+    {
+        if (coinPoolManager == null)
+        {
+            Debug.LogError("CoinPoolManager is not initialized");
+            return;
+        }
+        
+        // Get the current combo tier for intensity
+        ComboManager.ComboLevel tier = ComboManager.ComboLevel.None;
+        if (ComboManager.Instance != null)
+        {
+            int comboCount = ComboManager.Instance.GetCurrentCombo();
+            tier = ComboManager.Instance.GetComboLevel(comboCount);
+        }
+        
+        // Trigger waterfall effects based on tier
+        if (WaterfallEffectsManager.Instance != null)
+        {
+            WaterfallEffectsManager.Instance.TriggerWaterfallEffect(tier);
+        }
+        
+        // Find nearby coins to cascade
+        Collider2D[] nearbyCoins = Physics2D.OverlapCircleAll(collectionPoint, cascadeRadius, coinLayerMask);
+        int cascadeCount = 0;
+        
+        foreach (Collider2D coinCollider in nearbyCoins)
+        {
+            // Limit the number of cascading coins
+            if (cascadeCount >= maxCascadeCoins)
+                break;
+            
+            // Get the coin component
+            Coin nearbyCoin = coinCollider.GetComponent<Coin>();
+            if (nearbyCoin != null && nearbyCoin.gameObject.activeInHierarchy)
+            {
+                // Skip if this is the original collected coin
+                if (nearbyCoin.transform.position == collectionPoint)
+                    continue;
+                
+                // Calculate curve height and delay based on distance and tier
+                float distance = Vector3.Distance(nearbyCoin.transform.position, collectionPoint);
+                float curveHeight = WaterfallEffectsManager.Instance != null ? 
+                    WaterfallEffectsManager.Instance.GetCurveHeight(cascadeCount) : 1.0f;
+                float delay = WaterfallEffectsManager.Instance != null ? 
+                    WaterfallEffectsManager.Instance.GetCascadeDelay(cascadeCount) : 0.05f;
+                
+                // Get a coin from the pool for the cascade effect
+                Coin cascadeCoin = coinPoolManager.GetCoin();
+                if (cascadeCoin != null)
+                {
+                    // Initialize and start the waterfall animation
+                    cascadeCoin.Initialize(nearbyCoin.transform.position, targetPosition);
+                    cascadeCoin.StartWaterfallFlying((returnedCoin) => {
+                        coinPoolManager.ReturnCoin(returnedCoin);
+                    }, curveHeight, delay);
+                    
+                    cascadeCount++;
+                }
+            }
         }
     }
     

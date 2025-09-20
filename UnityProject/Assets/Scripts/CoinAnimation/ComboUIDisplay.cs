@@ -10,6 +10,8 @@ public class ComboUIDisplay : MonoBehaviour
     public Text comboLevelText;
     public Image comboLevelIcon;
     public Slider comboProgressSlider;
+    public Text waterfallEffectText;
+    public Image waterfallIcon;
 
     [Header("Display Settings")]
     public float displayDuration = 3.0f;
@@ -123,6 +125,18 @@ public class ComboUIDisplay : MonoBehaviour
             comboLevelIcon.color = GetComboLevelColor(comboLevel);
         }
 
+        // Update waterfall effect text based on combo level
+        if (waterfallEffectText != null)
+        {
+            waterfallEffectText.text = GetWaterfallEffectDescription(comboLevel);
+        }
+
+        // Update waterfall icon based on combo level
+        if (waterfallIcon != null)
+        {
+            waterfallIcon.color = GetComboLevelColor(comboLevel);
+        }
+
         // Update panel background color
         if (comboPanel != null)
         {
@@ -200,6 +214,25 @@ public class ComboUIDisplay : MonoBehaviour
                 .SetLoops(2, LoopType.Yoyo)
                 .OnComplete(() => comboLevelText.transform.DOScale(1.0f, 0.1f));
         }
+        
+        // Animate waterfall effect text if available
+        if (waterfallEffectText != null)
+        {
+            // Color flash effect
+            Color originalColor = waterfallEffectText.color;
+            waterfallEffectText.DOColor(GetComboLevelColor(comboLevel), 0.2f)
+                .SetLoops(2, LoopType.Yoyo)
+                .OnComplete(() => waterfallEffectText.color = originalColor);
+        }
+        
+        // Animate waterfall icon if available
+        if (waterfallIcon != null)
+        {
+            // Pulse effect
+            waterfallIcon.transform.DOScale(1.5f, 0.2f)
+                .SetLoops(2, LoopType.Yoyo)
+                .OnComplete(() => waterfallIcon.transform.DOScale(1.0f, 0.1f));
+        }
     }
 
     /// <summary>
@@ -265,6 +298,28 @@ public class ComboUIDisplay : MonoBehaviour
                 return platinumColor;
             default:
                 return Color.white;
+        }
+    }
+    
+    /// <summary>
+    /// Gets the waterfall effect description for a combo level
+    /// </summary>
+    /// <param name="level">Combo level</param>
+    /// <returns>Waterfall effect description</returns>
+    private string GetWaterfallEffectDescription(ComboManager.ComboLevel level)
+    {
+        switch (level)
+        {
+            case ComboManager.ComboLevel.Bronze:
+                return "Ripple Effect";
+            case ComboManager.ComboLevel.Silver:
+                return "Cascade Effect";
+            case ComboManager.ComboLevel.Gold:
+                return "Waterfall Effect";
+            case ComboManager.ComboLevel.Platinum:
+                return "Torrent Effect";
+            default:
+                return "";
         }
     }
 

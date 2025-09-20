@@ -15,6 +15,12 @@ public class Coin : MonoBehaviour
     public float endScale = 0.5f;
     public Ease easeType = Ease.OutQuad;
     
+    [Header("Waterfall Effects Parameters")]
+    public bool useCurvedPath = false;
+    public float curveHeight = 1.0f;
+    public bool useNaturalAcceleration = false;
+    public Ease naturalAccelerationCurve = Ease.InOutQuad;
+    
     private Sequence animationSequence;
     private System.Action<Coin> onCompletionCallback;
     private bool isAnimating = false;
@@ -60,8 +66,42 @@ public class Coin : MonoBehaviour
         // Create DOTween sequence
         animationSequence = DOTween.Sequence();
         
-        // Movement tween
-        animationSequence.Append(transform.DOMove(endPosition, duration).SetEase(easeType));
+        // Movement tween with curved path if enabled
+        if (useCurvedPath)
+        {
+            // Create a curved path using a control point
+            Vector3 controlPoint = Vector3.Lerp(startPosition, endPosition, 0.5f);
+            controlPoint.y += curveHeight; // Add height to create curve
+            
+            // Create the curved path
+            Vector3[] path = {
+                startPosition,
+                controlPoint,
+                endPosition
+            };
+            
+            // Apply movement with curved path
+            if (useNaturalAcceleration)
+            {
+                animationSequence.Append(transform.DOPath(path, duration, PathType.CatmullRom).SetEase(naturalAccelerationCurve));
+            }
+            else
+            {
+                animationSequence.Append(transform.DOPath(path, duration, PathType.CatmullRom).SetEase(easeType));
+            }
+        }
+        else
+        {
+            // Straight path movement
+            if (useNaturalAcceleration)
+            {
+                animationSequence.Append(transform.DOMove(endPosition, duration).SetEase(naturalAccelerationCurve));
+            }
+            else
+            {
+                animationSequence.Append(transform.DOMove(endPosition, duration).SetEase(easeType));
+            }
+        }
         
         // Rotation tween if enabled
         if (enableRotation)
@@ -97,6 +137,33 @@ public class Coin : MonoBehaviour
         }
         
         isAnimating = false;
+    }
+    
+    /// <summary>
+    /// Starts a waterfall-style coin animation with curved path and natural acceleration
+    /// </summary>
+    /// <param name="onComplete">Callback when animation completes</param>
+    /// <param name="curveHeight">Height of the curve for this animation</param>
+    /// <param name="delay">Delay before animation starts</param>
+    public void StartWaterfallFlying(System.Action<Coin> onComplete = null, float curveHeight = 1.0f, float delay = 0f)
+    {
+        // Set waterfall-specific parameters
+        useCurvedPath = true;
+        this.curveHeight = curveHeight;
+        useNaturalAcceleration = true;
+        naturalAccelerationCurve = Ease.InOutQuad;
+        
+        // If there's a delay, start the animation after the delay
+        if (delay > 0)
+        {
+            DOVirtual.DelayedCall(delay, () => {
+                StartFlying(onComplete);
+            });
+        }
+        else
+        {
+            StartFlying(onComplete);
+        }
     }
     
     /// <summary>

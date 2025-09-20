@@ -31,6 +31,14 @@ public class ComboCoinIntegration : MonoBehaviour
             ComboManager.Instance.RegisterCoinCollection();
         }
 
+        // Get the current combo tier for intensity
+        ComboManager.ComboLevel tier = ComboManager.ComboLevel.None;
+        if (ComboManager.Instance != null)
+        {
+            int comboCount = ComboManager.Instance.GetCurrentCombo();
+            tier = ComboManager.Instance.GetComboLevel(comboCount);
+        }
+
         // Collect coins in the area (this would integrate with your existing coin system)
         Collider2D[] coins = Physics2D.OverlapCircleAll(position, coinCollectionRadius, coinLayerMask);
         foreach (Collider2D coinCollider in coins)
@@ -44,8 +52,28 @@ public class ComboCoinIntegration : MonoBehaviour
                 // For now, we'll just trigger the flying animation to a fixed position
                 Vector3 targetPosition = position + Vector3.up * 2;
                 coin.Initialize(coinCollider.transform.position, targetPosition);
-                coin.StartFlying();
+                
+                // If we have a combo, use waterfall effects
+                if (ComboManager.Instance != null && ComboManager.Instance.GetCurrentCombo() > 1)
+                {
+                    // Use waterfall flying for combo effects
+                    float curveHeight = WaterfallEffectsManager.Instance != null ? 
+                        WaterfallEffectsManager.Instance.GetCurveHeight(0) : 1.0f;
+                    coin.StartWaterfallFlying();
+                }
+                else
+                {
+                    // Use regular flying for single coin collection
+                    coin.StartFlying();
+                }
             }
+        }
+        
+        // Trigger waterfall cascade effect if we have a combo
+        if (CoinAnimationSystem.Instance != null && ComboManager.Instance != null && ComboManager.Instance.GetCurrentCombo() > 1)
+        {
+            Vector3 targetPosition = position + Vector3.up * 2;
+            CoinAnimationSystem.Instance.TriggerWaterfallCascade(position, targetPosition);
         }
     }
 
@@ -61,6 +89,14 @@ public class ComboCoinIntegration : MonoBehaviour
             ComboManager.Instance.RegisterCoinCollection();
         }
 
+        // Get the current combo tier for intensity
+        ComboManager.ComboLevel tier = ComboManager.ComboLevel.None;
+        if (ComboManager.Instance != null)
+        {
+            int comboCount = ComboManager.Instance.GetCurrentCombo();
+            tier = ComboManager.Instance.GetComboLevel(comboCount);
+        }
+
         // Trigger visual and audio effects based on current combo
         if (ComboManager.Instance != null && ComboManager.Instance.GetCurrentCombo() > 1)
         {
@@ -68,6 +104,19 @@ public class ComboCoinIntegration : MonoBehaviour
             int comboCount = ComboManager.Instance.GetCurrentCombo();
             // The ComboEffectsManager and ComboAudioManager will automatically
             // handle the visual and audio effects based on the combo count
+            
+            // Also trigger waterfall effects
+            if (WaterfallEffectsManager.Instance != null)
+            {
+                WaterfallEffectsManager.Instance.TriggerWaterfallEffect(tier);
+            }
+        }
+        
+        // Trigger waterfall cascade effect if we have a combo
+        if (CoinAnimationSystem.Instance != null && ComboManager.Instance != null && ComboManager.Instance.GetCurrentCombo() > 1)
+        {
+            Vector3 targetPosition = coin.transform.position + Vector3.up * 2;
+            CoinAnimationSystem.Instance.TriggerWaterfallCascade(coin.transform.position, targetPosition);
         }
     }
 
