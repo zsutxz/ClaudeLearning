@@ -1,7 +1,7 @@
 # Story 1.1: Basic Cascading Coin Collection
 
 ## Status
-Draft
+Ready for development
 
 ## User Story
 As a game player,
