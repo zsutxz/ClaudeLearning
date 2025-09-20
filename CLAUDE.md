@@ -7,8 +7,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Use consistent naming conventions, file structure, and architecture patterns** as described in existing PRPs.
 - **Always read the specific PRP file** related to the feature you're implementing.
 
-
-
 ### 🧱 Code Structure & Modularity
 - **Organize code into clearly separated modules**, grouped by feature or responsibility.
 - **Use clear, consistent imports** and follow existing patterns in the codebase.
@@ -18,7 +16,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Test HTML/JavaScript features** in multiple browsers to ensure compatibility.
 - **Verify functionality** matches the requirements specified in the PRP.
 - **Check for cross-browser compatibility** and responsive design.
-
 
 ### ✅ Task Completion
 - **Mark completed tasks in the PRP file** immediately after finishing them.
@@ -45,15 +42,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### 🏗️ Project Architecture
 This repository follows a PRP (Problem Resolution Protocol) driven architecture where functionality is implemented based on comprehensive PRP templates. The project uses PRP templates for implementing new features, which can be found in the `PRPs/templates/` directory.
 
-The project is a TypeScript library for fetching financial share data from multiple providers including Alpha Vantage, Yahoo Finance, and IEX Cloud.
+The project is focused on game development, particularly coin animation and collection systems. Recent work has involved implementing waterfall effects for coin animations and combo systems.
 
 The project structure includes:
 - `PRPs/` - Contains PRP templates and documentation for feature implementation
 - `examples/` - Example code and implementations
-- `tools/` - Utility tools and scripts
+- `templates_zh` - Chinese language templates
 - `.claude/` - Claude Code configuration and settings
-- `src/` - Source code directory with components
-- `tests/` - Test files for the components
+- `UnityProject/` - Unity game project files
+- `web-bundles/` - Web bundle files
 
 ### 🔧 Common Development Tasks
 1. **Implementing new features**: Use the PRP template from `PRPs/templates/prp_base.md` as a guide
@@ -62,13 +59,10 @@ The project structure includes:
 4. **Documentation**: Update relevant documentation files when making changes
 
 ### 📦 Project Dependencies and Structure
-- This is a TypeScript library with a modular structure
-- Core components are in `src/components/`:
-  - `shareDataFetcher.ts`: Main class for fetching share data
-  - `shareDataTypes.ts`: Type definitions and interfaces
-  - `shareDataCache.ts`: Cache implementation for fetched data
-- Tests are in the `tests/` directory and use jest
-- The library supports multiple financial data providers through a provider pattern
+- The project uses Node.js with commander library as a dependency
+- Core work appears to be focused on Unity game development
+- Recent development has focused on coin animation and collection systems
+- The library supports creating visual effects for game elements like coins and waterfalls
 
 ### 🧪 Testing Approach
 - Tests are written using jest
