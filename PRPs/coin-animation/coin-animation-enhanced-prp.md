@@ -182,6 +182,7 @@ Task 5:
 CREATE coin animation system:
   - DEVELOP CoinAnimationSystem for high-level control
   - IMPLEMENT methods to spawn coin animations
+  - IMPLEMENT coin burst functionality for multiple coins
   - CONNECT with pool manager for coin retrieval
 
 Task 6:
@@ -409,6 +410,36 @@ public class CoinAnimationSystem : MonoBehaviour
         
         SpawnCoinAnimation(parameters);
     }
+    
+    // Spawn a burst of coins from a center position
+    public void SpawnCoinBurst(Vector3 centerPosition, int count, float radius = 2.0f, System.Action onComplete = null)
+    {
+        if (poolManager == null) return;
+        
+        int completedCount = 0;
+        
+        for (int i = 0; i < count; i++)
+        {
+            // Calculate random start position within the radius
+            Vector3 randomOffset = Random.insideUnitCircle * radius;
+            Vector3 startPosition = centerPosition + new Vector3(randomOffset.x, randomOffset.y, 0);
+            
+            // Calculate random end position within a smaller radius around the center
+            Vector3 endOffset = Random.insideUnitCircle * (radius * 0.5f);
+            Vector3 endPosition = centerPosition + new Vector3(endOffset.x, endOffset.y, 0);
+            
+            // Add some upward movement to make it more natural
+            endPosition.y += Random.Range(0.5f, 1.5f);
+            
+            SpawnCoinAnimation(startPosition, endPosition, () => {
+                completedCount++;
+                if (completedCount >= count)
+                {
+                    onComplete?.Invoke();
+                }
+            });
+        }
+    }
 }
 
 // Task 6: Implement flying animation with pooling
@@ -473,6 +504,8 @@ RESOURCES_LOADING:
 //    - CoinAnimationSystem spawns coins correctly
 //    - Animation parameters affect coin movement
 //    - Multiple coins can animate simultaneously
+//    - Coin burst functionality works with random positions
+//    - Coin burst callback fires when all coins complete
 
 // 4. Memory management:
 //    - No memory leaks after animations
@@ -483,6 +516,7 @@ RESOURCES_LOADING:
 //    - Animation can be stopped before completion
 //    - Multiple rapid spawns don't cause issues
 //    - No conflicts between simultaneous animations
+//    - Coin burst with zero or negative count handled properly
 ```
 
 ### Level 3: Performance Test
@@ -505,6 +539,8 @@ RESOURCES_LOADING:
 - [ ] Coin animation system provides high-level control
 - [ ] Flying animation works with movement, rotation, and scaling
 - [ ] System can handle multiple simultaneous coin animations
+- [ ] Coin burst functionality spawns multiple coins with random positions
+- [ ] Coin burst callback works correctly when all coins complete
 - [ ] Memory is properly managed with no leaks
 - [ ] Implementation follows Unity and DOTween best practices
 - [ ] Code is well-documented with explanations

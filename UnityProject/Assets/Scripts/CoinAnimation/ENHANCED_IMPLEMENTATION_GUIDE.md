@@ -66,6 +66,26 @@ void Start()
 }
 ```
 
+#### Method 3: Coin Burst with Custom Parameters
+```csharp
+// Spawn a burst of 10 coins from position (0, 0, 0) within a radius of 2.0 units
+coinAnimationSystem.SpawnCoinBurst(
+    new Vector3(0, 0, 0),  // Center position
+    10,                    // Number of coins
+    2.0f                   // Radius of spawn area
+);
+
+// Spawn a burst with callback when all coins complete
+coinAnimationSystem.SpawnCoinBurst(
+    Vector3.zero, 
+    8, 
+    1.5f,
+    () => {
+        Debug.Log("All coins in burst have completed their animation!");
+    }
+);
+```
+
 #### Method 2: Through UI Buttons
 Create UI buttons and attach the `CoinAnimationDemoEnhanced.cs` script to a GameObject. Connect the buttons' OnClick events to the appropriate methods.
 
@@ -122,6 +142,9 @@ You can extend this feature by:
 4. Creating different animation presets for various coin types
 5. Implementing different pooling strategies
 6. Adding animation chaining capabilities
+7. Creating special effects for coin bursts (e.g., explosion effects, particle systems)
+8. Adding different burst patterns (e.g., circular, spiral, wave patterns)
+9. Implementing customizable burst parameters (e.g., burst shape, density, speed variations)
 
 ## Files Created
 

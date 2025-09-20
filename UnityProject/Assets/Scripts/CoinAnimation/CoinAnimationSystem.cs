@@ -106,6 +106,46 @@ public class CoinAnimationSystem : MonoBehaviour
     }
     
     /// <summary>
+    /// Spawns a burst of coins from a center position
+    /// </summary>
+    /// <param name="centerPosition">Center position to spawn coins from</param>
+    /// <param name="count">Number of coins to spawn</param>
+    /// <param name="radius">Radius of the spawn area</param>
+    /// <param name="onComplete">Callback when all animations complete</param>
+    public void SpawnCoinBurst(Vector3 centerPosition, int count, float radius = 2.0f, System.Action onComplete = null)
+    {
+        if (coinPoolManager == null)
+        {
+            Debug.LogError("CoinPoolManager is not initialized");
+            return;
+        }
+        
+        int completedCount = 0;
+        
+        for (int i = 0; i < count; i++)
+        {
+            // Calculate random start position within the radius
+            Vector3 randomOffset = Random.insideUnitCircle * radius;
+            Vector3 startPosition = centerPosition + new Vector3(randomOffset.x, randomOffset.y, 0);
+            
+            // Calculate random end position within a smaller radius around the center
+            Vector3 endOffset = Random.insideUnitCircle * (radius * 0.5f);
+            Vector3 endPosition = centerPosition + new Vector3(endOffset.x, endOffset.y, 0);
+            
+            // Add some upward movement to make it more natural
+            endPosition.y += Random.Range(0.5f, 1.5f);
+            
+            SpawnCoinAnimation(startPosition, endPosition, () => {
+                completedCount++;
+                if (completedCount >= count)
+                {
+                    onComplete?.Invoke();
+                }
+            });
+        }
+    }
+    
+    /// <summary>
     /// Gets the current pool statistics
     /// </summary>
     /// <param name="availableCount">Number of available coins</param>
