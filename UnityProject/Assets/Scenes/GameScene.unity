@@ -216,7 +216,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1000000005}
   - component: {fileID: 1000000007}
-  - component: {fileID: 1000000006}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -238,47 +237,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!114 &1000000006
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1000000004}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 073797afb82c5b14dbe2de7fdfbfcf5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_LightType: 1
-  m_BlendStyleIndex: 0
-  m_FalloffIntensity: 0.5
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 1
-  m_LightVolumeOpacity: 0
-  m_ApplyToSortingLayers: 00000000
-  m_LightCookieSprite: {fileID: 0}
-  m_UseNormalMap: 0
-  m_LightOrder: 0
-  m_AlphaBlendOnOverlap: 0
-  m_ShadowIntensity: 0
-  m_ShadowVolumeIntensity: 0
-  m_PointLightInnerAngle: 360
-  m_PointLightOuterAngle: 360
-  m_PointLightInnerRadius: 0
-  m_PointLightOuterRadius: 1
-  m_PointLightDistance: 3
-  m_PointLightQuality: 1
-  m_ShapeLightParametricSides: 5
-  m_ShapeLightParametricAngleOffset: 0
-  m_ShapeLightParametricRadius: 1
-  m_ShapeLightFalloffSize: 0.5
-  m_ShapeLightFalloffOffset: {x: 0, y: 0}
-  m_ShapePath:
-  - {x: -0.5, y: -0.5, z: 0}
-  - {x: 0.5, y: -0.5, z: 0}
-  - {x: 0.5, y: 0.5, z: 0}
-  - {x: -0.5, y: 0.5, z: 0}
 --- !u!108 &1000000007
 Light:
   m_ObjectHideFlags: 0
@@ -381,10 +339,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1000000008}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2d7a01d5b707e4c4d8a1d85810c1589e, type: 3}
+  m_Script: {fileID: 11500000, guid: 88fc4c1dae4d84f4d86dc7e50f8046aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentState: 1
+  currentState: 0
   currentPlayer: 1
   boardSize: 15
   winCondition: 5
@@ -428,7 +386,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1000000011}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4c9e05886ce0d9c45b77521c7330b70a, type: 3}
+  m_Script: {fileID: 11500000, guid: 055e5facdbabccc4f91e16078b9b1509, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   boardSize: 15
@@ -474,8 +432,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 1000000014}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f2b9e2b6e0db8c4d9d97e2d2d7e4d8a, type: 3}
+  m_Script: {fileID: 11500000, guid: 4233282fb67af3b45ba043aacbce0220, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boardManager: {fileID: 1000000013}
+  boardManager: {fileID: 0}
   winCondition: 5
