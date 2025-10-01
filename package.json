@@ -1,5 +1,6 @@
-{
-  "dependencies": {
-    "commander": "^14.0.1"
-  }
+﻿{
+    "dependencies":  {
+                         "commander":  "^14.0.1"
+                     },
+    "version":  "1.0.0"
 }
