@@ -1,7 +1,7 @@
 # Story 2.4: Implement Game Results Screen
 
 ## Status
-Draft
+Approved
 
 ## Story
 **As a** player,
