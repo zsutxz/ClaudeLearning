@@ -4,6 +4,4 @@ UnityProject/Temp/
 UnityProject/obj/
 UnityProject/library/
 UnityProject/.vs/
-UnityProject/Packages/
-UnityProject/ProjectSettings/
-.claude/hook-test.log
+./.claude/hook-test.log
