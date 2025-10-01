@@ -3,74 +3,150 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ### 🔄 Project Awareness & Context
-- **Check `PRPs/` directory** before starting a new task. PRPs contain comprehensive implementation guides for features.
-- **Use consistent naming conventions, file structure, and architecture patterns** as described in existing PRPs.
-- **Always read the specific PRP file** related to the feature you're implementing.
+- This repository uses the BMAD (Business Methodology for AI Development) framework
+- The project is focused on developing a Gomoku (Five in a Row) game in Unity for local two-player gameplay
+- Follow the structured planning and development workflow defined in the BMAD methodology
+- All development work should be based on sharded stories in the `docs/stories/` directory
 
 ### 🧱 Code Structure & Modularity
-- **Organize code into clearly separated modules**, grouped by feature or responsibility.
-- **Use clear, consistent imports** and follow existing patterns in the codebase.
-- **For HTML/JavaScript projects**: Keep all code in a single HTML file when specified, or organize into separate CSS/JS files for larger projects.
+- The project follows a structured architecture with separation of concerns
+- Code should be organized according to the architecture documents in `docs/architecture/`
+- Follow the coding standards defined in `docs/architecture/coding-standards.md`
+- Use the tech stack specified in `docs/architecture/tech-stack.md`
 
 ### 🧪 Testing & Reliability
-- **Test HTML/JavaScript features** in multiple browsers to ensure compatibility.
-- **Verify functionality** matches the requirements specified in the PRP.
-- **Check for cross-browser compatibility** and responsive design.
+- Follow the test architecture principles defined by the QA agent in BMAD
+- Implement tests at appropriate levels (unit, integration, E2E) as guided by the test design
+- Ensure all acceptance criteria have corresponding test coverage
+- Run tests regularly to ensure no regressions are introduced
 
 ### ✅ Task Completion
-- **Mark completed tasks in the PRP file** immediately after finishing them.
-- Add new sub-tasks or TODOs discovered during development to the PRP under a "Discovered During Work" section.
+- Mark completed tasks in the story files immediately after finishing them
+- Update the Dev Agent Record sections in story files as required
+- Add any new sub-tasks or TODOs discovered during development to the story file
+- Ensure all validation checks pass before marking a story as complete
 
 ### 📎 Style & Conventions
-- **Follow existing code patterns** in the codebase.
-- Write **comments for complex logic** explaining the why, not just the what.
+- Follow the coding standards defined in the architecture documentation
+- Write clean, maintainable code with clear variable and function names
+- Add comments for complex logic explaining the why, not just the what
+- Follow the established patterns in the codebase
 
 ### 📚 Documentation & Explainability
-- **Comment non-obvious code** and ensure everything is understandable to a mid-level developer.
-- When writing complex logic, **add inline comments** explaining the why, not just the what.
+- Document complex algorithms and business logic with inline comments
+- Update relevant documentation files when making significant changes
+- Ensure code is self-documenting through clear naming conventions
+- Follow the documentation guidelines in the architecture documents
 
 ### 🧠 AI Behavior Rules
-- **Never assume missing context. Ask questions if uncertain.**
-- **Never hallucinate libraries or functions** – only use known, verified packages.
-- **Always confirm file paths and module names** exist before referencing them in code or tests.
-- **Never delete or overwrite existing code** unless explicitly instructed to or if part of a task from the PRP.
+- Never assume missing context. Ask questions if uncertain.
+- Never hallucinate libraries or functions – only use known, verified packages.
+- Always confirm file paths and module names exist before referencing them.
+- Never delete or overwrite existing code unless explicitly instructed to.
 
 ### ⚙️ Development Commands
-- **Testing TypeScript files**: Use jest for running tests
-- **For development**: Use browser developer tools for debugging
+- Use the BMAD framework agents for development tasks:
+  - `@dev` for implementation tasks
+  - `@qa` for quality assurance and testing
+  - `@architect` for architecture-related decisions
+- Since this is primarily a Unity project, development will focus on Unity-specific workflows
+- For any JavaScript/TypeScript components, standard npm commands would apply:
+  - `npm install` - Install dependencies
+  - `npm test` - Run tests (when test files exist)
+  - `npm run build` - Build the project (when build scripts exist)
 
 ### 🏗️ Project Architecture
-This repository follows a PRP (Problem Resolution Protocol) driven architecture where functionality is implemented based on comprehensive PRP templates. The project uses PRP templates for implementing new features, which can be found in the `PRPs/templates/` directory.
+This repository follows the BMAD methodology with a structured approach to planning and development:
 
-The project is focused on game development, particularly coin animation and collection systems. Recent work has involved implementing waterfall effects for coin animations and combo systems.
-
-The project structure includes:
-- `PRPs/` - Contains PRP templates and documentation for feature implementation
-- `examples/` - Example code and implementations
-- `templates_zh` - Chinese language templates
+**Core Directories:**
+- `.bmad-core/` - Contains the BMAD framework core files
 - `.claude/` - Claude Code configuration and settings
-- `UnityProject/` - Unity game project files
-- `web-bundles/` - Web bundle files
+- `docs/` - Documentation including PRD, architecture, stories, and QA artifacts
+- `UnityProject/` - Unity game project files (to be created/developed)
+- `web-bundles/` - Web agent bundles for different roles
+
+**BMAD Workflow:**
+1. Planning phase with PM, Architect, UX Expert agents
+2. Document sharding into epics and stories
+3. Development cycle with SM, Dev, and QA agents
+4. Quality gates and continuous validation
+
+**Project Structure:**
+The repository follows the BMAD structured approach:
+```
+.
+├── .bmad-core/              # BMAD framework core files
+├── .claude/                 # Claude Code configuration
+├── docs/                    # Documentation (PRD, architecture, stories)
+│   ├── prd/                 # Product requirements documents
+│   ├── architecture/        # Architecture documentation
+│   ├── stories/             # Sharded user stories
+│   └── qa/                  # Quality assurance artifacts
+├── UnityProject/            # Unity game project files (to be created)
+├── web-bundles/             # Web agent bundles
+├── package.json             # Project dependencies and scripts
+└── INITIAL_Gomoku.md        # Initial project description
+```
 
 ### 🔧 Common Development Tasks
-1. **Implementing new features**: Use the PRP template from `PRPs/templates/prp_base.md` as a guide
-2. **Testing**: Run tests with jest using `npm test` or the equivalent command
-3. **Code quality**: Follow existing patterns and maintain consistent styling
-4. **Documentation**: Update relevant documentation files when making changes
+1. **Implementing stories**: Use the `@dev` agent with the `develop-story` command
+2. **Testing**: Use the `@qa` agent for test design and validation
+3. **Code quality**: Follow the coding standards and run linting tools
+4. **Documentation**: Update story files and technical documentation as needed
 
 ### 📦 Project Dependencies and Structure
-- The project uses Node.js with commander library as a dependency
-- Core work appears to be focused on Unity game development
-- Recent development has focused on coin animation and collection systems
-- The library supports creating visual effects for game elements like coins and waterfalls
+- Primary dependency: commander library (for CLI functionality)
+- Focus: Unity game development for Gomoku (Five in a Row)
+- Framework: BMAD methodology for AI-driven development
+- Project structure follows BMAD conventions with sharded documentation
 
 ### 🧪 Testing Approach
-- Tests are written using jest
-- Test files follow the naming pattern `*.test.ts`
-- Tests cover:
-  - Successful data fetching scenarios
-  - Error handling
-  - Cache functionality
-- Mocking is used for API calls to ensure tests are isolated and fast
+- Tests should be designed using the `@qa *design` command for each story
+- Follow the test levels framework defined in `.bmad-core/data/test-levels-framework.md`
+- For Unity development, testing would involve:
+  - Unit tests for game logic (if using Unity Test Framework)
+  - Play mode tests for integration testing
+  - Manual testing for UI and gameplay experience
+- For any web-based components, use appropriate JavaScript/TypeScript testing frameworks
 
-- 测试生成的文档保存到examples/doc,代码存储在examples/src
+### 🛠️ Development Environment Setup
+1. For Unity development:
+   - Install Unity Hub
+   - Install the appropriate Unity version for the project
+   - Ensure Unity Test Framework is available
+2. For web-based components:
+   - Ensure Node.js (version 14 or higher) is installed
+   - Run `npm install` to install dependencies
+3. Familiarize yourself with the BMAD agents and workflow
+
+### 🏃 Common Development Commands
+Since this is primarily a Unity project, the development workflow will be Unity-centric:
+- Unity-specific workflows for building and testing the Gomoku game
+- For any web/JavaScript components:
+  - `npm install` - Install dependencies
+  - `npm test` - Run tests (when test files exist)
+  - `npm run build` - Build the project (when build scripts exist)
+- Refer to the BMAD documentation for agent-specific commands:
+  - `@dev implement story` - Implement a user story
+  - `@qa *review story` - Perform quality assurance review
+  - `@architect review design` - Get architecture feedback
+
+### 🎮 Current Project Focus
+The current project is implementing a Gomoku (Five in a Row) game in Unity:
+- Two-player local gameplay
+- No network functionality required
+- No AI opponent implementation needed
+- Focus on core game mechanics and user experience
+
+### 📖 Documentation Guidelines
+- Follow the BMAD documentation standards
+- Update story files with implementation details
+- Maintain clear and concise technical documentation
+- Ensure all architecture decisions are properly documented
+
+### 🧪 Testing Guidelines
+- Use the QA agent to design comprehensive test strategies
+- Implement tests at appropriate levels as determined by risk assessment
+- Ensure test coverage for all acceptance criteria
+- Follow the test quality principles defined in the BMAD framework
+- For Unity development, utilize Unity's testing frameworks appropriately
