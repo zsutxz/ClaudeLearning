@@ -1,36 +1,40 @@
-# Epic 3 Customization & Variable Gameplay
+# Epic 3: Customization & Variable Gameplay
 
-The goal of this epic is to implement customizable themes, board sizes, and alternative win conditions to enhance replayability.
+## Description
+Implement customization options for the Gomoku game, including variable board sizes and alternative win conditions to enhance gameplay experience.
 
-## Story 3.1 Implement board size options
-As a player,
-I want to choose different board sizes,
-so that I can play on my preferred board size.
+## Goals
+- Support multiple board sizes (9×9, 13×13, 15×15, 19×19)
+- Implement alternative win conditions beyond standard five-in-a-row
+- Design framework for future board themes
+- Ensure customization options are easily accessible
 
-Acceptance Criteria:
-1. Players shall be able to select from 9x9, 13x13, and 19x19 board sizes
-2. The default board size shall be 15x15
-3. Changing board size shall take effect when starting a new game
-4. Win detection shall work correctly on all supported board sizes
+## Business Value
+This epic adds depth and replayability to the game by providing players with options to customize their gameplay experience. It differentiates the digital version from traditional physical boards.
 
-## Story 3.2 Implement board themes
-As a player,
-I want to customize the appearance of the board,
-so that I can personalize my gaming experience.
+## Acceptance Criteria
+- Players can select from multiple board sizes before starting a game
+- Players can configure alternative win conditions
+- Game properly handles different board sizes in gameplay and UI
+- Win detection works correctly with alternative win conditions
 
-Acceptance Criteria:
-1. Players shall be able to select from at least 3 different board themes
-2. Theme selection shall be available in the game settings
-3. Theme changes shall take effect immediately
-4. All themes shall maintain good visibility of pieces
+## Stories
+- story-3.1-implement-board-size-options.md
+- story-3.2-implement-board-themes.md
+- story-3.3-implement-alternative-win-conditions.md
 
-## Story 3.3 Implement alternative win conditions
-As a player,
-I want to play with different win conditions,
-so that I can add variety to my gameplay.
+## Dependencies
+- Epic 1: Foundation & Core Gameplay (for adaptable game mechanics)
+- Epic 2: User Interface & Local Multiplayer (for settings integration)
 
-Acceptance Criteria:
-1. Players shall be able to select alternative win conditions (e.g., 6-in-a-row)
-2. Alternative win conditions shall be configurable in game settings
-3. Win detection shall work correctly with alternative win conditions
-4. The default win condition shall remain 5-in-a-row
+## Technical Requirements
+- Flexible board management system that can handle different sizes
+- Configurable win detection algorithms
+- Extensible design for future customization options
+- Efficient memory usage with larger board sizes
+
+## Priority
+Medium - Enhances user experience but not critical for MVP
+
+## Estimated Effort
+1 week

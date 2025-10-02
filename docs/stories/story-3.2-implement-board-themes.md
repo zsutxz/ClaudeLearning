@@ -1,60 +1,31 @@
 # Story 3.2: Implement Board Themes
 
 ## Description
-
-As a player,
-I want to customize the appearance of the board,
-so that I can personalize my gaming experience.
+As a player, I want different board themes so that I can personalize my gaming experience.
 
 ## Acceptance Criteria
+- Players can select from multiple board themes
+- Theme selection is available in settings
+- Selected theme is applied to the game board
+- Visual quality is maintained across all themes
 
-1. Players shall be able to select from at least 3 different board themes
-2. Theme selection shall be available in the game settings
-3. Theme changes shall take effect immediately
-4. All themes shall maintain good visibility of pieces
+## Tasks
+- Design multiple board themes
+- Create UI for theme selection
+- Implement theme application logic
+- Test visual appearance with different themes
+- Ensure themes don't affect gameplay
 
-## Implementation Plan
+## Estimated Effort
+2 days
 
-### Tasks
+## Dependencies
+- Epic 1: Foundation & Core Gameplay
+- Epic 2: User Interface & Local Multiplayer
+- Basic understanding of UI theming
 
-- [ ] Design at least 3 different board themes
-- [ ] Implement theme selection in settings
-- [ ] Create theme application system
-- [ ] Ensure immediate theme changes
-- [ ] Verify piece visibility in all themes
-- [ ] Test theme functionality
-
-### Technical Approach
-
-1. Create visual assets for multiple themes
-2. Implement theme management system
-3. Add theme selection UI to settings
-4. Create real-time theme application
-5. Test visibility and aesthetics of all themes
-
-### Dependencies
-
-- Settings system implementation
-- Basic board implementation (Story 1.1)
-- UI framework
-
-### Dev Agent Record
-
-**Developer:** 
-**Start Date:** 
-**Completion Date:** 
-**Status:** Not Started
-
-### QA Agent Record
-
-**Tester:** 
-**Test Date:** 
-**Test Results:** 
-**Status:** Not Started
-
-### Architect Review
-
-**Architect:** 
-**Review Date:** 
-**Comments:** 
-**Status:** Not Started
+## Notes
+- Themes should enhance rather than distract from gameplay
+- Consider accessibility with color choices
+- Ensure themes work with all board sizes
+- Performance should not be impacted by visual enhancements

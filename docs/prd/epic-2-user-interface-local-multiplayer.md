@@ -1,35 +1,44 @@
-# Epic 2 User Interface & Local Multiplayer
+# Epic 2: User Interface & Local Multiplayer
 
-The goal of this epic is to create an intuitive user interface for local two-player gameplay, including turn management and game state display.
+## Description
+Develop the user interface components and local multiplayer functionality for the Gomoku game, including the main menu, game state display, and game controls.
 
-## Story 2.1 Implement game state display
-As a player,
-I want to see whose turn it is,
-so that I know when it's my turn to play.
+## Goals
+- Create an intuitive main menu with game access options
+- Implement game state display showing current player
+- Develop responsive game controls for restart and menu navigation
+- Design and implement a results screen for game outcomes
+- Ensure smooth local multiplayer experience
 
-Acceptance Criteria:
-1. The UI shall clearly indicate which player's turn it is (black or white)
-2. The turn indicator shall update immediately after each move
-3. The turn indicator shall be visually distinct and easy to understand
+## Business Value
+This epic provides the user experience layer that allows players to interact with the core game mechanics. Without a proper UI, players would not be able to enjoy the game.
 
-## Story 2.2 Implement game controls
-As a player,
-I want to be able to restart or quit the game,
-so that I can start a new game or exit when finished.
+## Acceptance Criteria
+- Main menu provides access to game start and settings
+- Current player is clearly indicated during gameplay
+- Players can restart games or return to menu during gameplay
+- Game results are clearly displayed when a game ends
+- UI is responsive and provides visual feedback
 
-Acceptance Criteria:
-1. The UI shall provide a "Restart Game" button that resets the board
-2. The UI shall provide a "Quit Game" button that exits to the main menu
-3. Restarting shall preserve current game settings
-4. Quitting shall return the player to the main menu
+## Stories
+- story-2.1-implement-game-state-display.md
+- story-2.2-implement-game-controls.md
+- story-2.3-create-main-menu.md
+- story-2.4-implement-game-results-screen.md
 
-## Story 2.3 Create main menu
-As a player,
-I want a main menu to start the game,
-so that I can begin playing.
+## Dependencies
+- Epic 1: Foundation & Core Gameplay (for game state integration)
+- Unity UI Toolkit
+- Basic understanding of UI/UX principles
 
-Acceptance Criteria:
-1. The main menu shall provide a "Start Game" button
-2. The main menu shall provide access to game settings
-3. The main menu shall have a visually appealing design consistent with the game
-4. Clicking "Start Game" shall transition to the game board screen
+## Technical Requirements
+- Clean, minimalist design focused on gameplay
+- Consistent visual styling across all UI elements
+- Proper event handling for button interactions
+- Responsive layout that works on target resolutions
+
+## Priority
+High - Critical for user experience
+
+## Estimated Effort
+2 weeks

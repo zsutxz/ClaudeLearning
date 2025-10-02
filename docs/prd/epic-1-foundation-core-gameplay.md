@@ -1,36 +1,41 @@
-# Epic 1 Foundation & Core Gameplay
+# Epic 1: Foundation & Core Gameplay
 
-The goal of this epic is to establish the foundational elements of the Gomoku game, including the Unity project setup, basic board implementation, and core game logic for detecting wins.
+## Description
+Implement the core game mechanics of Gomoku including the game board, piece placement logic, and win detection algorithms.
 
-## Story 1.1 Implement basic Gomoku board
-As a player,
-I want to see a Gomoku board on my screen,
-so that I can play the game.
+## Goals
+- Create a fully functional 15×15 Gomoku board
+- Implement turn-based piece placement for two players
+- Develop accurate win condition detection (5 consecutive pieces in any direction)
+- Establish the basic game flow and state management
 
-Acceptance Criteria:
-1. The board shall be a 15x15 grid
-2. The board shall visually distinguish intersection points where pieces can be placed
-3. The board shall be centered on the screen
-4. The board shall have a clean, visually appealing design
+## Business Value
+This epic delivers the fundamental gameplay experience that defines the Gomoku game. Without these core mechanics, there would be no playable game.
 
-## Story 1.2 Implement piece placement logic
-As a player,
-I want to place pieces on the board by clicking,
-so that I can make my moves.
+## Acceptance Criteria
+- Players can place pieces on a 15×15 board in turns
+- Game correctly identifies when a player has won by getting 5 in a row
+- Game properly manages player turns and game state
+- Basic game flow works from start to finish
 
-Acceptance Criteria:
-1. Players shall be able to place pieces only on valid intersection points
-2. Players shall alternate turns between black and white pieces
-3. Players shall not be able to place pieces on occupied intersections
-4. Invalid clicks shall be ignored without error messages
+## Stories
+- story-1.1-implement-basic-gomoku-board.md
+- story-1.2-implement-piece-placement-logic.md
+- story-1.3-implement-win-detection.md
 
-## Story 1.3 Implement win detection
-As a player,
-I want the game to detect when I get five in a row,
-so that I know when I've won.
+## Dependencies
+- Unity 2022.3 LTS
+- C# programming language
+- Basic understanding of game development concepts
 
-Acceptance Criteria:
-1. The system shall detect five consecutive pieces in horizontal direction
-2. The system shall detect five consecutive pieces in vertical direction
-3. The system shall detect five consecutive pieces in diagonal directions
-4. The system shall declare a winner when five in a row is detected
+## Technical Requirements
+- Component-based architecture following Unity best practices
+- Efficient algorithms for win detection
+- Proper error handling and edge case management
+- Code that adheres to established coding standards
+
+## Priority
+High - Critical path for MVP
+
+## Estimated Effort
+2 weeks

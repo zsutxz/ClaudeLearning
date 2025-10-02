@@ -1,60 +1,30 @@
 # Story 3.1: Implement Board Size Options
 
 ## Description
-
-As a player,
-I want to choose different board sizes,
-so that I can play on my preferred board size.
+As a player, I want to choose different board sizes so that I can customize my gameplay experience.
 
 ## Acceptance Criteria
+- Players can select from 9×9, 13×13, 15×15, and 19×19 board sizes
+- Board size selection is available before starting a game
+- Selected board size is properly applied to the game
+- Game mechanics work correctly with all board sizes
 
-1. Players shall be able to select from 9x9, 13x13, and 19x19 board sizes
-2. The default board size shall be 15x15
-3. Changing board size shall take effect when starting a new game
-4. Win detection shall work correctly on all supported board sizes
+## Tasks
+- Create UI for board size selection
+- Implement board size configuration logic
+- Update board rendering for different sizes
+- Test game mechanics with different board sizes
+- Ensure win detection works with all board sizes
 
-## Implementation Plan
+## Estimated Effort
+2 days
 
-### Tasks
+## Dependencies
+- Epic 1: Foundation & Core Gameplay
+- Basic understanding of UI configuration
 
-- [ ] Add board size selection to settings
-- [ ] Implement multiple board size configurations
-- [ ] Ensure win detection works on all board sizes
-- [ ] Set 15x15 as default board size
-- [ ] Verify board size changes take effect on new game
-- [ ] Test all board sizes function correctly
-
-### Technical Approach
-
-1. Extend settings system to include board size options
-2. Modify board generation logic to support different sizes
-3. Update win detection algorithm for variable board sizes
-4. Implement UI for board size selection
-5. Test all supported board sizes
-
-### Dependencies
-
-- Settings system implementation
-- Basic board implementation (Story 1.1)
-- Win detection system (Story 1.3)
-
-### Dev Agent Record
-
-**Developer:** 
-**Start Date:** 
-**Completion Date:** 
-**Status:** Not Started
-
-### QA Agent Record
-
-**Tester:** 
-**Test Date:** 
-**Test Results:** 
-**Status:** Not Started
-
-### Architect Review
-
-**Architect:** 
-**Review Date:** 
-**Comments:** 
-**Status:** Not Started
+## Notes
+- Consider defaulting to 15×15 (standard size)
+- Ensure all board sizes are playable and balanced
+- Test edge cases with smaller and larger boards
+- Performance should be acceptable with larger boards

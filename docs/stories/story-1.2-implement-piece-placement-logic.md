@@ -1,59 +1,31 @@
 # Story 1.2: Implement Piece Placement Logic
 
 ## Description
-
-As a player,
-I want to place pieces on the board by clicking,
-so that I can make my moves.
+As a player, I want to place pieces on the board by clicking so that I can play the game.
 
 ## Acceptance Criteria
+- Players can place black and white pieces on empty intersections
+- Pieces are placed only on valid board positions
+- Players take turns placing pieces (black goes first)
+- Previously placed pieces cannot be moved or removed
+- Visual feedback is provided when hovering over valid positions
 
-1. Players shall be able to place pieces only on valid intersection points
-2. Players shall alternate turns between black and white pieces
-3. Players shall not be able to place pieces on occupied intersections
-4. Invalid clicks shall be ignored without error messages
+## Tasks
+- Implement click detection on board intersections
+- Create piece placement validation logic
+- Implement turn management system
+- Add visual feedback for hover states
+- Test piece placement with various scenarios
 
-## Implementation Plan
+## Estimated Effort
+3 days
 
-### Tasks
+## Dependencies
+- Story 1.1: Implement Basic Gomoku Board
+- Basic understanding of Unity event system
 
-- [ ] Implement click detection on intersection points
-- [ ] Create piece placement logic
-- [ ] Implement turn alternation between players
-- [ ] Prevent placement on occupied intersections
-- [ ] Handle invalid clicks gracefully
-- [ ] Verify implementation meets all acceptance criteria
-
-### Technical Approach
-
-1. Add click handlers to intersection points
-2. Implement game state management for piece placement
-3. Create turn management system
-4. Add validation for placement rules
-5. Test edge cases and invalid inputs
-
-### Dependencies
-
-- Basic Gomoku board implementation (Story 1.1)
-- Unity input system understanding
-
-### Dev Agent Record
-
-**Developer:** 
-**Start Date:** 
-**Completion Date:** 
-**Status:** Not Started
-
-### QA Agent Record
-
-**Tester:** 
-**Test Date:** 
-**Test Results:** 
-**Status:** Not Started
-
-### Architect Review
-
-**Architect:** 
-**Review Date:** 
-**Comments:** 
-**Status:** Not Started
+## Notes
+- Ensure accurate detection of click positions
+- Consider edge cases like clicking near board edges
+- Visual feedback should be subtle but clear
+- Turn management should be robust and handle all game states
