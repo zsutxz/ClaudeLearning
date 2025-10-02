@@ -5,3 +5,4 @@ UnityProject/obj/
 UnityProject/library/
 UnityProject/.vs/
 ./.claude/hook-test.log
+./node_modules
