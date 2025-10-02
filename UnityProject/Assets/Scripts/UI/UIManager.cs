@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using GomokuGame.Core;
+using System.Collections;
 
 namespace GomokuGame.UI
 {
@@ -16,6 +17,7 @@ namespace GomokuGame.UI
         #region Fields
         [Header("Game UI Elements")]
         [SerializeField] private Text currentPlayerText;
+        [SerializeField] private Text gameStateText;
         [SerializeField] private Text gameOverText;
         [SerializeField] private GameObject gameUIPanel;
         [SerializeField] private GameObject gameOverPanel;
@@ -50,16 +52,18 @@ namespace GomokuGame.UI
         private void Start()
         {
             // Subscribe to game events
-            if (GameManager.Instance != null)
+            GameManager gameManager = FindObjectOfType<GameManager>();
+            if (gameManager != null)
             {
-                GameManager.Instance.OnGameStateChanged += OnGameStateChanged;
-                GameManager.Instance.OnPlayerChanged += OnPlayerChanged;
-                GameManager.Instance.OnGameWon += OnGameWon;
-                GameManager.Instance.OnGameDraw += OnGameDraw;
+                gameManager.OnGameStateChanged += OnGameStateChanged;
+                gameManager.OnPlayerChanged += OnPlayerChanged;
+                gameManager.OnGameWon += OnGameWon;
+                gameManager.OnGameDraw += OnGameDraw;
             }
             
             // Initialize UI state
             UpdatePlayerText();
+            UpdateGameStateText();
             HideAllPanels();
             ShowPanel(mainMenuPanel);
         }
@@ -80,9 +84,10 @@ namespace GomokuGame.UI
         /// </summary>
         public void StartGame()
         {
-            if (GameManager.Instance != null)
+            GameManager gameManager = FindObjectOfType<GameManager>();
+            if (gameManager != null)
             {
-                GameManager.Instance.StartNewGame();
+                gameManager.StartNewGame();
             }
         }
 
@@ -91,9 +96,12 @@ namespace GomokuGame.UI
         /// </summary>
         public void RestartGame()
         {
-            if (GameManager.Instance != null)
+            GameManager gameManager = FindObjectOfType<GameManager>();
+            if (gameManager != null)
             {
-                GameManager.Instance.RestartGame();
+                // Simple restart implementation
+                gameManager.ReturnToMainMenu();
+                gameManager.StartNewGame();
             }
         }
 
@@ -102,9 +110,10 @@ namespace GomokuGame.UI
         /// </summary>
         public void ReturnToMainMenu()
         {
-            if (GameManager.Instance != null)
+            GameManager gameManager = FindObjectOfType<GameManager>();
+            if (gameManager != null)
             {
-                GameManager.Instance.ReturnToMainMenu();
+                gameManager.ReturnToMainMenu();
             }
         }
 
@@ -134,9 +143,10 @@ namespace GomokuGame.UI
                 PlayerPrefs.Save();
                 
                 // Update GameManager if it exists
-                if (GameManager.Instance != null)
+                GameManager gameManager = FindObjectOfType<GameManager>();
+                if (gameManager != null)
                 {
-                    GameManager.Instance.UpdateSettings(boardSize, winCondition);
+                    // Note: UpdateSettings method needs to be implemented in GameManager
                 }
             }
             
@@ -182,11 +192,82 @@ namespace GomokuGame.UI
         /// </summary>
         private void UpdatePlayerText()
         {
-            if (currentPlayerText != null && GameManager.Instance != null)
+            if (currentPlayerText != null)
             {
-                string player = GameManager.Instance.CurrentPlayer == GameManager.Player.Black ? "Black" : "White";
-                currentPlayerText.text = $"Current Player: {player}";
+                GameManager gameManager = FindObjectOfType<GameManager>();
+                if (gameManager != null)
+                {
+                    string player = gameManager.currentPlayer == GameManager.Player.Black ? "Black" : "White";
+                    currentPlayerText.text = $"Current Player: {player}";
+                    
+                    // Apply distinct visual styling for each player
+                    if (gameManager.currentPlayer == GameManager.Player.Black)
+                    {
+                        currentPlayerText.color = Color.black;
+                    }
+                    else
+                    {
+                        currentPlayerText.color = Color.white;
+                        currentPlayerText.GetComponent<Outline>().effectColor = Color.black;
+                    }
+                }
             }
+        }
+
+        /// <summary>
+        /// Updates the game state text display
+        /// </summary>
+        private void UpdateGameStateText()
+        {
+            if (gameStateText != null)
+            {
+                GameManager gameManager = FindObjectOfType<GameManager>();
+                if (gameManager != null)
+                {
+                    switch (gameManager.currentState)
+                    {
+                        case GameManager.GameState.MainMenu:
+                            gameStateText.text = "Game State: Main Menu";
+                            break;
+                        case GameManager.GameState.Playing:
+                            gameStateText.text = "Game State: Playing";
+                            break;
+                        case GameManager.GameState.Paused:
+                            gameStateText.text = "Game State: Paused";
+                            break;
+                        case GameManager.GameState.GameOver:
+                            gameStateText.text = "Game State: Game Over";
+                            break;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Provides visual feedback for player changes
+        /// </summary>
+        /// <param name="player">New player</param>
+        private void ProvideVisualFeedbackForPlayerChange(GameManager.Player player)
+        {
+            // Simple visual feedback - could be enhanced with animations
+            if (currentPlayerText != null)
+            {
+                // Flash the text to indicate change
+                StartCoroutine(FlashText(currentPlayerText));
+            }
+        }
+
+        /// <summary>
+        /// Flashes the text to provide visual feedback
+        /// </summary>
+        /// <param name="text">Text to flash</param>
+        /// <returns>Coroutine</returns>
+        private IEnumerator FlashText(Text text)
+        {
+            Color originalColor = text.color;
+            text.color = new Color(originalColor.r, originalColor.g, originalColor.b, 0.5f);
+            yield return new WaitForSeconds(0.1f);
+            text.color = originalColor;
         }
 
         /// <summary>
@@ -256,6 +337,37 @@ namespace GomokuGame.UI
                 winConditionValueText.text = $"{condition} in a row";
             }
         }
+
+        /// <summary>
+        /// Provides visual feedback for state transitions
+        /// </summary>
+        /// <param name="state">New game state</param>
+        private void ProvideVisualFeedbackForStateTransition(GameManager.GameState state)
+        {
+            // Simple visual feedback - could be enhanced with animations
+            if (gameStateText != null)
+            {
+                // Change color based on state
+                switch (state)
+                {
+                    case GameManager.GameState.MainMenu:
+                        gameStateText.color = Color.blue;
+                        break;
+                    case GameManager.GameState.Playing:
+                        gameStateText.color = Color.green;
+                        break;
+                    case GameManager.GameState.Paused:
+                        gameStateText.color = Color.yellow;
+                        break;
+                    case GameManager.GameState.GameOver:
+                        gameStateText.color = Color.red;
+                        break;
+                }
+                
+                // Optional: Add a simple scale animation
+                // This would require adding animation components
+            }
+        }
         #endregion
 
         #region Event Handlers
@@ -266,6 +378,8 @@ namespace GomokuGame.UI
         private void OnGameStateChanged(GameManager.GameState state)
         {
             HideAllPanels();
+            UpdateGameStateText();
+            ProvideVisualFeedbackForStateTransition(state);
             
             switch (state)
             {
@@ -275,6 +389,9 @@ namespace GomokuGame.UI
                 case GameManager.GameState.Playing:
                     ShowPanel(gameUIPanel);
                     UpdatePlayerText();
+                    break;
+                case GameManager.GameState.Paused:
+                    // Could show a pause overlay
                     break;
                 case GameManager.GameState.GameOver:
                     ShowPanel(gameOverPanel);
@@ -289,6 +406,7 @@ namespace GomokuGame.UI
         private void OnPlayerChanged(GameManager.Player player)
         {
             UpdatePlayerText();
+            ProvideVisualFeedbackForPlayerChange(player);
         }
 
         /// <summary>
