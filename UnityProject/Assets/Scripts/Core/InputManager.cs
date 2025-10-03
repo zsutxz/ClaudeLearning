@@ -1,5 +1,5 @@
-﻿
-using GomokuGame.UI;
+﻿using UnityEngine;
+
 namespace GomokuGame.Core
 {
     /// <summary>
@@ -9,7 +9,8 @@ namespace GomokuGame.Core
     {
         #region Fields
         [SerializeField] private Camera mainCamera;
-        [SerializeField] private BoardViewManager BoardViewManager;
+        [SerializeField] private GomokuGame.Core.BoardManager boardManager;
+        [SerializeField] private GomokuGame.UI.BoardViewManager boardViewManager; // optional, for cellSize
         [SerializeField] private GameManager gameManager;
         #endregion
 
@@ -29,78 +30,59 @@ namespace GomokuGame.Core
         /// Handles mouse click input
         /// </summary>
         private void HandleMouseClick()
-{
-    // Convert mouse position to world position on the board plane (y = 0)
-    if (mainCamera == null)
-    {
-        mainCamera = Camera.main;
-        if (mainCamera == null)
         {
-            Debug.LogWarning("InputManager: mainCamera is not assigned and Camera.main is null.");
-            return;
-        }
-    }
-
-    Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-
-    // Intersect with plane at y = 0 (board plane)
-    if (Mathf.Approximately(ray.direction.y, 0f))
-    {
-        // Ray is parallel to board plane
-        return;
-    }
-
-    float t = -ray.origin.y / ray.direction.y; // solve for ray.origin.y + t*dir.y = 0
-    if (t <= 0f)
-        return; // intersection is behind the camera
-
-    Vector3 hitPosition = ray.GetPoint(t);
-
-    int x, y;
-    if (WorldToBoardPosition(hitPosition, out x, out y))
-    {
-        // Try to place a piece
-        if (BoardViewManager != null && gameManager != null)
-        {
-            if (BoardViewManager.PlacePiece(x, y, gameManager.currentPlayer))
+            // Ensure camera
+            if (mainCamera == null)
             {
-                // Check for win
-                if (gameManager.CheckWin(x, y))
+                mainCamera = Camera.main;
+                if (mainCamera == null)
                 {
-                    Debug.Log($"Player {gameManager.currentPlayer} wins!");
-                    gameManager.EndGame(gameManager.currentPlayer);
-                }
-                else
-                {
-                    // Check for draw
-                    if (gameManager.winDetector != null && gameManager.winDetector.CheckDraw())
-                    {
-                        Debug.Log("Game is a draw!");
-                        gameManager.DeclareDraw();
-                    }
-                    else
-                    {
-                        // Switch player after successful placement
-                        gameManager.SwitchPlayer();
-                    }
+                    Debug.LogWarning("InputManager: mainCamera is not assigned and Camera.main is null.");
+                    return;
                 }
             }
-        }
-    }
-}
+
+            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+
+            // Intersect with plane at y = 0 (board plane)
+            if (Mathf.Approximately(ray.direction.y, 0f))
+            {
+                // Ray is parallel to board plane
+                return;
+            }
+
+            float t = -ray.origin.y / ray.direction.y; // solve for ray.origin.y + t*dir.y = 0
+            if (t <= 0f)
+                return; // intersection is behind the camera
+
+            Vector3 hitPosition = ray.GetPoint(t);
+
+            int x, y;
+            if (WorldToBoardPosition(hitPosition, out x, out y))
+            {
+                // Try to place a piece in the model
+                if (boardManager != null && gameManager != null)
+                {
+                    if (boardManager.PlacePiece(x, y, gameManager.currentPlayer))
+                    {
+                        // Check for win
+                        if (gameManager.CheckWin(x, y))
+                        {
+                            Debug.Log($"Player {gameManager.currentPlayer} wins!");
+                            gameManager.EndGame(gameManager.currentPlayer);
+                        }
+                        else
+                        {
+                            // Check for draw
+                            if (gameManager.winDetector != null && gameManager.winDetector.CheckDraw())
+                            {
+                                Debug.Log("Game is a draw!");
+                                gameManager.DeclareDraw();
+                            }
                             else
                             {
-                                // Check for draw
-                                if (gameManager.winDetector != null && gameManager.winDetector.CheckDraw())
-                                {
-                                    Debug.Log("Game is a draw!");
-                                    gameManager.DeclareDraw();
-                                }
-                                else
-                                {
-                                    // Switch player after successful placement
-                                    gameManager.SwitchPlayer();
-                                }
+                                // Switch player after successful placement
+                                gameManager.SwitchPlayer();
                             }
                         }
                     }
@@ -119,28 +101,29 @@ namespace GomokuGame.Core
         {
             x = 0;
             y = 0;
-            
-            if (BoardViewManager == null)
+
+            if (boardManager == null)
                 return false;
-                
+
             // Get board size and cell size
-            int boardSize = BoardViewManager.BoardSize;
+            int boardSize = boardManager.BoardSize;
             float cellSize = 1.0f; // Default cell size
-            
+            if (boardViewManager != null)
+            {
+                cellSize = boardViewManager.cellSize;
+            }
+
             // Calculate board half size
             float boardHalfSize = (boardSize - 1) * cellSize * 0.5f;
-            
+
             // Convert world position to board coordinates
             // The board is centered at (0, 0, 0) with y = 0
             x = Mathf.RoundToInt((worldPosition.x + boardHalfSize) / cellSize);
             y = Mathf.RoundToInt((worldPosition.z + boardHalfSize) / cellSize);
-            
+
             // Check if coordinates are within board bounds
             return x >= 0 && x < boardSize && y >= 0 && y < boardSize;
         }
         #endregion
     }
 }
-
-
-

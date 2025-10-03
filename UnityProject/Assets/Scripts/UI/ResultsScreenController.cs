@@ -1,7 +1,8 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
+namespace GomokuGame.UI{
 public class ResultsScreenController : MonoBehaviour
 {
     [Header("UI Elements")]
@@ -76,4 +77,5 @@ public class ResultsScreenController : MonoBehaviour
         colors.pressedColor = new Color(0.6f, 0.6f, 0.6f, 1f); // Darker gray when pressed
         button.colors = colors;
     }
+}
 }

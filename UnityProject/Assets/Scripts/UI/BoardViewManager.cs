@@ -11,7 +11,7 @@ namespace GomokuGame.UI {\r\n\npublic class BoardViewManager : MonoBehaviour
 
     [Header("Board Visualization")]
     public GameObject boardContainer;
-    public BoardViewManager coreBoardManager;
+    public GomokuGame.Core.BoardManager coreBoardManager;
     private GameObject[,] pieceVisuals;
 
     private Camera mainCamera;
@@ -297,4 +297,6 @@ namespace GomokuGame.UI {\r\n\npublic class BoardViewManager : MonoBehaviour
 
 
 }
+
+
 

@@ -5,7 +5,7 @@ namespace GomokuGame.Core
     /// <summary>
     /// Manages the game board state and piece placement
     /// </summary>
-    public class BoardViewManager : MonoBehaviour
+    public class BoardManager : MonoBehaviour
     {
         #region Fields
         [SerializeField] private int boardSize = 15;
@@ -132,4 +132,5 @@ namespace GomokuGame.Core
         #endregion
     }
 }
+
 
