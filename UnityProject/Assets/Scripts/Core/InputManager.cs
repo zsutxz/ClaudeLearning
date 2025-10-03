@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace GomokuGame.Core
 {
@@ -29,31 +29,65 @@ namespace GomokuGame.Core
         /// Handles mouse click input
         /// </summary>
         private void HandleMouseClick()
+{
+    // Convert mouse position to world position on the board plane (y = 0)
+    if (mainCamera == null)
+    {
+        mainCamera = Camera.main;
+        if (mainCamera == null)
         {
-            // Convert mouse position to world position
-            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
+            Debug.LogWarning("InputManager: mainCamera is not assigned and Camera.main is null.");
+            return;
+        }
+    }
 
-            // Check if we hit the board
-            if (Physics.Raycast(ray, out hit))
+    Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+
+    // Intersect with plane at y = 0 (board plane)
+    if (Mathf.Approximately(ray.direction.y, 0f))
+    {
+        // Ray is parallel to board plane
+        return;
+    }
+
+    float t = -ray.origin.y / ray.direction.y; // solve for ray.origin.y + t*dir.y = 0
+    if (t <= 0f)
+        return; // intersection is behind the camera
+
+    Vector3 hitPosition = ray.GetPoint(t);
+
+    int x, y;
+    if (WorldToBoardPosition(hitPosition, out x, out y))
+    {
+        // Try to place a piece
+        if (boardManager != null && gameManager != null)
+        {
+            if (boardManager.PlacePiece(x, y, gameManager.currentPlayer))
             {
-                // Convert world position to board coordinates
-                Vector3 hitPosition = hit.point;
-                int x, y;
-
-                if (WorldToBoardPosition(hitPosition, out x, out y))
+                // Check for win
+                if (gameManager.CheckWin(x, y))
                 {
-                    // Try to place a piece
-                    if (boardManager != null && gameManager != null)
+                    Debug.Log($"Player {gameManager.currentPlayer} wins!");
+                    gameManager.EndGame(gameManager.currentPlayer);
+                }
+                else
+                {
+                    // Check for draw
+                    if (gameManager.winDetector != null && gameManager.winDetector.CheckDraw())
                     {
-                        if (boardManager.PlacePiece(x, y, gameManager.currentPlayer))
-                        {
-                            // Check for win
-                            if (gameManager.CheckWin(x, y))
-                            {
-                                Debug.Log($"Player {gameManager.currentPlayer} wins!");
-                                gameManager.EndGame(gameManager.currentPlayer);
-                            }
+                        Debug.Log("Game is a draw!");
+                        gameManager.DeclareDraw();
+                    }
+                    else
+                    {
+                        // Switch player after successful placement
+                        gameManager.SwitchPlayer();
+                    }
+                }
+            }
+        }
+    }
+}
                             else
                             {
                                 // Check for draw
@@ -107,3 +141,4 @@ namespace GomokuGame.Core
         #endregion
     }
 }
+
