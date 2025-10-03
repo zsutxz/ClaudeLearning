@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using GomokuGame.Core;
 
 public class BoardViewManager : MonoBehaviour
@@ -55,7 +55,7 @@ public class BoardViewManager : MonoBehaviour
         // Subscribe to piece placement events
         if (coreBoardManager != null)
         {
-            //coreBoardManager.OnPiecePlaced += OnPiecePlaced;
+            coreBoardManager.OnPiecePlaced += OnPiecePlaced;
         }
     }
 
@@ -292,5 +292,6 @@ public class BoardViewManager : MonoBehaviour
         return material;
     }
 }
+
 
 
