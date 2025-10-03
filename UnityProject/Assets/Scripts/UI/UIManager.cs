@@ -134,10 +134,10 @@ namespace GomokuGame.UI
             if (gameManager != null)
             {
                 // Reset the board
-                if (gameManager.BoardViewManager != null)
-                {
-                    gameManager.BoardViewManager.ClearBoard();
-                }
+                //if (gameManager.GetBoardView() != null)
+                //{
+                //    var vb = gameManager.GetBoardView(); if (vb != null) vb.ClearBoard();
+                //}
                 
                 // Reset win detector
                 if (gameManager.winDetector != null)
@@ -158,11 +158,11 @@ namespace GomokuGame.UI
             GameManager gameManager = FindObjectOfType<GameManager>();
             if (gameManager != null)
             {
-                // Clear the board before returning to main menu
-                if (gameManager.BoardViewManager != null)
-                {
-                    gameManager.BoardViewManager.ClearBoard();
-                }
+                //// Clear the board before returning to main menu
+                //if (gameManager.GetBoardView() != null)
+                //{
+                //    var vb = gameManager.GetBoardView(); if (vb != null) vb.ClearBoard();
+                //}
                 
                 gameManager.ReturnToMainMenu();
             }
@@ -541,4 +541,5 @@ namespace GomokuGame.UI
         #endregion
     }
 }
+
 

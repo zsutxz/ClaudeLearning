@@ -1,5 +1,6 @@
 ﻿
 using GomokuGame.UI;
+using UnityEngine;
 namespace GomokuGame.Core
 {
     /// <summary>

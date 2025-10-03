@@ -37,11 +37,11 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        //// Initialize the board
-        //if (BoardViewManager != null)
-        //{
-        //    BoardViewManager.InitializeBoard();
-        //}
+        // Initialize the board
+        if (BoardViewManager != null)
+        {
+            BoardViewManager.InitializeBoard();
+        }
     }
 
     public void SwitchPlayer()
@@ -59,10 +59,7 @@ public class GameManager : MonoBehaviour
         return false;
     }
 
-    public void StartNewGame()    
-        {       
-            // Reset visuals in view if present
-                 // if (boardManager != null)\r\n        {\r\n            var view = boardManager.GetComponent<GomokuGame.UI.BoardViewManager>();\r\n            if (view != null) view.ClearVisuals();\r\n        }
+    public void StartNewGame()\r\n    {\r\n        // Reset visuals in view if present\r\n        if (boardManager != null)\r\n        {\r\n            var view = boardManager.GetComponent<GomokuGame.UI.BoardViewManager>();\r\n            if (view != null) view.ClearVisuals();\r\n        }
         currentState = GameState.Playing;
         currentPlayer = Player.Black;
         OnGameStateChanged?.Invoke(currentState);
@@ -107,4 +104,11 @@ public class GameManager : MonoBehaviour
         OnGameStateChanged?.Invoke(currentState);
     }
 }
+
+
+
+
+
 }
+
+

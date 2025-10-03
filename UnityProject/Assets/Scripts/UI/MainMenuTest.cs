@@ -34,17 +34,17 @@ namespace GomokuGame.UI
                 return;
             }
             
-            // Check if GameManager exists
-            GameManager gameManager = FindObjectOfType<GameManager>();
-            if (gameManager != null)
-            {
-                Debug.Log("GameManager found: SUCCESS");
-            }
-            else
-            {
-                Debug.LogError("GameManager not found: FAILED");
-                return;
-            }
+            //// Check if GameManager exists
+            //GameManager gameManager = FindObjectOfType<GameManager>();
+            //if (gameManager != null)
+            //{
+            //    Debug.Log("GameManager found: SUCCESS");
+            //}
+            //else
+            //{
+            //    Debug.LogError("GameManager not found: FAILED");
+            //    return;
+            //}
             
             // Check if Canvas exists
             Canvas canvas = FindObjectOfType<Canvas>();
