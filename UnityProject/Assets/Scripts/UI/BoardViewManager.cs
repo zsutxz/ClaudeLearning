@@ -55,7 +55,7 @@ private void RenderInstancedPieces()
     if (!useGPUInstancing || pieceMesh == null)
         return;
 
-    const int batchSize = 1023;
+    int batchSize = Mathf.Clamp(instancingBatchSize, 1, 1023);
 
     int count = blackMatrices.Count;
     for (int i = 0; i < count; i += batchSize)
@@ -357,6 +357,8 @@ private void RenderInstancedPieces()
 
 
 }
+
+
 
 
 
