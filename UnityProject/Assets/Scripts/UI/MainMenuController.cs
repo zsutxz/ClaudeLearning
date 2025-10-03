@@ -12,11 +12,11 @@ namespace GomokuGame.UI
     {
         #region Fields
         [Header("UI Elements")]
-        [SerializeField] private Button startGameButton;
-        [SerializeField] private Button settingsButton;
-        [SerializeField] private Button exitGameButton;
-        [SerializeField] private GameObject settingsPanel;
-        [SerializeField] private GameObject mainMenuPanel;
+        [SerializeField] public Button startGameButton;
+        [SerializeField] public Button settingsButton;
+        [SerializeField] public Button exitGameButton;
+        [SerializeField] public GameObject settingsPanel;
+        [SerializeField] public GameObject mainMenuPanel;
         #endregion
 
         #region Unity Lifecycle
