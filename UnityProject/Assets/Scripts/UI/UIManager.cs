@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using GomokuGame.Core;
 using System.Collections;
@@ -134,9 +134,9 @@ namespace GomokuGame.UI
             if (gameManager != null)
             {
                 // Reset the board
-                if (gameManager.boardManager != null)
+                if (gameManager.BoardViewManager != null)
                 {
-                    gameManager.boardManager.ClearBoard();
+                    gameManager.BoardViewManager.ClearBoard();
                 }
                 
                 // Reset win detector
@@ -159,9 +159,9 @@ namespace GomokuGame.UI
             if (gameManager != null)
             {
                 // Clear the board before returning to main menu
-                if (gameManager.boardManager != null)
+                if (gameManager.BoardViewManager != null)
                 {
-                    gameManager.boardManager.ClearBoard();
+                    gameManager.BoardViewManager.ClearBoard();
                 }
                 
                 gameManager.ReturnToMainMenu();
@@ -541,3 +541,4 @@ namespace GomokuGame.UI
         #endregion
     }
 }
+

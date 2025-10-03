@@ -1,5 +1,5 @@
-using UnityEngine;
-
+﻿
+using GomokuGame.UI;
 namespace GomokuGame.Core
 {
     /// <summary>
@@ -8,7 +8,7 @@ namespace GomokuGame.Core
     public class WinDetector : MonoBehaviour
     {
         #region Fields
-        [SerializeField] private BoardManager boardManager;
+        [SerializeField] private BoardViewManager BoardViewManager;
         [SerializeField] private int winCondition = 5; // Default 5 in a row to win
         #endregion
 
@@ -22,7 +22,7 @@ namespace GomokuGame.Core
         /// <returns>True if the move resulted in a win, false otherwise</returns>
         public bool CheckWin(int x, int y, GameManager.Player player)
         {
-            if (boardManager == null)
+            if (BoardViewManager == null)
                 return false;
                 
             // Check all four directions: horizontal, vertical, and two diagonals
@@ -43,7 +43,7 @@ namespace GomokuGame.Core
         /// <returns>True if win condition is met in this direction, false otherwise</returns>
         public bool CheckDirection(int x, int y, int dx, int dy, GameManager.Player player)
         {
-            if (boardManager == null)
+            if (BoardViewManager == null)
                 return false;
                 
             int count = 1; // Count the piece that was just placed
@@ -51,9 +51,9 @@ namespace GomokuGame.Core
             // Check in positive direction
             int tx = x + dx;
             int ty = y + dy;
-            while (tx >= 0 && tx < boardManager.BoardSize && 
-                   ty >= 0 && ty < boardManager.BoardSize && 
-                   boardManager.GetPieceAt(tx, ty) == player)
+            while (tx >= 0 && tx < BoardViewManager.BoardSize && 
+                   ty >= 0 && ty < BoardViewManager.BoardSize && 
+                   BoardViewManager.GetPieceAt(tx, ty) == player)
             {
                 count++;
                 tx += dx;
@@ -63,9 +63,9 @@ namespace GomokuGame.Core
             // Check in negative direction
             tx = x - dx;
             ty = y - dy;
-            while (tx >= 0 && tx < boardManager.BoardSize && 
-                   ty >= 0 && ty < boardManager.BoardSize && 
-                   boardManager.GetPieceAt(tx, ty) == player)
+            while (tx >= 0 && tx < BoardViewManager.BoardSize && 
+                   ty >= 0 && ty < BoardViewManager.BoardSize && 
+                   BoardViewManager.GetPieceAt(tx, ty) == player)
             {
                 count++;
                 tx -= dx;
@@ -81,14 +81,14 @@ namespace GomokuGame.Core
         /// <returns>True if board is full, false otherwise</returns>
         public bool CheckDraw()
         {
-            if (boardManager == null)
+            if (BoardViewManager == null)
                 return false;
                 
-            for (int x = 0; x < boardManager.BoardSize; x++)
+            for (int x = 0; x < BoardViewManager.BoardSize; x++)
             {
-                for (int y = 0; y < boardManager.BoardSize; y++)
+                for (int y = 0; y < BoardViewManager.BoardSize; y++)
                 {
-                    if (boardManager.IsPositionEmpty(x, y))
+                    if (BoardViewManager.IsPositionEmpty(x, y))
                         return false;
                 }
             }
@@ -98,3 +98,5 @@ namespace GomokuGame.Core
         #endregion
     }
 }
+
+

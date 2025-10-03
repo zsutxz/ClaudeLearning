@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-
+﻿
+using GomokuGame.UI;
 namespace GomokuGame.Core
 {
     /// <summary>
@@ -9,7 +9,7 @@ namespace GomokuGame.Core
     {
         #region Fields
         [SerializeField] private Camera mainCamera;
-        [SerializeField] private BoardManager boardManager;
+        [SerializeField] private BoardViewManager BoardViewManager;
         [SerializeField] private GameManager gameManager;
         #endregion
 
@@ -60,9 +60,9 @@ namespace GomokuGame.Core
     if (WorldToBoardPosition(hitPosition, out x, out y))
     {
         // Try to place a piece
-        if (boardManager != null && gameManager != null)
+        if (BoardViewManager != null && gameManager != null)
         {
-            if (boardManager.PlacePiece(x, y, gameManager.currentPlayer))
+            if (BoardViewManager.PlacePiece(x, y, gameManager.currentPlayer))
             {
                 // Check for win
                 if (gameManager.CheckWin(x, y))
@@ -120,11 +120,11 @@ namespace GomokuGame.Core
             x = 0;
             y = 0;
             
-            if (boardManager == null)
+            if (BoardViewManager == null)
                 return false;
                 
             // Get board size and cell size
-            int boardSize = boardManager.BoardSize;
+            int boardSize = BoardViewManager.BoardSize;
             float cellSize = 1.0f; // Default cell size
             
             // Calculate board half size
@@ -141,4 +141,6 @@ namespace GomokuGame.Core
         #endregion
     }
 }
+
+
 

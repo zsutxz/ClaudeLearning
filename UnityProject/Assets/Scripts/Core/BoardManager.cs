@@ -1,11 +1,11 @@
-using UnityEngine;
-
+﻿
+using GomokuGame.UI;
 namespace GomokuGame.Core
 {
     /// <summary>
     /// Manages the game board state and piece placement
     /// </summary>
-    public class BoardManager : MonoBehaviour
+    public class BoardViewManager : MonoBehaviour
     {
         #region Fields
         [SerializeField] private int boardSize = 15;
@@ -132,3 +132,4 @@ namespace GomokuGame.Core
         #endregion
     }
 }
+

@@ -11,7 +11,7 @@ namespace GomokuGame.UI {\r\n\npublic class BoardViewManager : MonoBehaviour
 
     [Header("Board Visualization")]
     public GameObject boardContainer;
-    public BoardManager coreBoardManager;
+    public BoardViewManager coreBoardManager;
     private GameObject[,] pieceVisuals;
 
     private Camera mainCamera;
@@ -230,7 +230,7 @@ namespace GomokuGame.UI {\r\n\npublic class BoardViewManager : MonoBehaviour
     }
     
     /// <summary>
-    /// Handles piece placement events from the core BoardManager
+    /// Handles piece placement events from the core BoardViewManager
     /// </summary>
     /// <param name="x">X coordinate of the placed piece</param>
     /// <param name="y">Y coordinate of the placed piece</param>
@@ -297,3 +297,4 @@ namespace GomokuGame.UI {\r\n\npublic class BoardViewManager : MonoBehaviour
 
 
 }
+
