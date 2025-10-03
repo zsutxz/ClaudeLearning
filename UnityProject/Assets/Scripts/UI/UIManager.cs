@@ -21,6 +21,12 @@ namespace GomokuGame.UI
         [SerializeField] private Text gameOverText;
         [SerializeField] private GameObject gameUIPanel;
         [SerializeField] private GameObject gameOverPanel;
+        [SerializeField] private GameObject resultsScreenPanel;
+        [SerializeField] private ResultsScreenController resultsScreenController;
+        
+        [Header("Game Controls")]
+        [SerializeField] private Button restartButton;
+        [SerializeField] private Button mainMenuButton;
         
         [Header("Main Menu Elements")]
         [SerializeField] private GameObject mainMenuPanel;
@@ -42,6 +48,21 @@ namespace GomokuGame.UI
                 Instance = this;
                 DontDestroyOnLoad(gameObject);
                 Initialize();
+                
+                // Add MainMenuSetup component if we're in the main menu scene
+                if (gameObject.scene.name == "MainMenu" || gameObject.scene.name == "MainMenu.unity")
+                {
+                    if (GetComponent<MainMenuSetup>() == null)
+                    {
+                        gameObject.AddComponent<MainMenuSetup>();
+                    }
+                    
+                    // Add MainMenuTest component for testing
+                    if (GetComponent<MainMenuTest>() == null)
+                    {
+                        gameObject.AddComponent<MainMenuTest>();
+                    }
+                }
             }
             else
             {
@@ -59,6 +80,19 @@ namespace GomokuGame.UI
                 gameManager.OnPlayerChanged += OnPlayerChanged;
                 gameManager.OnGameWon += OnGameWon;
                 gameManager.OnGameDraw += OnGameDraw;
+            }
+            
+            // Subscribe to button click events
+            if (restartButton != null)
+            {
+                restartButton.onClick.AddListener(RestartGame);
+                AddButtonHoverEffects(restartButton);
+            }
+            
+            if (mainMenuButton != null)
+            {
+                mainMenuButton.onClick.AddListener(ReturnToMainMenu);
+                AddButtonHoverEffects(mainMenuButton);
             }
             
             // Initialize UI state
@@ -99,8 +133,19 @@ namespace GomokuGame.UI
             GameManager gameManager = FindObjectOfType<GameManager>();
             if (gameManager != null)
             {
-                // Simple restart implementation
-                gameManager.ReturnToMainMenu();
+                // Reset the board
+                if (gameManager.boardManager != null)
+                {
+                    gameManager.boardManager.ClearBoard();
+                }
+                
+                // Reset win detector
+                if (gameManager.winDetector != null)
+                {
+                    // Win detector will be reset with new game
+                }
+                
+                // Start a new game
                 gameManager.StartNewGame();
             }
         }
@@ -113,6 +158,12 @@ namespace GomokuGame.UI
             GameManager gameManager = FindObjectOfType<GameManager>();
             if (gameManager != null)
             {
+                // Clear the board before returning to main menu
+                if (gameManager.boardManager != null)
+                {
+                    gameManager.boardManager.ClearBoard();
+                }
+                
                 gameManager.ReturnToMainMenu();
             }
         }
@@ -169,6 +220,19 @@ namespace GomokuGame.UI
         private void Initialize()
         {
             SetupSliders();
+        }
+
+        /// <summary>
+        /// Adds hover effects to a button
+        /// </summary>
+        /// <param name="button">Button to add effects to</param>
+        private void AddButtonHoverEffects(Button button)
+        {
+            // Add hover color change effect
+            ColorBlock colors = button.colors;
+            colors.highlightedColor = new Color(0.8f, 0.8f, 0.8f, 1f); // Light gray when hovered
+            colors.pressedColor = new Color(0.6f, 0.6f, 0.6f, 1f); // Darker gray when pressed
+            button.colors = colors;
         }
 
         /// <summary>
@@ -394,7 +458,16 @@ namespace GomokuGame.UI
                     // Could show a pause overlay
                     break;
                 case GameManager.GameState.GameOver:
-                    ShowPanel(gameOverPanel);
+                    // Show the results screen panel instead of the simple gameOverPanel
+                    if (resultsScreenPanel != null)
+                    {
+                        HideAllPanels();
+                        ShowPanel(resultsScreenPanel);
+                    }
+                    else
+                    {
+                        ShowPanel(gameOverPanel);
+                    }
                     break;
             }
         }
@@ -415,10 +488,18 @@ namespace GomokuGame.UI
         /// <param name="winner">Winning player</param>
         private void OnGameWon(GameManager.Player winner)
         {
+            // Update the simple gameOverText for backward compatibility
             if (gameOverText != null)
             {
                 string winnerName = winner == GameManager.Player.Black ? "Black" : "White";
                 gameOverText.text = $"{winnerName} Player Wins!";
+            }
+            
+            // Update the results screen controller if available
+            if (resultsScreenController != null)
+            {
+                int winnerId = winner == GameManager.Player.Black ? 1 : 2;
+                resultsScreenController.DisplayWinner(winnerId);
             }
         }
 
@@ -427,9 +508,16 @@ namespace GomokuGame.UI
         /// </summary>
         private void OnGameDraw()
         {
+            // Update the simple gameOverText for backward compatibility
             if (gameOverText != null)
             {
                 gameOverText.text = "Game Draw!";
+            }
+            
+            // Update the results screen controller if available
+            if (resultsScreenController != null)
+            {
+                resultsScreenController.DisplayWinner(0); // 0 indicates a draw
             }
         }
 

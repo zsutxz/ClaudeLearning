@@ -33,14 +33,14 @@ namespace GomokuGame.Core
             // Convert mouse position to world position
             Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
-            
+
             // Check if we hit the board
             if (Physics.Raycast(ray, out hit))
             {
                 // Convert world position to board coordinates
                 Vector3 hitPosition = hit.point;
                 int x, y;
-                
+
                 if (WorldToBoardPosition(hitPosition, out x, out y))
                 {
                     // Try to place a piece
@@ -52,12 +52,21 @@ namespace GomokuGame.Core
                             if (gameManager.CheckWin(x, y))
                             {
                                 Debug.Log($"Player {gameManager.currentPlayer} wins!");
-                                // TODO: Handle win condition (show win screen, etc.)
+                                gameManager.EndGame(gameManager.currentPlayer);
                             }
                             else
                             {
-                                // Switch player after successful placement
-                                gameManager.SwitchPlayer();
+                                // Check for draw
+                                if (gameManager.winDetector != null && gameManager.winDetector.CheckDraw())
+                                {
+                                    Debug.Log("Game is a draw!");
+                                    gameManager.DeclareDraw();
+                                }
+                                else
+                                {
+                                    // Switch player after successful placement
+                                    gameManager.SwitchPlayer();
+                                }
                             }
                         }
                     }
