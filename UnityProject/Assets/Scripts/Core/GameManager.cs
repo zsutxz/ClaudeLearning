@@ -56,8 +56,7 @@ public class GameManager : MonoBehaviour
         return false;
     }
 
-    public void StartNewGame()
-    {
+    public void StartNewGame()\r\n    {\r\n        // Reset visuals in view if present\r\n        if (boardManager != null)\r\n        {\r\n            var view = boardManager.GetComponent<GomokuGame.UI.BoardViewManager>();\r\n            if (view != null) view.ClearVisuals();\r\n        }
         currentState = GameState.Playing;
         currentPlayer = Player.Black;
         OnGameStateChanged?.Invoke(currentState);
@@ -108,3 +107,4 @@ public class GameManager : MonoBehaviour
 
 
 }
+
