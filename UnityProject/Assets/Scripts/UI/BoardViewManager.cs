@@ -1,17 +1,22 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using GomokuGame.Core;
-namespace GomokuGame.UI {\r\n\npublic class BoardViewManager : MonoBehaviour
+namespace GomokuGame.UI {
+    public class BoardViewManager : MonoBehaviour
 {
     [Header("Board Settings")]
     public int boardSize = 15;
     public float cellSize = 1.0f;
     public Material lineMaterial;
     public Material blackPieceMaterial;
-    public Material whitePieceMaterial;\r\n\r\n    // Shared materials cache\r\n    private Material sharedLineMaterial;\r\n    private Material sharedBlackPieceMaterial;\r\n    private Material sharedWhitePieceMaterial;\r\n\r\n    [Header("Board Visualization")]
+    public Material whitePieceMaterial;
+        // Shared materials cache\r\n    private Material sharedLineMaterial;
+        // private Material sharedBlackPieceMaterial;
+        // private Material sharedWhitePieceMaterial;\r\n\r\n    [Header("Board Visualization")]
     public GameObject boardContainer;
     public GomokuGame.Core.BoardManager coreBoardManager;
-    private GameObject[,] pieceVisuals;\r\n        private GameObject intersectionPrototype;\r\n        private Stack<GameObject> intersectionPool = new Stack<GameObject>();
+    private GameObject[,] pieceVisuals;
+   private GameObject intersectionPrototype;\r\n        private Stack<GameObject> intersectionPool = new Stack<GameObject>();
 
     private Camera mainCamera;
     private bool isBoardCreated = false;
@@ -32,14 +37,46 @@ namespace GomokuGame.UI {\r\n\npublic class BoardViewManager : MonoBehaviour
     }
 
     void Update()
+{
+    // Check if screen resolution has changed
+    if (Screen.width != lastScreenWidth || Screen.height != lastScreenHeight)
     {
-        // Check if screen resolution has changed
-        if (Screen.width != lastScreenWidth || Screen.height != lastScreenHeight)
-        {
-            AdjustScaleForResolution();
-            lastScreenWidth = Screen.width;
-            lastScreenHeight = Screen.height;
-        }\r\n\r\n    // Render instanced meshes for pieces if enabled\r\n    private void RenderInstancedPieces()\r\n    {\r\n        if (!useGPUInstancing || pieceMesh == null) return;\r\n        if (blackMatrices.Count > 0 && sharedBlackPieceMaterial != null)\r\n        {\r\n            var arr = blackMatrices.ToArray();\r\n            Graphics.DrawMeshInstanced(pieceMesh, 0, sharedBlackPieceMaterial, arr);\r\n        }\r\n        if (whiteMatrices.Count > 0 && sharedWhitePieceMaterial != null)\r\n        {\r\n            var arr2 = whiteMatrices.ToArray();\r\n            Graphics.DrawMeshInstanced(pieceMesh, 0, sharedWhitePieceMaterial, arr2);\r\n        }\r\n    }
+        AdjustScaleForResolution();
+        lastScreenWidth = Screen.width;
+        lastScreenHeight = Screen.height;
+    }
+
+    // Render instanced meshes for pieces if enabled
+    RenderInstancedPieces();
+}
+
+private void RenderInstancedPieces()
+{
+    if (!useGPUInstancing || pieceMesh == null)
+        return;
+
+    const int batchSize = 1023;
+
+    int count = blackMatrices.Count;
+    for (int i = 0; i < count; i += batchSize)
+    {
+        int len = Mathf.Min(batchSize, count - i);
+        var arr = new Matrix4x4[len];
+        blackMatrices.CopyTo(i, arr, 0, len);
+        if (sharedBlackPieceMaterial != null)
+            Graphics.DrawMeshInstanced(pieceMesh, 0, sharedBlackPieceMaterial, arr);
+    }
+
+    count = whiteMatrices.Count;
+    for (int i = 0; i < count; i += batchSize)
+    {
+        int len = Mathf.Min(batchSize, count - i);
+        var arr = new Matrix4x4[len];
+        whiteMatrices.CopyTo(i, arr, 0, len);
+        if (sharedWhitePieceMaterial != null)
+            Graphics.DrawMeshInstanced(pieceMesh, 0, sharedWhitePieceMaterial, arr);
+    }
+}\r\n\r\n    // Render instanced meshes for pieces if enabled\r\n    
     }
 
     void Start()
@@ -320,6 +357,8 @@ namespace GomokuGame.UI {\r\n\npublic class BoardViewManager : MonoBehaviour
 
 
 }
+
+
 
 
 
