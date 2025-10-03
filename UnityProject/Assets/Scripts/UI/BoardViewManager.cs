@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 using GomokuGame.Core;
 namespace GomokuGame.UI {\r\n\npublic class BoardViewManager : MonoBehaviour
 {
@@ -38,7 +39,7 @@ namespace GomokuGame.UI {\r\n\npublic class BoardViewManager : MonoBehaviour
             AdjustScaleForResolution();
             lastScreenWidth = Screen.width;
             lastScreenHeight = Screen.height;
-        }
+        }\r\n\r\n    // Render instanced meshes for pieces if enabled\r\n    private void RenderInstancedPieces()\r\n    {\r\n        if (!useGPUInstancing || pieceMesh == null) return;\r\n        if (blackMatrices.Count > 0 && sharedBlackPieceMaterial != null)\r\n        {\r\n            var arr = blackMatrices.ToArray();\r\n            Graphics.DrawMeshInstanced(pieceMesh, 0, sharedBlackPieceMaterial, arr);\r\n        }\r\n        if (whiteMatrices.Count > 0 && sharedWhitePieceMaterial != null)\r\n        {\r\n            var arr2 = whiteMatrices.ToArray();\r\n            Graphics.DrawMeshInstanced(pieceMesh, 0, sharedWhitePieceMaterial, arr2);\r\n        }\r\n    }
     }
 
     void Start()
@@ -229,28 +230,70 @@ namespace GomokuGame.UI {\r\n\npublic class BoardViewManager : MonoBehaviour
     /// <param name="y">Y coordinate of the piece</param>
     /// <param name="player">Player who placed the piece</param>
     private void CreatePieceVisual(int x, int y, GameManager.Player player)
+{
+    // Calculate world position for the piece
+    float boardHalfSize = (boardSize - 1) * cellSize * 0.5f;
+    Vector3 position = new Vector3(
+        -boardHalfSize + x * cellSize,
+        0.1f, // Slightly above the board
+        -boardHalfSize + y * cellSize
+    );
+
+    // If GPU instancing is enabled, add transform to instance list instead of creating GameObject
+    if (useGPUInstancing)
     {
-        // Calculate world position for the piece
-        float boardHalfSize = (boardSize - 1) * cellSize * 0.5f;
-        Vector3 position = new Vector3(
-            -boardHalfSize + x * cellSize,
-            0.1f, // Slightly above the board
-            -boardHalfSize + y * cellSize
-        );
-        
-        // Create the piece visual
-        GameObject pieceObject = null;\r\n            if (boardPiecePrefab != null) { pieceObject = Instantiate(boardPiecePrefab); } else { pieceObject = GameObject.CreatePrimitive(PrimitiveType.Sphere); }
-        pieceObject.name = $"Piece_{x}_{y}";
-        pieceObject.transform.SetParent(boardContainer.transform);
-        pieceObject.transform.position = position;
-        pieceObject.transform.localScale = Vector3.one * cellSize * 0.8f;
-        
-        // Set the material based on player
-        Renderer renderer = pieceObject.GetComponent<Renderer>();
-        if (renderer != null)
+        // Ensure piece mesh
+        if (pieceMesh == null)
         {
-            if (player == GameManager.Player.Black) { renderer.sharedMaterial = sharedBlackPieceMaterial ? sharedBlackPieceMaterial : (sharedBlackPieceMaterial = (blackPieceMaterial ? blackPieceMaterial : CreateDefaultMaterial(Color.black))); } else { renderer.sharedMaterial = sharedWhitePieceMaterial ? sharedWhitePieceMaterial : (sharedWhitePieceMaterial = (whitePieceMaterial ? whitePieceMaterial : CreateDefaultMaterial(Color.white))); }
+            // Create a temporary primitive to extract mesh
+            GameObject tmp = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            var mf = tmp.GetComponent<MeshFilter>();
+            if (mf != null) pieceMesh = mf.sharedMesh;
+            DestroyImmediate(tmp);
         }
+
+        // Ensure materials support instancing
+        if (sharedBlackPieceMaterial == null && blackPieceMaterial != null) sharedBlackPieceMaterial = blackPieceMaterial;
+        if (sharedWhitePieceMaterial == null && whitePieceMaterial != null) sharedWhitePieceMaterial = whitePieceMaterial;
+        if (sharedBlackPieceMaterial != null) sharedBlackPieceMaterial.enableInstancing = true;
+        if (sharedWhitePieceMaterial != null) sharedWhitePieceMaterial.enableInstancing = true;
+
+        Matrix4x4 m = Matrix4x4.TRS(position, Quaternion.identity, Vector3.one * cellSize * 0.8f);
+        if (player == GameManager.Player.Black)
+            blackMatrices.Add(m);
+        else
+            whiteMatrices.Add(m);
+
+        // Keep logical placeholder in pieceVisuals to indicate occupancy
+        if (pieceVisuals != null)
+            pieceVisuals[x, y] = null; // no GameObject
+
+        return;
+    }
+
+    // Fallback: instantiate a prefab or primitive as before
+    GameObject pieceObject = null;
+    if (boardPiecePrefab != null) { pieceObject = Instantiate(boardPiecePrefab); } else { pieceObject = GameObject.CreatePrimitive(PrimitiveType.Sphere); }
+    pieceObject.name = $"Piece_{x}_{y}";
+    pieceObject.transform.SetParent(boardContainer.transform);
+    pieceObject.transform.position = position;
+    pieceObject.transform.localScale = Vector3.one * cellSize * 0.8f;
+
+    // Set the material based on player
+    Renderer renderer = pieceObject.GetComponent<Renderer>();
+    if (renderer != null)
+    {
+        if (player == GameManager.Player.Black) renderer.sharedMaterial = sharedBlackPieceMaterial ? sharedBlackPieceMaterial : (sharedBlackPieceMaterial = (blackPieceMaterial ? blackPieceMaterial : CreateDefaultMaterial(Color.black)));
+        else renderer.sharedMaterial = sharedWhitePieceMaterial ? sharedWhitePieceMaterial : (sharedWhitePieceMaterial = (whitePieceMaterial ? whitePieceMaterial : CreateDefaultMaterial(Color.white)));
+    }
+
+    // Remove collider to avoid physics interactions
+    Destroy(pieceObject.GetComponent<Collider>());
+    
+    // Store reference to the piece visual
+    if (pieceVisuals != null)
+        pieceVisuals[x, y] = pieceObject;
+}
         
         // Remove collider to avoid physics interactions
         Destroy(pieceObject.GetComponent<Collider>());
@@ -277,6 +320,7 @@ namespace GomokuGame.UI {\r\n\npublic class BoardViewManager : MonoBehaviour
 
 
 }
+
 
 
 
