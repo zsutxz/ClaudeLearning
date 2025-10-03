@@ -10,7 +10,7 @@ namespace GomokuGame.UI {\r\n\npublic class BoardViewManager : MonoBehaviour
     public Material whitePieceMaterial;\r\n\r\n    // Shared materials cache\r\n    private Material sharedLineMaterial;\r\n    private Material sharedBlackPieceMaterial;\r\n    private Material sharedWhitePieceMaterial;\r\n\r\n    [Header("Board Visualization")]
     public GameObject boardContainer;
     public GomokuGame.Core.BoardManager coreBoardManager;
-    private GameObject[,] pieceVisuals;
+    private GameObject[,] pieceVisuals;\r\n        private GameObject intersectionPrototype;\r\n        private Stack<GameObject> intersectionPool = new Stack<GameObject>();
 
     private Camera mainCamera;
     private bool isBoardCreated = false;
@@ -142,23 +142,7 @@ namespace GomokuGame.UI {\r\n\npublic class BoardViewManager : MonoBehaviour
     /// <summary>
     /// Creates intersection points to make them clearly visible
     /// </summary>
-    void CreateIntersectionPoints()
-    {
-        float boardHalfSize = (boardSize - 1) * cellSize * 0.5f;
-        
-        // Create small spheres at each intersection point
-        for (int x = 0; x < boardSize; x++)
-        {
-            for (int z = 0; z < boardSize; z++)
-            {
-                Vector3 position = new Vector3(
-                    -boardHalfSize + x * cellSize,
-                    0.01f, // Slightly above the board
-                    -boardHalfSize + z * cellSize
-                );
-                
-                CreateIntersectionPoint(position, $"Intersection_{x}_{z}");
-            }
+    void CreateIntersectionPoints()\r\n    {\r\n        float boardHalfSize = (boardSize - 1) * cellSize * 0.5f;\r\n\r\n        // Ensure prototype exists\r\n        if (intersectionPrototype == null)\r\n        {\r\n            intersectionPrototype = GameObject.CreatePrimitive(PrimitiveType.Sphere);\r\n            intersectionPrototype.transform.localScale = Vector3.one * 0.1f;\r\n            var r = intersectionPrototype.GetComponent<Renderer>();\r\n            if (r != null) r.sharedMaterial = sharedLineMaterial ? sharedLineMaterial : CreateDefaultMaterial(Color.black);\r\n            Destroy(intersectionPrototype.GetComponent<Collider>());\r\r\n            // hide prototype in editor runtime\r\n            intersectionPrototype.SetActive(false);\r\n            intersectionPrototype.name = "IntersectionPrototype";\r\n            intersectionPrototype.transform.SetParent(boardContainer.transform);\r\n        }\r\n\r\n        // Create or reuse intersection points\r\n        for (int x = 0; x < boardSize; x++)\r\n        {\r\n            for (int z = 0; z < boardSize; z++)\r\n            {\r\n                GameObject pointObject = null;\r\n                if (intersectionPool.Count > 0) pointObject = intersectionPool.Pop();\r\n                else pointObject = Instantiate(intersectionPrototype);\r\n\r\n                float hx = -boardHalfSize + x * cellSize;\r\n                float hz = -boardHalfSize + z * cellSize;\r\n                pointObject.transform.localPosition = new Vector3(hx, 0.01f, hz);\r\n                pointObject.name = $"Intersection_{x}_{z}";\r\n                pointObject.SetActive(true);\r\n            }\r\n        }\r\n    }
         }
     }
 
@@ -293,6 +277,7 @@ namespace GomokuGame.UI {\r\n\npublic class BoardViewManager : MonoBehaviour
 
 
 }
+
 
 
 
