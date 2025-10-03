@@ -17,38 +17,28 @@ namespace GomokuGame.UI
         [SerializeField] private Button exitGameButton;
         [SerializeField] private GameObject settingsPanel;
         [SerializeField] private GameObject mainMenuPanel;
-        
-        // Public properties for MainMenuSetup to set
-        public Button startGameButton { get; set; }
-        public Button settingsButton { get; set; }
-        public Button exitGameButton { get; set; }
         #endregion
 
         #region Unity Lifecycle
         private void Start()
         {
-            // Use public properties if serialized fields are not set
-            Button startBtn = startGameButton != null ? startGameButton : this.startGameButton;
-            Button settingsBtn = settingsButton != null ? settingsButton : this.settingsButton;
-            Button exitBtn = exitGameButton != null ? exitGameButton : this.exitGameButton;
-            
             // Initialize button click listeners
-            if (startBtn != null)
+            if (startGameButton != null)
             {
-                startBtn.onClick.AddListener(StartGame);
-                AddButtonHoverEffects(startBtn);
+                startGameButton.onClick.AddListener(StartGame);
+                AddButtonHoverEffects(startGameButton);
             }
-            
-            if (settingsBtn != null)
+
+            if (settingsButton != null)
             {
-                settingsBtn.onClick.AddListener(ShowSettings);
-                AddButtonHoverEffects(settingsBtn);
+                settingsButton.onClick.AddListener(ShowSettings);
+                AddButtonHoverEffects(settingsButton);
             }
-            
-            if (exitBtn != null)
+
+            if (exitGameButton != null)
             {
-                exitBtn.onClick.AddListener(ExitGame);
-                AddButtonHoverEffects(exitBtn);
+                exitGameButton.onClick.AddListener(ExitGame);
+                AddButtonHoverEffects(exitGameButton);
             }
             
             // Ensure settings panel is hidden at start
