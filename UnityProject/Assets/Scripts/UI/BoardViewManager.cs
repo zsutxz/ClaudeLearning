@@ -7,9 +7,7 @@ namespace GomokuGame.UI {\r\n\npublic class BoardViewManager : MonoBehaviour
     public float cellSize = 1.0f;
     public Material lineMaterial;
     public Material blackPieceMaterial;
-    public Material whitePieceMaterial;
-
-    [Header("Board Visualization")]
+    public Material whitePieceMaterial;\r\n\r\n    // Shared materials cache\r\n    private Material sharedLineMaterial;\r\n    private Material sharedBlackPieceMaterial;\r\n    private Material sharedWhitePieceMaterial;\r\n\r\n    [Header("Board Visualization")]
     public GameObject boardContainer;
     public GomokuGame.Core.BoardManager coreBoardManager;
     private GameObject[,] pieceVisuals;
@@ -114,7 +112,7 @@ namespace GomokuGame.UI {\r\n\npublic class BoardViewManager : MonoBehaviour
         }
 
         // Create intersection points
-        CreateIntersectionPoints();
+        CreateIntersectionPoints();\r\n            // Prepare shared materials (ensure cache initialized)\r\n            if (sharedLineMaterial == null && lineMaterial != null) sharedLineMaterial = lineMaterial;\r\n            if (sharedBlackPieceMaterial == null && blackPieceMaterial != null) sharedBlackPieceMaterial = blackPieceMaterial;\r\n            if (sharedWhitePieceMaterial == null && whitePieceMaterial != null) sharedWhitePieceMaterial = whitePieceMaterial;
     }
 
     /// <summary>
@@ -136,7 +134,7 @@ namespace GomokuGame.UI {\r\n\npublic class BoardViewManager : MonoBehaviour
         // Configure line renderer properties
         lineRenderer.startWidth = 0.05f;
         lineRenderer.endWidth = 0.05f;
-        lineRenderer.material = lineMaterial ? lineMaterial : new Material(Shader.Find("Standard"));
+        lineRenderer.sharedMaterial = sharedLineMaterial ? sharedLineMaterial : (sharedLineMaterial = (lineMaterial ? lineMaterial : new Material(Shader.Find("Standard"))));
         lineRenderer.startColor = Color.black;
         lineRenderer.endColor = Color.black;
     }
@@ -257,7 +255,7 @@ namespace GomokuGame.UI {\r\n\npublic class BoardViewManager : MonoBehaviour
         );
         
         // Create the piece visual
-        GameObject pieceObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        GameObject pieceObject = null;\r\n            if (boardPiecePrefab != null) { pieceObject = Instantiate(boardPiecePrefab); } else { pieceObject = GameObject.CreatePrimitive(PrimitiveType.Sphere); }
         pieceObject.name = $"Piece_{x}_{y}";
         pieceObject.transform.SetParent(boardContainer.transform);
         pieceObject.transform.position = position;
@@ -267,9 +265,7 @@ namespace GomokuGame.UI {\r\n\npublic class BoardViewManager : MonoBehaviour
         Renderer renderer = pieceObject.GetComponent<Renderer>();
         if (renderer != null)
         {
-            renderer.material = player == GameManager.Player.Black ? 
-                (blackPieceMaterial ? blackPieceMaterial : CreateDefaultMaterial(Color.black)) : 
-                (whitePieceMaterial ? whitePieceMaterial : CreateDefaultMaterial(Color.white));
+            if (player == GameManager.Player.Black) { renderer.sharedMaterial = sharedBlackPieceMaterial ? sharedBlackPieceMaterial : (sharedBlackPieceMaterial = (blackPieceMaterial ? blackPieceMaterial : CreateDefaultMaterial(Color.black))); } else { renderer.sharedMaterial = sharedWhitePieceMaterial ? sharedWhitePieceMaterial : (sharedWhitePieceMaterial = (whitePieceMaterial ? whitePieceMaterial : CreateDefaultMaterial(Color.white))); }
         }
         
         // Remove collider to avoid physics interactions
@@ -297,6 +293,7 @@ namespace GomokuGame.UI {\r\n\npublic class BoardViewManager : MonoBehaviour
 
 
 }
+
 
 
 
