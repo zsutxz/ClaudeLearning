@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using GomokuGame.Core;
 
 public class GameManager : MonoBehaviour
 {
@@ -23,7 +24,7 @@ public class GameManager : MonoBehaviour
     public GameState currentState = GameState.MainMenu;
     
     [Header("Board Settings")]
-    public BoardManager boardManager;
+    public GomokuGame.Core.BoardManager boardManager;
     public WinDetector winDetector;
 
     // Events

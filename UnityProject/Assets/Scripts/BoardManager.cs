@@ -1,7 +1,7 @@
 using UnityEngine;
 using GomokuGame.Core;
 
-public class BoardManager : MonoBehaviour
+public class BoardViewManager : MonoBehaviour
 {
     [Header("Board Settings")]
     public int boardSize = 15;
@@ -12,7 +12,7 @@ public class BoardManager : MonoBehaviour
 
     [Header("Board Visualization")]
     public GameObject boardContainer;
-    public Core.BoardManager coreBoardManager;
+    public BoardManager coreBoardManager;
     private GameObject[,] pieceVisuals;
 
     private Camera mainCamera;
@@ -55,7 +55,7 @@ public class BoardManager : MonoBehaviour
         // Subscribe to piece placement events
         if (coreBoardManager != null)
         {
-            coreBoardManager.OnPiecePlaced += OnPiecePlaced;
+            //coreBoardManager.OnPiecePlaced += OnPiecePlaced;
         }
     }
 
@@ -236,7 +236,7 @@ public class BoardManager : MonoBehaviour
     /// <param name="x">X coordinate of the placed piece</param>
     /// <param name="y">Y coordinate of the placed piece</param>
     /// <param name="player">Player who placed the piece</param>
-    private void OnPiecePlaced(int x, int y, GomokuGame.Core.GameManager.Player player)
+    private void OnPiecePlaced(int x, int y, GameManager.Player player)
     {
         CreatePieceVisual(x, y, player);
     }
@@ -247,7 +247,7 @@ public class BoardManager : MonoBehaviour
     /// <param name="x">X coordinate of the piece</param>
     /// <param name="y">Y coordinate of the piece</param>
     /// <param name="player">Player who placed the piece</param>
-    private void CreatePieceVisual(int x, int y, GomokuGame.Core.GameManager.Player player)
+    private void CreatePieceVisual(int x, int y, GameManager.Player player)
     {
         // Calculate world position for the piece
         float boardHalfSize = (boardSize - 1) * cellSize * 0.5f;
@@ -268,7 +268,7 @@ public class BoardManager : MonoBehaviour
         Renderer renderer = pieceObject.GetComponent<Renderer>();
         if (renderer != null)
         {
-            renderer.material = player == GomokuGame.Core.GameManager.Player.Black ? 
+            renderer.material = player == GameManager.Player.Black ? 
                 (blackPieceMaterial ? blackPieceMaterial : CreateDefaultMaterial(Color.black)) : 
                 (whitePieceMaterial ? whitePieceMaterial : CreateDefaultMaterial(Color.white));
         }
@@ -292,3 +292,5 @@ public class BoardManager : MonoBehaviour
         return material;
     }
 }
+
+
