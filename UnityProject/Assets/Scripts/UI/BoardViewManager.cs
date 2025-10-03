@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using GomokuGame.Core;
-
-public class BoardViewManager : MonoBehaviour
+namespace GomokuGame.UI {\r\n\npublic class BoardViewManager : MonoBehaviour
 {
     [Header("Board Settings")]
     public int boardSize = 15;
@@ -295,3 +294,6 @@ public class BoardViewManager : MonoBehaviour
 
 
 
+
+
+}
