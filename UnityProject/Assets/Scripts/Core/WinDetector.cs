@@ -1,4 +1,3 @@
-﻿
 using GomokuGame.UI;
 using UnityEngine;
 namespace GomokuGame.Core
@@ -11,6 +10,11 @@ namespace GomokuGame.Core
         #region Fields
         [SerializeField] private BoardViewManager BoardViewManager;
         [SerializeField] private int winCondition = 5; // Default 5 in a row to win
+        [SerializeField] private string winConditionType = "Standard"; // Default win condition type
+        private int blackCaptures = 0;
+        private int whiteCaptures = 0;
+        private float gameTimer = 0f;
+        private float timeLimit = 300f; // 5 minutes default
         #endregion
 
         #region Public Methods
@@ -25,12 +29,32 @@ namespace GomokuGame.Core
         {
             if (BoardViewManager == null)
                 return false;
-                
-            // Check all four directions: horizontal, vertical, and two diagonals
-            return CheckDirection(x, y, 1, 0, player) ||  // Horizontal
-                   CheckDirection(x, y, 0, 1, player) ||  // Vertical
-                   CheckDirection(x, y, 1, 1, player) ||  // Diagonal /
-                   CheckDirection(x, y, 1, -1, player);   // Diagonal \
+
+            // Handle different win condition types
+            switch (winConditionType)
+            {
+                case "Standard":
+                    // Standard 5-in-a-row win condition
+                    return CheckDirection(x, y, 1, 0, player) ||  // Horizontal
+                           CheckDirection(x, y, 0, 1, player) ||  // Vertical
+                           CheckDirection(x, y, 1, 1, player) ||  // Diagonal /
+                           CheckDirection(x, y, 1, -1, player);   // Diagonal \\
+
+                case "Capture":
+                    // Capture win condition - check if player has captured enough pieces
+                    return CheckCaptureWin(player);
+
+                case "TimeBased":
+                    // Time-based win condition - check if time limit has been reached
+                    return CheckTimeBasedWin(player);
+
+                default:
+                    // Default to standard win condition
+                    return CheckDirection(x, y, 1, 0, player) ||
+                           CheckDirection(x, y, 0, 1, player) ||
+                           CheckDirection(x, y, 1, 1, player) ||
+                           CheckDirection(x, y, 1, -1, player);
+            }
         }
 
         /// <summary>
@@ -96,8 +120,112 @@ namespace GomokuGame.Core
 
             return true;
         }
+
+        /// <summary>
+        /// Checks capture win condition
+        /// </summary>
+        /// <param name="player">Player to check for</param>
+        /// <returns>True if player has captured enough pieces to win</returns>
+        public bool CheckCaptureWin(GameManager.Player player)
+        {
+            // For capture win condition, player wins if they capture enough opponent pieces
+            int requiredCaptures = 5; // Win by capturing 5 pieces
+            
+            if (player == GameManager.Player.Black)
+            {
+                return blackCaptures >= requiredCaptures;
+            }
+            else if (player == GameManager.Player.White)
+            {
+                return whiteCaptures >= requiredCaptures;
+            }
+            
+            return false;
+        }
+
+        /// <summary>
+        /// Checks time-based win condition
+        /// </summary>
+        /// <param name="player">Player to check for</param>
+        /// <returns>True if time limit has been reached</returns>
+        public bool CheckTimeBasedWin(GameManager.Player player)
+        {
+            // For time-based win condition, game ends when time limit is reached
+            // Player with most pieces wins
+            return gameTimer >= timeLimit;
+        }
+
+        /// <summary>
+        /// Updates the game timer for time-based win conditions
+        /// </summary>
+        /// <param name="deltaTime">Time elapsed since last update</param>
+        public void UpdateGameTimer(float deltaTime)
+        {
+            gameTimer += deltaTime;
+        }
+
+        /// <summary>
+        /// Records a capture for a player
+        /// </summary>
+        /// <param name="player">Player who made the capture</param>
+        public void RecordCapture(GameManager.Player player)
+        {
+            if (player == GameManager.Player.Black)
+            {
+                blackCaptures++;
+            }
+            else if (player == GameManager.Player.White)
+            {
+                whiteCaptures++;
+            }
+        }
+
+        /// <summary>
+        /// Gets the current capture count for a player
+        /// </summary>
+        /// <param name="player">Player to get capture count for</param>
+        /// <returns>Number of captures</returns>
+        public int GetCaptureCount(GameManager.Player player)
+        {
+            if (player == GameManager.Player.Black)
+            {
+                return blackCaptures;
+            }
+            else if (player == GameManager.Player.White)
+            {
+                return whiteCaptures;
+            }
+            
+            return 0;
+        }
+
+        /// <summary>
+        /// Gets the remaining time for time-based games
+        /// </summary>
+        /// <returns>Remaining time in seconds</returns>
+        public float GetRemainingTime()
+        {
+            return Mathf.Max(0f, timeLimit - gameTimer);
+        }
+
+        /// <summary>
+        /// Sets the win condition type
+        /// </summary>
+        /// <param name="conditionType">Win condition type to set</param>
+        public void SetWinConditionType(string conditionType)
+        {
+            winConditionType = conditionType;
+        }
+
+        /// <summary>
+        /// Resets the win detector for a new game
+        /// </summary>
+        public void ResetWinDetector()
+        {
+            blackCaptures = 0;
+            whiteCaptures = 0;
+            gameTimer = 0f;
+        }
         #endregion
     }
 }
-
-

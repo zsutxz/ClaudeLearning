@@ -75,6 +75,7 @@ namespace GomokuGame.UI
             if (coreBoardManager != null)
             {
                 coreBoardManager.OnPiecePlaced += OnPiecePlaced;
+                coreBoardManager.OnCaptureMade += OnCaptureMade;
             }
         }
 
@@ -350,6 +351,46 @@ namespace GomokuGame.UI
         }
 
         /// <summary>
+        /// Handles capture events from the core BoardManager
+        /// </summary>
+        /// <param name="player">Player who made the capture</param>
+        /// <param name="captureCount">Number of pieces captured</param>
+        private void OnCaptureMade(GameManager.Player player, int captureCount)
+        {
+            // When a capture occurs, we need to remove the captured pieces from the board
+            // The BoardManager has already cleared the board state, so we need to sync the visuals
+            SyncVisualsWithBoardState();
+        }
+
+        /// <summary>
+        /// Syncs the visual pieces with the current board state
+        /// </summary>
+        private void SyncVisualsWithBoardState()
+        {
+            if (coreBoardManager == null || pieceVisuals == null) return;
+
+            for (int x = 0; x < boardSize; x++)
+            {
+                for (int y = 0; y < boardSize; y++)
+                {
+                    GameManager.Player piece = coreBoardManager.GetPieceAt(x, y);
+
+                    // If there's no piece at this position but we have a visual, remove it
+                    if (piece == GameManager.Player.None && pieceVisuals[x, y] != null)
+                    {
+                        Destroy(pieceVisuals[x, y]);
+                        pieceVisuals[x, y] = null;
+                    }
+                    // If there's a piece at this position but no visual, create it
+                    else if (piece != GameManager.Player.None && pieceVisuals[x, y] == null)
+                    {
+                        CreatePieceVisual(x, y, piece);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Clears all piece visuals from the board
         /// </summary>
         public void ClearVisuals()
@@ -368,7 +409,7 @@ namespace GomokuGame.UI
                     }
                 }
             }
-            
+
             // Clean up intersection prototype
             if (intersectionPrototype != null)
             {
