@@ -62,7 +62,7 @@ This repository follows the BMAD methodology with a structured approach to plann
 - `.bmad-core/` - Contains the BMAD framework core files
 - `.claude/` - Claude Code configuration and settings
 - `docs/` - Documentation including PRD, architecture, stories, and QA artifacts
-- `UnityProject/` - Unity game project files (to be created/developed)
+- `UnityProject/` - Unity game project files
 - `web-bundles/` - Web agent bundles for different roles
 
 **BMAD Workflow:**
@@ -82,10 +82,20 @@ The repository follows the BMAD structured approach:
 │   ├── architecture/        # Architecture documentation
 │   ├── stories/             # Sharded user stories
 │   └── qa/                  # Quality assurance artifacts
-├── UnityProject/            # Unity game project files (to be created)
+├── UnityProject/            # Unity game project files
+│   ├── Assets/              # Unity assets
+│   │   ├── Scripts/         # C# source code
+│   │   │   ├── Core/        # Core game logic (BoardManager, GameManager, WinDetector)
+│   │   │   ├── UI/          # UI components and controllers
+│   │   │   └── Utilities/   # Utility functions
+│   │   ├── Tests/           # Test files
+│   │   ├── Scenes/          # Unity scenes
+│   │   ├── Prefabs/         # Reusable game objects
+│   │   └── Resources/       # Runtime assets
+│   └── ProjectSettings/     # Unity project settings
 ├── web-bundles/             # Web agent bundles
 ├── package.json             # Project dependencies and scripts
-└── INITIAL_Gomoku.md        # Initial project description
+└── README.md                # Project overview and setup instructions
 ```
 
 ### 🔧 Common Development Tasks
@@ -112,7 +122,7 @@ The repository follows the BMAD structured approach:
 ### 🛠️ Development Environment Setup
 1. For Unity development:
    - Install Unity Hub
-   - Install the appropriate Unity version for the project
+   - Install Unity 2022.3 LTS or later
    - Ensure Unity Test Framework is available
 2. For web-based components:
    - Ensure Node.js (version 14 or higher) is installed
@@ -130,6 +140,12 @@ Since this is primarily a Unity project, the development workflow will be Unity-
   - `@dev implement story` - Implement a user story
   - `@qa *review story` - Perform quality assurance review
   - `@architect review design` - Get architecture feedback
+
+To work with the Unity project:
+1. Open the project in Unity Hub: `UnityProject/UnityProject.sln`
+2. Work on features in the Unity Editor
+3. Write and run tests using Unity Test Framework
+4. Build the game using Unity's Build Settings
 
 ### 🎮 Current Project Focus
 The current project is implementing a Gomoku (Five in a Row) game in Unity:
@@ -150,3 +166,32 @@ The current project is implementing a Gomoku (Five in a Row) game in Unity:
 - Ensure test coverage for all acceptance criteria
 - Follow the test quality principles defined in the BMAD framework
 - For Unity development, utilize Unity's testing frameworks appropriately
+
+### 🧱 Core Game Components
+The Gomoku game consists of several core components:
+
+1. **BoardManager** (`UnityProject/Assets/Scripts/Core/BoardManager.cs`):
+   - Manages the game board state and piece placement
+   - Handles board initialization and piece placement validation
+
+2. **GameManager** (`UnityProject/Assets/Scripts/Core/GameManager.cs`):
+   - Controls overall game state (MainMenu, Playing, Paused, GameOver)
+   - Manages player turns and game flow
+   - Handles game start, pause, resume, and end conditions
+
+3. **WinDetector** (`UnityProject/Assets/Scripts/Core/WinDetector.cs`):
+   - Detects win conditions in all directions (horizontal, vertical, diagonal)
+   - Checks for draw conditions when the board is full
+
+4. **BoardViewManager** (`BoardViewManager.cs`):
+   - Manages the visual representation of the game board
+   - Handles piece visualization and board rendering
+   - Supports GPU instancing for performance optimization
+
+### 🧪 Running Tests
+To run tests in the Unity project:
+1. Open the Test Runner window in Unity (Window → General → Test Runner)
+2. Select the appropriate test category (EditMode or PlayMode)
+3. Click "Run All" to execute tests
+
+Note: The Unity Test Framework may need to be configured properly for tests to run.

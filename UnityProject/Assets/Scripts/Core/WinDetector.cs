@@ -46,33 +46,33 @@ namespace GomokuGame.Core
         {
             if (BoardViewManager == null)
                 return false;
-                
+
             int count = 1; // Count the piece that was just placed
-            
+
             // Check in positive direction
             int tx = x + dx;
             int ty = y + dy;
-            //while (tx >= 0 && tx < BoardViewManager.BoardSize && 
-            //       ty >= 0 && ty < BoardViewManager.BoardSize && 
-            //       BoardViewManager.GetPieceAt(tx, ty) == player)
-            //{
-            //    count++;
-            //    tx += dx;
-            //    ty += dy;
-            //}
-            
+            while (tx >= 0 && tx < BoardViewManager.boardSize &&
+                   ty >= 0 && ty < BoardViewManager.boardSize &&
+                   BoardViewManager.coreBoardManager.GetPieceAt(tx, ty) == player)
+            {
+                count++;
+                tx += dx;
+                ty += dy;
+            }
+
             // Check in negative direction
             tx = x - dx;
             ty = y - dy;
-            //while (tx >= 0 && tx < BoardViewManager.BoardSize && 
-            //       ty >= 0 && ty < BoardViewManager.BoardSize && 
-            //       BoardViewManager.GetPieceAt(tx, ty) == player)
-            //{
-            //    count++;
-            //    tx -= dx;
-            //    ty -= dy;
-            //}
-            
+            while (tx >= 0 && tx < BoardViewManager.boardSize &&
+                   ty >= 0 && ty < BoardViewManager.boardSize &&
+                   BoardViewManager.coreBoardManager.GetPieceAt(tx, ty) == player)
+            {
+                count++;
+                tx -= dx;
+                ty -= dy;
+            }
+
             return count >= winCondition;
         }
 
@@ -84,16 +84,16 @@ namespace GomokuGame.Core
         {
             if (BoardViewManager == null)
                 return false;
-                
-            //for (int x = 0; x < BoardViewManager.BoardSize; x++)
-            //{
-            //    for (int y = 0; y < BoardViewManager.BoardSize; y++)
-            //    {
-            //        if (BoardViewManager.IsPositionEmpty(x, y))
-            //            return false;
-            //    }
-            //}
-            
+
+            for (int x = 0; x < BoardViewManager.boardSize; x++)
+            {
+                for (int y = 0; y < BoardViewManager.boardSize; y++)
+                {
+                    if (BoardViewManager.coreBoardManager.IsPositionEmpty(x, y))
+                        return false;
+                }
+            }
+
             return true;
         }
         #endregion

@@ -77,5 +77,72 @@ public class ResultsScreenController : MonoBehaviour
         colors.pressedColor = new Color(0.6f, 0.6f, 0.6f, 1f); // Darker gray when pressed
         button.colors = colors;
     }
+
+    /// <summary>
+    /// Applies the current theme to results screen UI elements
+    /// </summary>
+    public void ApplyThemeToResultsUI()
+    {
+        // Get the current theme settings
+        GomokuGame.Themes.ThemeSettings themeSettings = null;
+        GomokuGame.Themes.ThemeManager themeManager = FindObjectOfType<GomokuGame.Themes.ThemeManager>();
+        if (themeManager != null)
+        {
+            themeSettings = themeManager.GetCurrentThemeSettings();
+        }
+
+        // Apply theme to winner text
+        if (winnerText != null)
+        {
+            // Use white piece color for winner text
+            winnerText.color = (themeSettings != null) ? themeSettings.whitePieceColor : Color.white;
+        }
+
+        // Apply theme to button texts
+        if (playAgainButton != null)
+        {
+            Text playAgainText = playAgainButton.GetComponentInChildren<Text>();
+            if (playAgainText != null)
+            {
+                playAgainText.color = (themeSettings != null) ? themeSettings.whitePieceColor : Color.white;
+            }
+        }
+
+        if (returnToMenuButton != null)
+        {
+            Text returnToMenuText = returnToMenuButton.GetComponentInChildren<Text>();
+            if (returnToMenuText != null)
+            {
+                returnToMenuText.color = (themeSettings != null) ? themeSettings.whitePieceColor : Color.white;
+            }
+        }
+
+        // Apply theme to button backgrounds
+        ApplyThemeToButtonBackground(playAgainButton, themeSettings);
+        ApplyThemeToButtonBackground(returnToMenuButton, themeSettings);
+    }
+
+    /// <summary>
+    /// Applies theme to button background color
+    /// </summary>
+    /// <param name="button">Button to apply theme to</param>
+    /// <param name="themeSettings">Current theme settings</param>
+    private void ApplyThemeToButtonBackground(Button button, GomokuGame.Themes.ThemeSettings themeSettings)
+    {
+        if (button != null)
+        {
+            Image buttonImage = button.GetComponent<Image>();
+            if (buttonImage != null)
+            {
+                // Use a darker version of the theme's board line color or default to dark gray
+                Color backgroundColor = (themeSettings != null) ? themeSettings.boardLineColor : new Color(0.2f, 0.2f, 0.2f, 1f);
+                // Darken the color further for button background
+                backgroundColor.r *= 0.8f;
+                backgroundColor.g *= 0.8f;
+                backgroundColor.b *= 0.8f;
+                buttonImage.color = backgroundColor;
+            }
+        }
+    }
 }
 }
