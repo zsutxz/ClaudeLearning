@@ -2,6 +2,7 @@
 using System;
 using GomokuGame.Core;
 using GomokuGame.UI;
+using GomokuGame.Utilities;
 using GomokuGame.UI;
 namespace GomokuGame.Core{
 public class GameManager : MonoBehaviour
@@ -29,6 +30,7 @@ public class GameManager : MonoBehaviour
     public GomokuGame.Core.BoardManager boardManager;
     public WinDetector winDetector;
     [SerializeField] private int selectedBoardSize = 15; // Default board size
+    [SerializeField] private string selectedWinConditionType = "Standard"; // Default win condition
 
     // Events
     public event Action<GameState> OnGameStateChanged;
@@ -43,6 +45,24 @@ public class GameManager : MonoBehaviour
         //{
         //    BoardViewManager.InitializeBoard();
         //}
+
+        // Subscribe to capture events if board manager exists
+        if (boardManager != null)
+        {
+            boardManager.OnCaptureMade += OnCaptureMade;
+        }
+
+        // Ensure default settings are applied if this is the first run
+        EnsureDefaultSettings();
+    }
+
+    void Update()
+    {
+        // Update game timer for time-based win conditions
+        if (currentState == GameState.Playing && winDetector != null)
+        {
+            winDetector.UpdateGameTimer(Time.deltaTime);
+        }
     }
 
     public void SwitchPlayer()
@@ -62,10 +82,22 @@ public class GameManager : MonoBehaviour
 
     public void StartNewGame()
     {
+        // Load settings from PlayerPrefs using PlayerPrefsManager
+        selectedBoardSize = PlayerPrefsManager.LoadBoardSize();
+        selectedWinConditionType = PlayerPrefs.GetString("WinConditionType", "Standard");
+
         // Initialize board with selected size
         if (boardManager != null)
         {
             boardManager.InitializeBoard(selectedBoardSize);
+        }
+
+        // Reset win detector with selected win condition
+        if (winDetector != null)
+        {
+            // Set the win condition type
+            winDetector.SetWinConditionType(selectedWinConditionType);
+            winDetector.ResetWinDetector();
         }
 
         // Reset visuals in view if present
@@ -133,6 +165,18 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Sets the win condition type for the next game
+    /// </summary>
+    /// <param name="conditionType">Win condition type</param>
+    public void SetWinConditionType(string conditionType)
+    {
+        if (conditionType == "Standard" || conditionType == "Capture" || conditionType == "TimeBased")
+        {
+            selectedWinConditionType = conditionType;
+        }
+    }
+
+    /// <summary>
     /// Gets the currently selected board size
     /// </summary>
     /// <returns>Board size</returns>
@@ -152,6 +196,43 @@ public class GameManager : MonoBehaviour
             return boardManager.GetComponent<GomokuGame.UI.BoardViewManager>();
         }
         return null;
+    }
+
+    /// <summary>
+    /// Ensures default settings are applied when no saved preferences exist
+    /// </summary>
+    private void EnsureDefaultSettings()
+    {
+        if (PlayerPrefsManager.IsFirstRun() || !PlayerPrefsManager.ValidateSettings())
+        {
+            // Apply default settings for first run or invalid settings
+            PlayerPrefsManager.ResetToDefaults();
+            PlayerPrefs.SetString("WinConditionType", "Standard");
+            PlayerPrefs.Save();
+        }
+    }
+
+    /// <summary>
+    /// Handles capture events from the board manager
+    /// </summary>
+    /// <param name="player">Player who made the capture</param>
+    /// <param name="captureCount">Number of pieces captured</param>
+    private void OnCaptureMade(GameManager.Player player, int captureCount)
+    {
+        if (winDetector != null)
+        {
+            // Record the capture in the win detector
+            for (int i = 0; i < captureCount; i++)
+            {
+                winDetector.RecordCapture(player);
+            }
+
+            // Check if this capture results in a win
+            if (winDetector.CheckCaptureWin(player))
+            {
+                EndGame(player);
+            }
+        }
     }
 }
 }

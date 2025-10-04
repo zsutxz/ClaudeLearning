@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using GomokuGame.Core;
+using GomokuGame.Utilities;
 using System.Collections;
 
 namespace GomokuGame.UI
@@ -43,6 +44,12 @@ namespace GomokuGame.UI
         [SerializeField] private Button boardSize15x15Button;
         [SerializeField] private Button boardSize19x19Button;
         [SerializeField] private Dropdown themeDropdown;
+
+        [Header("Win Condition UI Elements")]
+        [SerializeField] private Button winConditionStandardButton;
+        [SerializeField] private Button winConditionCaptureButton;
+        [SerializeField] private Button winConditionTimeBasedButton;
+        [SerializeField] private Text winConditionDescriptionText;
         #endregion
 
         #region Unity Lifecycle
@@ -127,8 +134,8 @@ namespace GomokuGame.UI
             GameManager gameManager = FindObjectOfType<GameManager>();
             if (gameManager != null)
             {
-                // Load board size from PlayerPrefs
-                int boardSize = PlayerPrefs.GetInt("BoardSize", 15); // Default to 15 if not set
+                // Load board size from PlayerPrefs using PlayerPrefsManager
+                int boardSize = PlayerPrefsManager.LoadBoardSize();
                 gameManager.SetBoardSize(boardSize);
 
                 // Ensure theme is applied by initializing ThemeManager if it exists
@@ -215,24 +222,19 @@ namespace GomokuGame.UI
             {
                 int boardSize = (int)boardSizeSlider.value;
                 int winCondition = (int)winConditionSlider.value;
+                string winConditionType = PlayerPrefs.GetString("WinConditionType", "Standard");
 
-                // Save to PlayerPrefs
-                PlayerPrefs.SetInt("BoardSize", boardSize);
-                PlayerPrefs.SetInt("WinCondition", winCondition);
-                
-                // Save theme selection
-                if (themeDropdown != null)
-                {
-                    PlayerPrefs.SetString("BoardTheme", themeDropdown.options[themeDropdown.value].text);
-                }
-                
-                PlayerPrefs.Save();
+                // Save to PlayerPrefs using PlayerPrefsManager with enhanced reliability
+                PlayerPrefsManager.SafeSaveAllSettings(boardSize, winCondition,
+                    themeDropdown != null ? themeDropdown.options[themeDropdown.value].text : "Default");
+                PlayerPrefs.SetString("WinConditionType", winConditionType);
 
                 // Update GameManager if it exists
                 GameManager gameManager = FindObjectOfType<GameManager>();
                 if (gameManager != null)
                 {
                     gameManager.SetBoardSize(boardSize);
+                    gameManager.SetWinConditionType(winConditionType);
                 }
             }
 
@@ -256,6 +258,7 @@ namespace GomokuGame.UI
         {
             SetupSliders();
             SetupBoardSizeButtons();
+            SetupWinConditionButtons();
         }
 
         /// <summary>
@@ -299,6 +302,17 @@ namespace GomokuGame.UI
         }
 
         /// <summary>
+        /// Sets the win condition from a specific win condition button
+        /// </summary>
+        /// <param name="condition">Win condition type</param>
+        private void SetWinConditionFromButton(string condition)
+        {
+            PlayerPrefs.SetString("WinConditionType", condition);
+            PlayerPrefs.Save();
+            UpdateWinConditionSelection(condition);
+        }
+
+        /// <summary>
         /// Sets up the slider value displays
         /// </summary>
         private void SetupSliders()
@@ -329,30 +343,54 @@ namespace GomokuGame.UI
                     AddButtonHoverEffects(boardSizeButtons[i]);
                 }
             }
-            
+
             // Setup the new specific board size buttons
             if (boardSize9x9Button != null)
             {
                 boardSize9x9Button.onClick.AddListener(() => SetBoardSizeFromButton(9));
                 AddButtonHoverEffects(boardSize9x9Button);
             }
-            
+
             if (boardSize13x13Button != null)
             {
                 boardSize13x13Button.onClick.AddListener(() => SetBoardSizeFromButton(13));
                 AddButtonHoverEffects(boardSize13x13Button);
             }
-            
+
             if (boardSize15x15Button != null)
             {
                 boardSize15x15Button.onClick.AddListener(() => SetBoardSizeFromButton(15));
                 AddButtonHoverEffects(boardSize15x15Button);
             }
-            
+
             if (boardSize19x19Button != null)
             {
                 boardSize19x19Button.onClick.AddListener(() => SetBoardSizeFromButton(19));
                 AddButtonHoverEffects(boardSize19x19Button);
+            }
+        }
+
+        /// <summary>
+        /// Sets up the win condition buttons
+        /// </summary>
+        private void SetupWinConditionButtons()
+        {
+            if (winConditionStandardButton != null)
+            {
+                winConditionStandardButton.onClick.AddListener(() => SetWinConditionFromButton("Standard"));
+                AddButtonHoverEffects(winConditionStandardButton);
+            }
+
+            if (winConditionCaptureButton != null)
+            {
+                winConditionCaptureButton.onClick.AddListener(() => SetWinConditionFromButton("Capture"));
+                AddButtonHoverEffects(winConditionCaptureButton);
+            }
+
+            if (winConditionTimeBasedButton != null)
+            {
+                winConditionTimeBasedButton.onClick.AddListener(() => SetWinConditionFromButton("TimeBased"));
+                AddButtonHoverEffects(winConditionTimeBasedButton);
             }
         }
 
@@ -367,7 +405,30 @@ namespace GomokuGame.UI
                 if (gameManager != null)
                 {
                     string player = gameManager.currentPlayer == GameManager.Player.Black ? "Black" : "White";
-                    currentPlayerText.text = $"Current Player: {player}";
+
+                    // Get win condition type for additional info
+                    string winConditionType = PlayerPrefs.GetString("WinConditionType", "Standard");
+                    string additionalInfo = "";
+
+                    // Add win condition specific information
+                    if (gameManager.winDetector != null)
+                    {
+                        switch (winConditionType)
+                        {
+                            case "Capture":
+                                int captures = gameManager.winDetector.GetCaptureCount(gameManager.currentPlayer);
+                                additionalInfo = $" (Captures: {captures}/5)";
+                                break;
+                            case "TimeBased":
+                                float remainingTime = gameManager.winDetector.GetRemainingTime();
+                                int minutes = Mathf.FloorToInt(remainingTime / 60);
+                                int seconds = Mathf.FloorToInt(remainingTime % 60);
+                                additionalInfo = $" (Time: {minutes:00}:{seconds:00})";
+                                break;
+                        }
+                    }
+
+                    currentPlayerText.text = $"Current Player: {player}{additionalInfo}";
 
                     // Apply distinct visual styling for each player with theme support
                     GomokuGame.Themes.ThemeSettings themeSettings = null;
@@ -405,13 +466,30 @@ namespace GomokuGame.UI
                 GameManager gameManager = FindObjectOfType<GameManager>();
                 if (gameManager != null)
                 {
+                    // Get win condition type for additional info
+                    string winConditionType = PlayerPrefs.GetString("WinConditionType", "Standard");
+                    string winConditionInfo = "";
+
+                    switch (winConditionType)
+                    {
+                        case "Standard":
+                            winConditionInfo = " (5-in-a-row)";
+                            break;
+                        case "Capture":
+                            winConditionInfo = " (Capture)";
+                            break;
+                        case "TimeBased":
+                            winConditionInfo = " (Time-based)";
+                            break;
+                    }
+
                     switch (gameManager.currentState)
                     {
                         case GameManager.GameState.MainMenu:
                             gameStateText.text = "Game State: Main Menu";
                             break;
                         case GameManager.GameState.Playing:
-                            gameStateText.text = "Game State: Playing";
+                            gameStateText.text = $"Game State: Playing{winConditionInfo}";
                             break;
                         case GameManager.GameState.Paused:
                             gameStateText.text = "Game State: Paused";
@@ -479,8 +557,9 @@ namespace GomokuGame.UI
         /// </summary>
         private void LoadSettingsValues()
         {
-            int boardSize = PlayerPrefs.GetInt("BoardSize", 15);
-            int winCondition = PlayerPrefs.GetInt("WinCondition", 5);
+            int boardSize = PlayerPrefsManager.LoadBoardSize();
+            int winCondition = PlayerPrefsManager.LoadWinCondition();
+            string winConditionType = PlayerPrefs.GetString("WinConditionType", "Standard");
 
             // Validate board size is within acceptable range
             if (boardSize < 9) boardSize = 9;
@@ -500,10 +579,13 @@ namespace GomokuGame.UI
                 UpdateWinConditionText(winCondition);
             }
 
+            // Load win condition type selection
+            UpdateWinConditionSelection(winConditionType);
+
             // Load theme selection
             if (themeDropdown != null)
             {
-                string savedTheme = PlayerPrefs.GetString("BoardTheme", "Classic");
+                string savedTheme = PlayerPrefsManager.LoadTheme();
                 for (int i = 0; i < themeDropdown.options.Count; i++)
                 {
                     if (themeDropdown.options[i].text == savedTheme)
@@ -661,6 +743,94 @@ namespace GomokuGame.UI
             if (winConditionValueText != null)
             {
                 winConditionValueText.text = $"{condition} in a row";
+            }
+        }
+
+        /// <summary>
+        /// Updates the win condition selection and description
+        /// </summary>
+        /// <param name="condition">Selected win condition</param>
+        private void UpdateWinConditionSelection(string condition)
+        {
+            // Update visual feedback for win condition buttons
+            UpdateWinConditionButtonSelection(condition);
+
+            // Update description text
+            if (winConditionDescriptionText != null)
+            {
+                switch (condition)
+                {
+                    case "Standard":
+                        winConditionDescriptionText.text = "Standard 5-in-a-row: Connect 5 pieces in a row to win.";
+                        break;
+                    case "Capture":
+                        winConditionDescriptionText.text = "Capture: Surround opponent pieces to capture them. First to capture 5 pieces wins.";
+                        break;
+                    case "TimeBased":
+                        winConditionDescriptionText.text = "Time-based: Game ends after time limit. Player with most pieces wins.";
+                        break;
+                    default:
+                        winConditionDescriptionText.text = "Select a win condition to see description.";
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Updates the visual feedback for win condition buttons
+        /// </summary>
+        /// <param name="selectedCondition">Selected win condition</param>
+        private void UpdateWinConditionButtonSelection(string selectedCondition)
+        {
+            // Reset all buttons to normal state
+            if (winConditionStandardButton != null)
+            {
+                ColorBlock colorsStandard = winConditionStandardButton.colors;
+                colorsStandard.normalColor = new Color(0.2f, 0.2f, 0.2f, 1f);
+                winConditionStandardButton.colors = colorsStandard;
+            }
+
+            if (winConditionCaptureButton != null)
+            {
+                ColorBlock colorsCapture = winConditionCaptureButton.colors;
+                colorsCapture.normalColor = new Color(0.2f, 0.2f, 0.2f, 1f);
+                winConditionCaptureButton.colors = colorsCapture;
+            }
+
+            if (winConditionTimeBasedButton != null)
+            {
+                ColorBlock colorsTimeBased = winConditionTimeBasedButton.colors;
+                colorsTimeBased.normalColor = new Color(0.2f, 0.2f, 0.2f, 1f);
+                winConditionTimeBasedButton.colors = colorsTimeBased;
+            }
+
+            // Highlight the selected button
+            switch (selectedCondition)
+            {
+                case "Standard":
+                    if (winConditionStandardButton != null)
+                    {
+                        ColorBlock colorsStandard = winConditionStandardButton.colors;
+                        colorsStandard.normalColor = new Color(0.4f, 0.4f, 0.4f, 1f); // Lighter color for selection
+                        winConditionStandardButton.colors = colorsStandard;
+                    }
+                    break;
+                case "Capture":
+                    if (winConditionCaptureButton != null)
+                    {
+                        ColorBlock colorsCapture = winConditionCaptureButton.colors;
+                        colorsCapture.normalColor = new Color(0.4f, 0.4f, 0.4f, 1f); // Lighter color for selection
+                        winConditionCaptureButton.colors = colorsCapture;
+                    }
+                    break;
+                case "TimeBased":
+                    if (winConditionTimeBasedButton != null)
+                    {
+                        ColorBlock colorsTimeBased = winConditionTimeBasedButton.colors;
+                        colorsTimeBased.normalColor = new Color(0.4f, 0.4f, 0.4f, 1f); // Lighter color for selection
+                        winConditionTimeBasedButton.colors = colorsTimeBased;
+                    }
+                    break;
             }
         }
 
