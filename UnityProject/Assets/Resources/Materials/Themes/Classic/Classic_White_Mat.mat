@@ -1,0 +1,4 @@
+Classic White Piece Material
+This is a placeholder file. In a real Unity project, this would be a .mat file with:
+- Color: Pure white (RGB: 255, 255, 255)
+- Shader: Standard
