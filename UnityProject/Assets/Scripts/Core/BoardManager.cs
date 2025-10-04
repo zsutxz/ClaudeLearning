@@ -15,6 +15,9 @@ namespace GomokuGame.Core
         
         private int[,] boardState;
         private GameObject[,] boardPieces;
+        
+        // Performance optimization: Cache for frequently accessed values
+        private bool isLargeBoard = false;
         #endregion
 
         #region Properties
@@ -44,6 +47,9 @@ namespace GomokuGame.Core
             boardSize = size;
             boardState = new int[boardSize, boardSize];
             boardPieces = new GameObject[boardSize, boardSize];
+            
+            // Performance optimization: Cache board size classification
+            isLargeBoard = boardSize > 15;
             
             // Clear any existing board pieces
             if (boardParent != null)
@@ -76,12 +82,16 @@ namespace GomokuGame.Core
         /// <returns>True if piece was placed successfully, false otherwise</returns>
         public bool PlacePiece(int x, int y, GameManager.Player player)
         {
-            // Validate coordinates
-            if (x < 0 || x >= boardSize || y < 0 || y >= boardSize)
+            // Validate coordinates with comprehensive boundary checking
+            if (!IsValidPosition(x, y))
                 return false;
                 
             // Check if position is empty
             if (boardState[x, y] != 0)
+                return false;
+                
+            // Validate player is valid (not None)
+            if (player == GameManager.Player.None)
                 return false;
                 
             // Place the piece
@@ -101,7 +111,7 @@ namespace GomokuGame.Core
         /// <returns>The player at the position, or None if empty</returns>
         public GameManager.Player GetPieceAt(int x, int y)
         {
-            if (x < 0 || x >= boardSize || y < 0 || y >= boardSize)
+            if (!IsValidPosition(x, y))
                 return GameManager.Player.None;
                 
             return (GameManager.Player)boardState[x, y];
@@ -115,7 +125,7 @@ namespace GomokuGame.Core
         /// <returns>True if position is empty, false otherwise</returns>
         public bool IsPositionEmpty(int x, int y)
         {
-            if (x < 0 || x >= boardSize || y < 0 || y >= boardSize)
+            if (!IsValidPosition(x, y))
                 return false;
                 
             return boardState[x, y] == 0;
@@ -175,6 +185,10 @@ namespace GomokuGame.Core
         {
             int captures = 0;
 
+            // Performance optimization: Early exit for edge cases
+            if (!IsValidPosition(x, y))
+                return 0;
+
             // Check for capture pattern: opponent's piece, opponent's piece, player's piece
             // This represents surrounding two opponent pieces
 
@@ -231,7 +245,7 @@ namespace GomokuGame.Core
         /// <param name="x">X coordinate</param>
         /// <param name="y">Y coordinate</param>
         /// <returns>True if position is valid, false otherwise</returns>
-        private bool IsValidPosition(int x, int y)
+        public bool IsValidPosition(int x, int y)
         {
             return x >= 0 && x < boardSize && y >= 0 && y < boardSize;
         }

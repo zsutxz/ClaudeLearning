@@ -17,23 +17,23 @@ namespace GomokuGame.UI
 
         #region Fields
         [Header("Game UI Elements")]
-        [SerializeField] private Text currentPlayerText;
-        [SerializeField] private Text gameStateText;
-        [SerializeField] private Text gameOverText;
-        [SerializeField] private GameObject gameUIPanel;
-        [SerializeField] private GameObject gameOverPanel;
-        [SerializeField] private GameObject resultsScreenPanel;
-        [SerializeField] private ResultsScreenController resultsScreenController;
+        [SerializeField] public Text currentPlayerText;
+        [SerializeField] public Text gameStateText;
+        [SerializeField] public Text gameOverText;
+        [SerializeField] public GameObject gameUIPanel;
+        [SerializeField] public GameObject gameOverPanel;
+        [SerializeField] public GameObject resultsScreenPanel;
+        [SerializeField] public ResultsScreenController resultsScreenController;
         
         [Header("Game Controls")]
-        [SerializeField] private Button restartButton;
-        [SerializeField] private Button mainMenuButton;
+        [SerializeField] public Button restartButton;
+        [SerializeField] public Button mainMenuButton;
         
         [Header("Main Menu Elements")]
-        [SerializeField] private GameObject mainMenuPanel;
+        [SerializeField] public GameObject mainMenuPanel;
         
         [Header("Settings UI Elements")]
-        [SerializeField] private GameObject settingsPanel;
+        [SerializeField] public GameObject settingsPanel;
         [SerializeField] private Slider boardSizeSlider;
         [SerializeField] private Slider winConditionSlider;
         [SerializeField] private Text boardSizeValueText;

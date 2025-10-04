@@ -27,7 +27,7 @@ namespace GomokuGame.Core
         /// <returns>True if the move resulted in a win, false otherwise</returns>
         public bool CheckWin(int x, int y, GameManager.Player player)
         {
-            if (BoardViewManager == null)
+            if (BoardViewManager == null || BoardViewManager.coreBoardManager == null)
                 return false;
 
             // Handle different win condition types
@@ -68,7 +68,11 @@ namespace GomokuGame.Core
         /// <returns>True if win condition is met in this direction, false otherwise</returns>
         public bool CheckDirection(int x, int y, int dx, int dy, GameManager.Player player)
         {
-            if (BoardViewManager == null)
+            if (BoardViewManager == null || BoardViewManager.coreBoardManager == null)
+                return false;
+
+            // Validate starting position
+            if (!BoardViewManager.coreBoardManager.IsValidPosition(x, y))
                 return false;
 
             int count = 1; // Count the piece that was just placed
@@ -76,8 +80,7 @@ namespace GomokuGame.Core
             // Check in positive direction
             int tx = x + dx;
             int ty = y + dy;
-            while (tx >= 0 && tx < BoardViewManager.boardSize &&
-                   ty >= 0 && ty < BoardViewManager.boardSize &&
+            while (BoardViewManager.coreBoardManager.IsValidPosition(tx, ty) &&
                    BoardViewManager.coreBoardManager.GetPieceAt(tx, ty) == player)
             {
                 count++;
@@ -88,8 +91,7 @@ namespace GomokuGame.Core
             // Check in negative direction
             tx = x - dx;
             ty = y - dy;
-            while (tx >= 0 && tx < BoardViewManager.boardSize &&
-                   ty >= 0 && ty < BoardViewManager.boardSize &&
+            while (BoardViewManager.coreBoardManager.IsValidPosition(tx, ty) &&
                    BoardViewManager.coreBoardManager.GetPieceAt(tx, ty) == player)
             {
                 count++;
@@ -106,7 +108,7 @@ namespace GomokuGame.Core
         /// <returns>True if board is full, false otherwise</returns>
         public bool CheckDraw()
         {
-            if (BoardViewManager == null)
+            if (BoardViewManager == null || BoardViewManager.coreBoardManager == null)
                 return false;
 
             for (int x = 0; x < BoardViewManager.boardSize; x++)

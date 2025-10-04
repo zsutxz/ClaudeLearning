@@ -22,6 +22,13 @@ public class GameManager : MonoBehaviour
         GameOver
     }
 
+    public enum WinConditionType
+    {
+        FiveInRow,
+        FiveInRowNoOverlines,
+        FiveInRowFreeThree
+    }
+
     [Header("Game State")]
     public Player currentPlayer = Player.Black;
     public GameState currentState = GameState.MainMenu;
@@ -31,9 +38,10 @@ public class GameManager : MonoBehaviour
     public WinDetector winDetector;
     [SerializeField] private int selectedBoardSize = 15; // Default board size
     [SerializeField] private string selectedWinConditionType = "Standard"; // Default win condition
+        internal GameState gameState;
 
-    // Events
-    public event Action<GameState> OnGameStateChanged;
+        // Events
+        public event Action<GameState> OnGameStateChanged;
     public event Action<Player> OnPlayerChanged;
     public event Action<Player> OnGameWon;
     public event Action OnGameDraw;
@@ -107,6 +115,7 @@ public class GameManager : MonoBehaviour
             if (view != null) view.ClearVisuals();
         }
 
+        // Ensure consistent state transitions
         currentState = GameState.Playing;
         currentPlayer = Player.Black;
         OnGameStateChanged?.Invoke(currentState);
@@ -115,20 +124,29 @@ public class GameManager : MonoBehaviour
 
     public void EndGame(Player winner)
     {
-        currentState = GameState.GameOver;
-        OnGameStateChanged?.Invoke(currentState);
-        OnGameWon?.Invoke(winner);
+        // Only allow transition from Playing to GameOver
+        if (currentState == GameState.Playing)
+        {
+            currentState = GameState.GameOver;
+            OnGameStateChanged?.Invoke(currentState);
+            OnGameWon?.Invoke(winner);
+        }
     }
 
     public void DeclareDraw()
     {
-        currentState = GameState.GameOver;
-        OnGameStateChanged?.Invoke(currentState);
-        OnGameDraw?.Invoke();
+        // Only allow transition from Playing to GameOver
+        if (currentState == GameState.Playing)
+        {
+            currentState = GameState.GameOver;
+            OnGameStateChanged?.Invoke(currentState);
+            OnGameDraw?.Invoke();
+        }
     }
 
     public void PauseGame()
     {
+        // Only allow pause from Playing state
         if (currentState == GameState.Playing)
         {
             currentState = GameState.Paused;
@@ -138,6 +156,7 @@ public class GameManager : MonoBehaviour
 
     public void ResumeGame()
     {
+        // Only allow resume from Paused state
         if (currentState == GameState.Paused)
         {
             currentState = GameState.Playing;
@@ -147,8 +166,12 @@ public class GameManager : MonoBehaviour
 
     public void ReturnToMainMenu()
     {
-        currentState = GameState.MainMenu;
-        OnGameStateChanged?.Invoke(currentState);
+        // Allow return to menu from any state except MainMenu
+        if (currentState != GameState.MainMenu)
+        {
+            currentState = GameState.MainMenu;
+            OnGameStateChanged?.Invoke(currentState);
+        }
     }
 
     /// <summary>
@@ -162,6 +185,11 @@ public class GameManager : MonoBehaviour
         {
             selectedBoardSize = size;
         }
+        else
+        {
+            // Clamp to valid range
+            selectedBoardSize = Mathf.Clamp(size, 9, 19);
+        }
     }
 
     /// <summary>
@@ -174,6 +202,11 @@ public class GameManager : MonoBehaviour
         {
             selectedWinConditionType = conditionType;
         }
+        else
+        {
+            // Default to Standard if invalid
+            selectedWinConditionType = "Standard";
+        }
     }
 
     /// <summary>
@@ -183,6 +216,15 @@ public class GameManager : MonoBehaviour
     public int GetBoardSize()
     {
         return selectedBoardSize;
+    }
+
+    /// <summary>
+    /// Gets the currently selected win condition type
+    /// </summary>
+    /// <returns>Win condition type</returns>
+    public string GetWinConditionType()
+    {
+        return selectedWinConditionType;
     }
 
     /// <summary>
@@ -234,5 +276,20 @@ public class GameManager : MonoBehaviour
             }
         }
     }
-}
+
+        internal bool CheckDraw()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void EndGame()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void RestartGame()
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

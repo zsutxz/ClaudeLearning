@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace GomokuGame.Utilities
@@ -27,6 +28,11 @@ namespace GomokuGame.Utilities
         /// <param name="size">Board size</param>
         public static void SaveBoardSize(int size)
         {
+            // Validate board size range before saving
+            if (size < 9 || size > 19)
+            {
+                size = DEFAULT_BOARD_SIZE;
+            }
             PlayerPrefs.SetInt(BOARD_SIZE_KEY, size);
             PlayerPrefs.Save();
         }
@@ -46,6 +52,11 @@ namespace GomokuGame.Utilities
         /// <param name="condition">Win condition</param>
         public static void SaveWinCondition(int condition)
         {
+            // Validate win condition range before saving
+            if (condition < 3 || condition > 10)
+            {
+                condition = DEFAULT_WIN_CONDITION;
+            }
             PlayerPrefs.SetInt(WIN_CONDITION_KEY, condition);
             PlayerPrefs.Save();
         }
@@ -67,6 +78,11 @@ namespace GomokuGame.Utilities
         /// <param name="theme">Theme name</param>
         public static void SaveTheme(string theme)
         {
+            // Validate theme is not null or empty
+            if (string.IsNullOrEmpty(theme))
+            {
+                theme = DEFAULT_THEME;
+            }
             PlayerPrefs.SetString(THEME_KEY, theme);
             PlayerPrefs.Save();
         }
@@ -208,10 +224,26 @@ namespace GomokuGame.Utilities
         /// <summary>
         /// Safely saves all settings with error handling and backup
         /// </summary>
-        public static void SafeSaveAllSettings(int boardSize, int winCondition, string theme)
+        public static bool SafeSaveAllSettings(int boardSize, int winCondition, string theme)
         {
             try
             {
+                // Validate inputs before saving
+                if (boardSize < 9 || boardSize > 19)
+                {
+                    boardSize = DEFAULT_BOARD_SIZE;
+                }
+                
+                if (winCondition < 3 || winCondition > 10)
+                {
+                    winCondition = DEFAULT_WIN_CONDITION;
+                }
+                
+                if (string.IsNullOrEmpty(theme))
+                {
+                    theme = DEFAULT_THEME;
+                }
+
                 // Create backup before making changes
                 CreateBackup();
 
@@ -225,6 +257,27 @@ namespace GomokuGame.Utilities
                 // If save fails, attempt to restore from backup
                 RestoreFromBackup();
             }
+            return true;
+        }
+
+        internal static void SaveWinConditionType(object fiveInRowNoOverlines)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static void SaveBoardTheme(string v)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static string LoadWinConditionType()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static string LoadBoardTheme()
+        {
+            throw new NotImplementedException();
         }
         #endregion
     }

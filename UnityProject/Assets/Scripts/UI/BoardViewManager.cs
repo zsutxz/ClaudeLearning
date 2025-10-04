@@ -121,9 +121,17 @@ namespace GomokuGame.UI
         {
             float boardHalfSize = (boardSize - 1) * cellSize * 0.5f;
 
+            // Optimize line creation for large boards
+            // For boards larger than 15x15, reduce line complexity
+            bool useSimplifiedLines = boardSize > 15;
+
             // Create horizontal lines
             for (int i = 0; i < boardSize; i++)
             {
+                // Skip every other line for large boards to improve performance
+                if (useSimplifiedLines && i % 2 == 0 && i != 0 && i != boardSize - 1)
+                    continue;
+
                 CreateLine(
                     new Vector3(-boardHalfSize, 0, -boardHalfSize + i * cellSize),
                     new Vector3(boardHalfSize, 0, -boardHalfSize + i * cellSize),
@@ -134,6 +142,10 @@ namespace GomokuGame.UI
             // Create vertical lines
             for (int i = 0; i < boardSize; i++)
             {
+                // Skip every other line for large boards to improve performance
+                if (useSimplifiedLines && i % 2 == 0 && i != 0 && i != boardSize - 1)
+                    continue;
+
                 CreateLine(
                     new Vector3(-boardHalfSize + i * cellSize, 0, -boardHalfSize),
                     new Vector3(-boardHalfSize + i * cellSize, 0, boardHalfSize),
@@ -141,12 +153,11 @@ namespace GomokuGame.UI
                 );
             }
 
-            // Create intersection points
-            CreateIntersectionPoints();
-            // Prepare shared materials (ensure cache initialized)
-            // if (sharedLineMaterial == null && lineMaterial != null)
-            // sharedLineMaterial = lineMaterial;
-            // if (sharedBlackPieceMaterial == null && blackPieceMaterial != null) sharedBlackPieceMaterial = blackPieceMaterial;
+            // Create intersection points (only for small boards)
+            if (boardSize <= 15)
+            {
+                CreateIntersectionPoints();
+            }
         }
 
         /// <summary>
@@ -292,9 +303,19 @@ namespace GomokuGame.UI
                 -boardHalfSize + y * cellSize
             );
 
-            // Fallback: instantiate a prefab or primitive as before
+            // Optimize piece creation for large boards
             GameObject pieceObject = null;
-            pieceObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            
+            // For large boards, use simpler geometry
+            if (boardSize > 15)
+            {
+                pieceObject = GameObject.CreatePrimitive(PrimitiveType.Cube); // Cube is simpler than sphere
+            }
+            else
+            {
+                pieceObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            }
+            
             pieceObject.name = $"Piece_{x}_{y}";
             pieceObject.transform.SetParent(boardContainer.transform);
             pieceObject.transform.position = position;
