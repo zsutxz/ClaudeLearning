@@ -1,8 +1,8 @@
 using UnityEngine;
 using UnityEngine.TestTools;
-using NUnit.Framework;
 using System.Collections;
 using GomokuGame.Utilities;
+using UnityEngine.Assertions;
 
 namespace GomokuGame.UI.Tests
 {
