@@ -24,10 +24,11 @@ public class GameManager : MonoBehaviour
     [Header("Game State")]
     public Player currentPlayer = Player.Black;
     public GameState currentState = GameState.MainMenu;
-    
+
     [Header("Board Settings")]
     public GomokuGame.Core.BoardManager boardManager;
     public WinDetector winDetector;
+    [SerializeField] private int selectedBoardSize = 15; // Default board size
 
     // Events
     public event Action<GameState> OnGameStateChanged;
@@ -59,10 +60,21 @@ public class GameManager : MonoBehaviour
         return false;
     }
 
-    public void StartNewGame()    
-        {       
-            // Reset visuals in view if present
-                 // if (boardManager != null)\r\n        {\r\n            var view = boardManager.GetComponent<GomokuGame.UI.BoardViewManager>();\r\n            if (view != null) view.ClearVisuals();\r\n        }
+    public void StartNewGame()
+    {
+        // Initialize board with selected size
+        if (boardManager != null)
+        {
+            boardManager.InitializeBoard(selectedBoardSize);
+        }
+
+        // Reset visuals in view if present
+        if (boardManager != null)
+        {
+            var view = boardManager.GetComponent<GomokuGame.UI.BoardViewManager>();
+            if (view != null) view.ClearVisuals();
+        }
+
         currentState = GameState.Playing;
         currentPlayer = Player.Black;
         OnGameStateChanged?.Invoke(currentState);
@@ -105,6 +117,41 @@ public class GameManager : MonoBehaviour
     {
         currentState = GameState.MainMenu;
         OnGameStateChanged?.Invoke(currentState);
+    }
+
+    /// <summary>
+    /// Sets the board size for the next game
+    /// </summary>
+    /// <param name="size">Board size (size x size)</param>
+    public void SetBoardSize(int size)
+    {
+        // Validate board size (reasonable limits)
+        if (size >= 9 && size <= 19)
+        {
+            selectedBoardSize = size;
+        }
+    }
+
+    /// <summary>
+    /// Gets the currently selected board size
+    /// </summary>
+    /// <returns>Board size</returns>
+    public int GetBoardSize()
+    {
+        return selectedBoardSize;
+    }
+
+    /// <summary>
+    /// Gets the BoardViewManager component
+    /// </summary>
+    /// <returns>BoardViewManager instance</returns>
+    public GomokuGame.UI.BoardViewManager GetBoardView()
+    {
+        if (boardManager != null)
+        {
+            return boardManager.GetComponent<GomokuGame.UI.BoardViewManager>();
+        }
+        return null;
     }
 }
 }

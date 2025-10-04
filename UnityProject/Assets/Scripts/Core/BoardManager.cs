@@ -61,6 +61,9 @@ namespace GomokuGame.Core
                     boardState[x, y] = 0; // 0 = empty, 1 = black, 2 = white
                 }
             }
+            
+            // Notify any listeners that the board has been initialized
+            // This could be used to update the visual representation
         }
 
         /// <summary>

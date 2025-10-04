@@ -1,12 +1,13 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 using GomokuGame.Core;
+using GomokuGame.Themes;
+
 namespace GomokuGame.UI
 {
     public class BoardViewManager : MonoBehaviour
     {
         [Header("Board Settings")]
-        public int boardSize = 15;
         public float cellSize = 1.0f;
         public Material lineMaterial;
         public Material blackPieceMaterial;
@@ -18,6 +19,9 @@ namespace GomokuGame.UI
         [Header("Board Visualization")]
         public GameObject boardContainer;
         public GomokuGame.Core.BoardManager coreBoardManager;
+
+        // Property to get board size from core BoardManager
+        public int boardSize => coreBoardManager != null ? coreBoardManager.BoardSize : 15;
         private GameObject[,] pieceVisuals;
         private GameObject intersectionPrototype;
         private Stack<GameObject> intersectionPool = new Stack<GameObject>();
@@ -36,8 +40,8 @@ namespace GomokuGame.UI
             lastScreenWidth = Screen.width;
             lastScreenHeight = Screen.height;
 
-            // Initialize piece visuals array
-            pieceVisuals = new GameObject[boardSize, boardSize];
+            // Initialize piece visuals array (will be resized when board is created)
+            pieceVisuals = new GameObject[15, 15]; // Default size, will be updated in InitializeBoard
         }
 
         void Update()
@@ -59,7 +63,7 @@ namespace GomokuGame.UI
   
         } 
 
-    void Start()
+        void Start()
         {
             mainCamera = Camera.main;
             if (!isBoardCreated)
@@ -79,13 +83,20 @@ namespace GomokuGame.UI
         /// </summary>
         public void InitializeBoard()
         {
-            if (!isBoardCreated)
+            // Clear existing board if it exists
+            if (boardContainer != null)
             {
-                CreateBoard();
-                CenterBoard();
-                AdjustScaleForResolution();
-                isBoardCreated = true;
+                Destroy(boardContainer);
             }
+
+            // Resize piece visuals array to match current board size
+            pieceVisuals = new GameObject[boardSize, boardSize];
+
+            // Create new board
+            CreateBoard();
+            CenterBoard();
+            AdjustScaleForResolution();
+            isBoardCreated = true;
         }
 
         /// <summary>
@@ -156,9 +167,33 @@ namespace GomokuGame.UI
             // Configure line renderer properties
             lineRenderer.startWidth = 0.05f;
             lineRenderer.endWidth = 0.05f;
-            lineRenderer.sharedMaterial = sharedLineMaterial ? sharedLineMaterial : (sharedLineMaterial = (lineMaterial ? lineMaterial : new Material(Shader.Find("Standard"))));
-            lineRenderer.startColor = Color.black;
-            lineRenderer.endColor = Color.black;
+            
+            // Apply theme colors if ThemeManager exists
+            ThemeSettings themeSettings = null;
+            if (ThemeManager.Instance != null)
+            {
+                themeSettings = ThemeManager.Instance.GetCurrentThemeSettings();
+            }
+            
+            if (themeSettings != null && themeSettings.boardLineMaterial != null)
+            {
+                lineRenderer.sharedMaterial = themeSettings.boardLineMaterial;
+            }
+            else
+            {
+                lineRenderer.sharedMaterial = sharedLineMaterial ? sharedLineMaterial : (sharedLineMaterial = (lineMaterial ? lineMaterial : new Material(Shader.Find("Standard"))));
+            }
+            
+            if (themeSettings != null)
+            {
+                lineRenderer.startColor = themeSettings.boardLineColor;
+                lineRenderer.endColor = themeSettings.boardLineColor;
+            }
+            else
+            {
+                lineRenderer.startColor = Color.black;
+                lineRenderer.endColor = Color.black;
+            }
         }
 
         /// <summary>
@@ -170,10 +205,7 @@ namespace GomokuGame.UI
             // Ensure prototype exists
             if (intersectionPrototype == null)
             {
-                intersectionPrototype = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                intersectionPrototype.transform.localScale = Vector3.one * 0.1f;
-                var r = intersectionPrototype.GetComponent<Renderer>();
-
+                intersectionPrototype = CreateIntersectionPointPrototype();
             }
         }
 
@@ -184,21 +216,11 @@ namespace GomokuGame.UI
         /// <param name="name">Name of the intersection point GameObject</param>
         void CreateIntersectionPoint(Vector3 position, string name)
         {
-            GameObject pointObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            GameObject pointObject = Instantiate(intersectionPrototype);
             pointObject.name = name;
             pointObject.transform.SetParent(boardContainer.transform);
             pointObject.transform.position = position;
             pointObject.transform.localScale = Vector3.one * 0.1f;
-
-            // Set the material to be visible
-            Renderer renderer = pointObject.GetComponent<Renderer>();
-            if (renderer != null)
-            {
-                renderer.material.color = Color.black;
-            }
-
-            // Remove collider to avoid physics interactions
-            Destroy(pointObject.GetComponent<Collider>());
         }
 
         /// <summary>
@@ -277,13 +299,47 @@ namespace GomokuGame.UI
             pieceObject.transform.position = position;
             pieceObject.transform.localScale = Vector3.one * cellSize * 0.8f;
 
-            // Set the material based on player
+            // Set the material based on player and theme
             Renderer renderer = pieceObject.GetComponent<Renderer>();
-            //if (renderer != null)
-            //{
-            //    if (player == GameManager.Player.Black) renderer.sharedMaterial = sharedBlackPieceMaterial ? sharedBlackPieceMaterial : (sharedBlackPieceMaterial = (blackPieceMaterial ? blackPieceMaterial : CreateDefaultMaterial(Color.black)));
-            //    else renderer.sharedMaterial = sharedWhitePieceMaterial ? sharedWhitePieceMaterial : (sharedWhitePieceMaterial = (whitePieceMaterial ? whitePieceMaterial : CreateDefaultMaterial(Color.white)));
-            //}
+            if (renderer != null)
+            {
+                ThemeSettings themeSettings = null;
+                if (ThemeManager.Instance != null)
+                {
+                    themeSettings = ThemeManager.Instance.GetCurrentThemeSettings();
+                }
+                
+                if (player == GameManager.Player.Black)
+                {
+                    if (themeSettings != null && themeSettings.blackPieceMaterial != null)
+                    {
+                        renderer.sharedMaterial = themeSettings.blackPieceMaterial;
+                    }
+                    else if (sharedBlackPieceMaterial != null || blackPieceMaterial != null)
+                    {
+                        renderer.sharedMaterial = sharedBlackPieceMaterial ? sharedBlackPieceMaterial : (sharedBlackPieceMaterial = blackPieceMaterial);
+                    }
+                    else
+                    {
+                        renderer.material.color = (themeSettings != null) ? themeSettings.blackPieceColor : Color.black;
+                    }
+                }
+                else
+                {
+                    if (themeSettings != null && themeSettings.whitePieceMaterial != null)
+                    {
+                        renderer.sharedMaterial = themeSettings.whitePieceMaterial;
+                    }
+                    else if (sharedWhitePieceMaterial != null || whitePieceMaterial != null)
+                    {
+                        renderer.sharedMaterial = sharedWhitePieceMaterial ? sharedWhitePieceMaterial : (sharedWhitePieceMaterial = whitePieceMaterial);
+                    }
+                    else
+                    {
+                        renderer.material.color = (themeSettings != null) ? themeSettings.whitePieceColor : Color.white;
+                    }
+                }
+            }
 
             // Remove collider to avoid physics interactions
             Destroy(pieceObject.GetComponent<Collider>());
@@ -293,8 +349,71 @@ namespace GomokuGame.UI
                 pieceVisuals[x, y] = pieceObject;
         }
 
-        // Remove collider to avoid physics interactions
-        //Destroy(pieceObject.GetComponent<Collider>());
+        /// <summary>
+        /// Clears all piece visuals from the board
+        /// </summary>
+        public void ClearVisuals()
+        {
+            if (pieceVisuals != null)
+            {
+                for (int x = 0; x < pieceVisuals.GetLength(0); x++)
+                {
+                    for (int y = 0; y < pieceVisuals.GetLength(1); y++)
+                    {
+                        if (pieceVisuals[x, y] != null)
+                        {
+                            Destroy(pieceVisuals[x, y]);
+                            pieceVisuals[x, y] = null;
+                        }
+                    }
+                }
+            }
+            
+            // Clean up intersection prototype
+            if (intersectionPrototype != null)
+            {
+                Destroy(intersectionPrototype);
+                intersectionPrototype = null;
+            }
+        }
 
+        /// <summary>
+        /// Creates a prototype for intersection points with proper theme settings
+        /// </summary>
+        /// <returns>Prototype GameObject for intersection points</returns>
+        private GameObject CreateIntersectionPointPrototype()
+        {
+            GameObject prototype = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            prototype.transform.localScale = Vector3.one * 0.1f;
+            
+            // Set the material to be visible based on theme
+            Renderer renderer = prototype.GetComponent<Renderer>();
+            if (renderer != null)
+            {
+                ThemeSettings themeSettings = null;
+                if (ThemeManager.Instance != null)
+                {
+                    themeSettings = ThemeManager.Instance.GetCurrentThemeSettings();
+                }
+                
+                if (themeSettings != null && themeSettings.boardPointMaterial != null)
+                {
+                    renderer.sharedMaterial = themeSettings.boardPointMaterial;
+                }
+                else if (themeSettings != null)
+                {
+                    renderer.material.color = themeSettings.boardPointColor;
+                }
+                else
+                {
+                    renderer.material.color = Color.black;
+                }
+            }
+            
+            // Remove collider to avoid physics interactions
+            Destroy(prototype.GetComponent<Collider>());
+            
+            return prototype;
+        }
     }
 }

@@ -29,34 +29,40 @@ namespace GomokuGame.UI
                 // Canvas already exists, don't create a new one
                 return;
             }
-            
+
             // Create canvas if it doesn't exist
             GameObject canvasObject = new GameObject("Canvas");
             Canvas canvas = canvasObject.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            
+
             CanvasScaler scaler = canvasObject.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1920, 1080);
-            
+
             canvasObject.AddComponent<GraphicRaycaster>();
-            
+
             // If we have a main menu prefab, instantiate it
             if (mainMenuPrefab != null)
             {
                 GameObject mainMenuInstance = Instantiate(mainMenuPrefab, canvasObject.transform);
                 mainMenuInstance.name = "MainMenu";
-                
+
                 // Connect buttons to MainMenuController
                 ConnectButtons(mainMenuInstance);
+
+                // Apply theme to existing UI elements
+                ApplyThemeToUI(mainMenuInstance);
             }
             else
             {
                 // Create the main menu panel manually
                 GameObject mainMenuPanel = CreateMainMenuPanel(canvasObject);
-                
+
                 // Connect buttons to MainMenuController
                 ConnectButtons(mainMenuPanel);
+
+                // Apply theme to created UI elements
+                ApplyThemeToUI(mainMenuPanel);
             }
         }
         
@@ -96,6 +102,127 @@ namespace GomokuGame.UI
                 return child.GetComponent<Button>();
             }
             return null;
+        }
+
+        /// <summary>
+        /// Applies the current theme to UI elements
+        /// </summary>
+        /// <param name="parent">Parent object containing UI elements</param>
+        public void ApplyThemeToUI(GameObject parent)
+        {
+            // Get the current theme settings
+            GomokuGame.Themes.ThemeSettings themeSettings = null;
+            GomokuGame.Themes.ThemeManager themeManager = FindObjectOfType<GomokuGame.Themes.ThemeManager>();
+            if (themeManager != null)
+            {
+                themeSettings = themeManager.GetCurrentThemeSettings();
+            }
+
+            // Apply theme to title text
+            Text titleText = FindTextByName(parent, "GameTitle");
+            if (titleText != null)
+            {
+                titleText.color = (themeSettings != null) ? themeSettings.whitePieceColor : Color.white;
+            }
+
+            // Apply theme to settings title text
+            Text settingsTitleText = FindTextByName(parent, "SettingsTitle");
+            if (settingsTitleText != null)
+            {
+                settingsTitleText.color = (themeSettings != null) ? themeSettings.whitePieceColor : Color.white;
+            }
+
+            // Apply theme to labels
+            Text boardSizeLabelText = FindTextByName(parent, "BoardSizeLabel");
+            if (boardSizeLabelText != null)
+            {
+                boardSizeLabelText.color = (themeSettings != null) ? themeSettings.whitePieceColor : Color.white;
+            }
+
+            Text winConditionLabelText = FindTextByName(parent, "WinConditionLabel");
+            if (winConditionLabelText != null)
+            {
+                winConditionLabelText.color = (themeSettings != null) ? themeSettings.whitePieceColor : Color.white;
+            }
+
+            // Apply theme to button texts
+            ApplyThemeToButtonText(parent, "StartGameButton", themeSettings);
+            ApplyThemeToButtonText(parent, "SettingsButton", themeSettings);
+            ApplyThemeToButtonText(parent, "ExitGameButton", themeSettings);
+            ApplyThemeToButtonText(parent, "SaveButton", themeSettings);
+            ApplyThemeToButtonText(parent, "CancelButton", themeSettings);
+
+            // Apply theme to button backgrounds
+            ApplyThemeToButtonBackground(parent, "StartGameButton", themeSettings);
+            ApplyThemeToButtonBackground(parent, "SettingsButton", themeSettings);
+            ApplyThemeToButtonBackground(parent, "ExitGameButton", themeSettings);
+            ApplyThemeToButtonBackground(parent, "SaveButton", themeSettings);
+            ApplyThemeToButtonBackground(parent, "CancelButton", themeSettings);
+        }
+
+        /// <summary>
+        /// Finds a Text component by name in the hierarchy
+        /// </summary>
+        /// <param name="parent">Parent object to search in</param>
+        /// <param name="name">Name of the Text component to find</param>
+        /// <returns>Text component if found, null otherwise</returns>
+        private Text FindTextByName(GameObject parent, string name)
+        {
+            Transform child = parent.transform.Find(name);
+            if (child != null)
+            {
+                return child.GetComponent<Text>();
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Applies theme to button text color
+        /// </summary>
+        /// <param name="parent">Parent object containing the button</param>
+        /// <param name="buttonName">Name of the button</param>
+        /// <param name="themeSettings">Current theme settings</param>
+        private void ApplyThemeToButtonText(GameObject parent, string buttonName, GomokuGame.Themes.ThemeSettings themeSettings)
+        {
+            Transform buttonTransform = parent.transform.Find(buttonName);
+            if (buttonTransform != null)
+            {
+                Text buttonText = buttonTransform.GetComponent<Text>();
+                if (buttonText == null)
+                {
+                    // For buttons created manually, text is a child component
+                    buttonText = buttonTransform.GetComponentInChildren<Text>();
+                }
+                if (buttonText != null)
+                {
+                    buttonText.color = (themeSettings != null) ? themeSettings.whitePieceColor : Color.white;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Applies theme to button background color
+        /// </summary>
+        /// <param name="parent">Parent object containing the button</param>
+        /// <param name="buttonName">Name of the button</param>
+        /// <param name="themeSettings">Current theme settings</param>
+        private void ApplyThemeToButtonBackground(GameObject parent, string buttonName, GomokuGame.Themes.ThemeSettings themeSettings)
+        {
+            Transform buttonTransform = parent.transform.Find(buttonName);
+            if (buttonTransform != null)
+            {
+                Image buttonImage = buttonTransform.GetComponent<Image>();
+                if (buttonImage != null)
+                {
+                    // Use a darker version of the theme's board line color or default to dark gray
+                    Color backgroundColor = (themeSettings != null) ? themeSettings.boardLineColor : new Color(0.2f, 0.2f, 0.2f, 1f);
+                    // Darken the color further for button background
+                    backgroundColor.r *= 0.8f;
+                    backgroundColor.g *= 0.8f;
+                    backgroundColor.b *= 0.8f;
+                    buttonImage.color = backgroundColor;
+                }
+            }
         }
         
         /// <summary>
