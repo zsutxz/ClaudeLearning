@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 using GomokuGame.Core;
 using GomokuGame.Themes;
@@ -33,9 +33,6 @@ namespace GomokuGame.UI
 
         void Awake()
         {
-            // Ensure we don't destroy this object when loading new scenes
-            DontDestroyOnLoad(gameObject);
-
             // Store initial screen dimensions
             lastScreenWidth = Screen.width;
             lastScreenHeight = Screen.height;
@@ -219,6 +216,27 @@ namespace GomokuGame.UI
             {
                 intersectionPrototype = CreateIntersectionPointPrototype();
             }
+
+            // Create intersection points for a standard Gomoku board (3x3 grid in center)
+            if (boardSize >= 9)
+            {
+                int[] starPoints = { 3, boardSize / 2, boardSize - 4 };
+                foreach (int x in starPoints)
+                {
+                    foreach (int y in starPoints)
+                    {
+                        if (x >= 0 && x < boardSize && y >= 0 && y < boardSize)
+                        {
+                            Vector3 position = new Vector3(
+                                -boardHalfSize + x * cellSize,
+                                0.05f, // Slightly above the board
+                                -boardHalfSize + y * cellSize
+                            );
+                            CreateIntersectionPoint(position, $"Intersection_{x}_{y}");
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -228,7 +246,16 @@ namespace GomokuGame.UI
         /// <param name="name">Name of the intersection point GameObject</param>
         void CreateIntersectionPoint(Vector3 position, string name)
         {
-            GameObject pointObject = Instantiate(intersectionPrototype);
+            GameObject pointObject;
+            if (intersectionPool.Count > 0)
+            {
+                pointObject = intersectionPool.Pop();
+                pointObject.SetActive(true);
+            }
+            else
+            {
+                pointObject = Instantiate(intersectionPrototype);
+            }
             pointObject.name = name;
             pointObject.transform.SetParent(boardContainer.transform);
             pointObject.transform.position = position;
@@ -238,15 +265,25 @@ namespace GomokuGame.UI
         /// <summary>
         /// Centers the board in the camera view
         /// </summary>
-        public void CenterBoard()
+                public void CenterBoard()
         {
             if (mainCamera != null)
             {
-                // Position the board at the center of the camera view
-                Vector3 cameraPosition = mainCamera.transform.position;
-                transform.position = new Vector3(cameraPosition.x, 0, cameraPosition.z);
+                // Place the board a short distance in front of the camera on the XZ plane
+                Vector3 camPos = mainCamera.transform.position;
+                Vector3 forward = mainCamera.transform.forward;
+                float distance = 5f; // distance in front of camera
+                Vector3 target = camPos + forward * distance;
+                transform.position = new Vector3(target.x, 0, target.z);
+            }
+            else
+            {
+                // If no camera found, center at origin
+                transform.position = Vector3.zero;
             }
         }
+
+
 
         /// <summary>
         /// Adjusts the board scale based on screen resolution
@@ -447,7 +484,7 @@ namespace GomokuGame.UI
         {
             GameObject prototype = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             prototype.transform.localScale = Vector3.one * 0.1f;
-            
+
             // Set the material to be visible based on theme
             Renderer renderer = prototype.GetComponent<Renderer>();
             if (renderer != null)
@@ -457,7 +494,7 @@ namespace GomokuGame.UI
                 {
                     themeSettings = ThemeManager.Instance.GetCurrentThemeSettings();
                 }
-                
+
                 if (themeSettings != null && themeSettings.boardPointMaterial != null)
                 {
                     renderer.sharedMaterial = themeSettings.boardPointMaterial;
@@ -471,11 +508,16 @@ namespace GomokuGame.UI
                     renderer.material.color = Color.black;
                 }
             }
-            
+
             // Remove collider to avoid physics interactions
-            Destroy(prototype.GetComponent<Collider>());
-            
+            Collider collider = prototype.GetComponent<Collider>();
+            if (collider != null)
+            {
+                Destroy(collider);
+            }
+
             return prototype;
         }
     }
 }
+
