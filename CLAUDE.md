@@ -183,10 +183,26 @@ The Gomoku game consists of several core components:
    - Detects win conditions in all directions (horizontal, vertical, diagonal)
    - Checks for draw conditions when the board is full
 
-4. **BoardViewManager** (`BoardViewManager.cs`):
+4. **BoardViewManager** (`UnityProject/Assets/Scripts/UI/BoardViewManager.cs`):
    - Manages the visual representation of the game board
    - Handles piece visualization and board rendering
    - Supports GPU instancing for performance optimization
+
+5. **UIManager** (`UnityProject/Assets/Scripts/UI/UIManager.cs`):
+   - Manages the user interface elements and their interactions
+   - Handles UI state transitions and player interactions
+
+6. **InputManager** (`UnityProject/Assets/Scripts/Core/InputManager.cs`):
+   - Handles user input for placing pieces on the board
+   - Converts mouse clicks to board coordinates
+
+7. **ThemeManager** (`UnityProject/Assets/Scripts/Themes/ThemeManager.cs`):
+   - Manages different visual themes for the game
+   - Handles theme persistence and application
+
+8. **PlayerPrefsManager** (`UnityProject/Assets/Scripts/Utilities/PlayerPrefsManager.cs`):
+   - Manages player preferences and settings persistence
+   - Handles saving and loading of game settings
 
 ### 🧪 Running Tests
 To run tests in the Unity project:
@@ -195,3 +211,24 @@ To run tests in the Unity project:
 3. Click "Run All" to execute tests
 
 Note: The Unity Test Framework may need to be configured properly for tests to run.
+
+### 🧪 Test Structure
+The project has a comprehensive test suite organized as follows:
+- **Unit Tests**: Located in `UnityProject/Assets/Tests/` with files like `BoardManagerUnitTest.cs`, `WinDetectorUnitTest.cs`
+- **Integration Tests**: Files like `GameFlowIntegrationTest.cs`, `SettingsPersistenceIntegrationTest.cs`
+- **UI Tests**: Files like `BoardSizeUITest.cs`, `MainMenuTest.cs`
+- **Performance Tests**: Files like `PerformanceBenchmarkTest.cs`
+
+### 🎨 UI Components
+The UI is organized with the following key components:
+- **Main Menu**: `MainMenuController.cs`, `MainMenuSetup.cs`
+- **Game UI**: `UIManager.cs`, `GameCanvas.prefab`
+- **Results Screen**: `ResultsScreenController.cs`
+- **Settings Panel**: Various settings-related UI components
+
+### 🎨 Theme System
+The game supports multiple themes:
+- **Classic**: Traditional black and white pieces
+- **Modern**: Contemporary color scheme
+- **Nature**: Earth-toned color scheme
+Themes are managed through the `ThemeManager` and stored in `Resources/Materials/Themes/`

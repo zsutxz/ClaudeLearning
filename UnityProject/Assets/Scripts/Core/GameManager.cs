@@ -48,11 +48,15 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        //// Initialize the board
-        //if (BoardViewManager != null)
-        //{
-        //    BoardViewManager.InitializeBoard();
-        //}
+        // Initialize the board view
+        if (boardManager != null)
+        {
+            var boardView = boardManager.GetComponent<GomokuGame.UI.BoardViewManager>();
+            if (boardView != null)
+            {
+                boardView.InitializeBoard();
+            }
+        }
 
         // Subscribe to capture events if board manager exists
         if (boardManager != null)
