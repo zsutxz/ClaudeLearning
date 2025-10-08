@@ -1,34 +1,49 @@
-# QA Gate Decision
+schema: 1
+story: '2.3'
+story_title: 'Create Main Menu'
+gate: PASS
+status_reason: 'All acceptance criteria met with solid implementation following architectural patterns. Minor improvements identified for future iterations.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2025-10-08T00:00:00Z'
 
-## Story Information
-story: "2.3-create-main-menu.md"
-epic: "2"
-title: "Create Main Menu"
-status: "PASS"
-date: "2025-10-08"
+top_issues: []
+waiver: { active: false }
 
-## Decision Rationale
-The story has been implemented according to all acceptance criteria with proper integration into the existing game architecture. All functional requirements have been met and the implementation follows Unity best practices.
+# Extended fields
+quality_score: 85
+expires: '2025-10-22T00:00:00Z'
 
-## Requirements Traceability
-- ✅ A main menu screen is displayed when the game starts
-- ✅ The main menu includes options to start a new game and access settings
-- ✅ The main menu has a visually appealing design that matches the game's aesthetic
-- ✅ Menu navigation is intuitive and responsive to user input
-- ✅ Players can exit the game from the main menu
+evidence:
+  tests_reviewed: 1
+  risks_identified: 4
+  trace:
+    ac_covered: [1, 2, 3, 4, 5]
+    ac_gaps: []
 
-## Quality Assessment
-- Code Quality: Good - Follows Unity component architecture patterns
-- Test Coverage: Basic - Manual testing validation exists but limited automated tests
-- Risk Level: Low - Implementation is stable with minimal identified risks
-- Technical Debt: Low - Implementation is clean with only minor improvement suggestions
+nfr_validation:
+  security:
+    status: PASS
+    notes: 'No security concerns - no authentication, user data handling, or network communication'
+  performance:
+    status: CONCERNS
+    notes: 'GameObject.Find() calls could impact performance; otherwise good performance with responsive UI'
+  reliability:
+    status: PASS
+    notes: 'Proper error handling for Unity Editor vs Standalone builds, scene transitions working correctly'
+  maintainability:
+    status: CONCERNS
+    notes: 'Some hardcoded strings and limited error handling; otherwise well-structured code'
 
-## Recommendations
-1. Add unit tests for MainMenuController methods
-2. Consider adding UI animations for smoother transitions
-3. Implement sound effects for button interactions
-4. Add more comprehensive error handling
-
-## Approval
-approvedBy: "Quinn (QA Agent)"
-approvalDate: "2025-10-08"
+recommendations:
+  immediate: []
+  future:
+    - action: 'Add unit tests for MainMenuController methods'
+      refs: ['UnityProject/Assets/Scripts/UI/MainMenuController.cs']
+    - action: 'Replace GameObject.Find() calls with serialized references'
+      refs: ['UnityProject/Assets/Scripts/UI/MainMenuController.cs', 'UnityProject/Assets/Scripts/UI/MainMenuSetup.cs']
+    - action: 'Implement more comprehensive error handling'
+      refs: ['UnityProject/Assets/Scripts/UI/MainMenuController.cs']
+    - action: 'Add keyboard navigation support for accessibility'
+      refs: ['UnityProject/Assets/Scripts/UI/MainMenuController.cs']
+    - action: 'Replace hardcoded string literals with constants'
+      refs: ['UnityProject/Assets/Scripts/UI/MainMenuController.cs', 'UnityProject/Assets/Scripts/UI/MainMenuSetup.cs']
