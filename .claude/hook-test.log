@@ -184,3 +184,7 @@ PreToolUse hook triggered for mcp__filesystem__write_file
 PostToolUse hook triggered for mcp__filesystem__write_file 
 PreToolUse hook triggered for mcp__filesystem__write_file 
 PostToolUse hook triggered for mcp__filesystem__write_file 
+PreToolUse hook triggered for mcp__filesystem__write_file 
+PostToolUse hook triggered for mcp__filesystem__write_file 
+PreToolUse hook triggered for mcp__filesystem__write_file 
+PostToolUse hook triggered for mcp__filesystem__write_file 
