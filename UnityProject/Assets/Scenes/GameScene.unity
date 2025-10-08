@@ -355,8 +355,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentPlayer: 1
   currentState: 0
-  boardManager: {fileID: 0}
-  winDetector: {fileID: 0}
+  boardManager: {fileID: 1000000013}
+  winDetector: {fileID: 1000000016}
   selectedBoardSize: 15
   selectedWinConditionType: Standard
 --- !u!1 &1000000011
@@ -451,7 +451,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4233282fb67af3b45ba043aacbce0220, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BoardViewManager: {fileID: 0}
+  BoardViewManager: {fileID: 1000000017}
   winCondition: 5
   winConditionType: Standard
 --- !u!114 &1000000017
