@@ -112,11 +112,15 @@ public class GameManager : MonoBehaviour
             winDetector.ResetWinDetector();
         }
 
-        // Reset visuals in view if present
+        // Initialize visuals in view if present
         if (boardManager != null)
         {
             var view = boardManager.GetComponent<GomokuGame.UI.BoardViewManager>();
-            if (view != null) view.ClearVisuals();
+            if (view != null) 
+            {
+                //view.boardSize = selectedBoardSize;
+                view.InitializeBoard();
+            }
         }
 
         // Ensure consistent state transitions

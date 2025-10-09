@@ -60,6 +60,9 @@ namespace GomokuGame.UI
             {
                 UIManager.Instance.StartGame();
             }
+            
+            // Also ensure we load the game scene
+            UnityEngine.SceneManagement.SceneManager.LoadScene("GameScene");
         }
 
         /// <summary>

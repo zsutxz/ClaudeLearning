@@ -5,7 +5,12 @@ namespace GomokuGame.UI {
     public class BoardViewManager : MonoBehaviour
 {
     [Header("Board Settings")]
-    public int boardSize = 15;
+    [SerializeField] private int _boardSize = 15;
+    public int boardSize 
+    { 
+        get { return _boardSize; } 
+        set { _boardSize = value; } 
+    }
     public float cellSize = 1.0f;
     public Material lineMaterial;
     public Material blackPieceMaterial;
@@ -32,8 +37,8 @@ namespace GomokuGame.UI {
         lastScreenWidth = Screen.width;
         lastScreenHeight = Screen.height;
         
-        // Initialize piece visuals array
-        pieceVisuals = new GameObject[boardSize, boardSize];
+        // We'll initialize piece visuals array when needed
+        // pieceVisuals = new GameObject[boardSize, boardSize];
     }
 
     void Update()
@@ -99,13 +104,16 @@ private void RenderInstancedPieces()
     /// </summary>
     public void InitializeBoard()
     {
-        if (!isBoardCreated)
+        // Always recreate the board when initializing
+        if (boardContainer != null)
         {
-            CreateBoard();
-            CenterBoard();
-            AdjustScaleForResolution();
-            isBoardCreated = true;
+            Destroy(boardContainer);
         }
+        
+        CreateBoard();
+        CenterBoard();
+        AdjustScaleForResolution();
+        isBoardCreated = true;
     }
 
     /// <summary>
@@ -113,6 +121,12 @@ private void RenderInstancedPieces()
     /// </summary>
     void CreateBoard()
     {
+        // Initialize pieceVisuals array if needed
+        if (pieceVisuals == null || pieceVisuals.GetLength(0) != boardSize || pieceVisuals.GetLength(1) != boardSize)
+        {
+            pieceVisuals = new GameObject[boardSize, boardSize];
+        }
+        
         // Create a container for all board lines
         boardContainer = new GameObject("BoardContainer");
         boardContainer.transform.SetParent(transform);
@@ -268,6 +282,12 @@ private void RenderInstancedPieces()
     /// <param name="player">Player who placed the piece</param>
     private void CreatePieceVisual(int x, int y, GameManager.Player player)
 {
+    // Initialize pieceVisuals array if needed
+    if (pieceVisuals == null || pieceVisuals.GetLength(0) != boardSize || pieceVisuals.GetLength(1) != boardSize)
+    {
+        pieceVisuals = new GameObject[boardSize, boardSize];
+    }
+    
     // Calculate world position for the piece
     float boardHalfSize = (boardSize - 1) * cellSize * 0.5f;
     Vector3 position = new Vector3(

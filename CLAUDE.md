@@ -45,15 +45,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Never delete or overwrite existing code unless explicitly instructed to.
 
 ### ⚙️ Development Commands
-- Use the BMAD framework agents for development tasks:
-  - `@dev` for implementation tasks
-  - `@qa` for quality assurance and testing
-  - `@architect` for architecture-related decisions
-- Since this is primarily a Unity project, development will focus on Unity-specific workflows
-- For any JavaScript/TypeScript components, standard npm commands would apply:
-  - `npm install` - Install dependencies
-  - `npm test` - Run tests (when test files exist)
-  - `npm run build` - Build the project (when build scripts exist)
+- **BMAD Framework Agents**:
+  - `@dev` - Implementation tasks and story development
+  - `@qa` - Quality assurance, testing, and validation
+  - `@architect` - Architecture decisions and technical guidance
+- **Unity Development**:
+  - Open project: `UnityProject/UnityProject.sln` in Unity Hub
+  - Build game: Unity Build Settings → Select platform → Build
+  - Run tests: Unity Test Runner (Window → General → Test Runner)
+- **Node.js Components** (limited use):
+  - `npm install` - Install commander dependency
+  - Note: No npm test or build scripts currently configured
+- **Git Operations**:
+  - Follow BMAD workflow with feature branches
+  - Update story files in `docs/stories/` when tasks are completed
 
 ### 🏗️ Project Architecture
 This repository follows the BMAD methodology with a structured approach to planning and development:
@@ -129,23 +134,27 @@ The repository follows the BMAD structured approach:
    - Run `npm install` to install dependencies
 3. Familiarize yourself with the BMAD agents and workflow
 
-### 🏃 Common Development Commands
-Since this is primarily a Unity project, the development workflow will be Unity-centric:
-- Unity-specific workflows for building and testing the Gomoku game
-- For any web/JavaScript components:
-  - `npm install` - Install dependencies
-  - `npm test` - Run tests (when test files exist)
-  - `npm run build` - Build the project (when build scripts exist)
-- Refer to the BMAD documentation for agent-specific commands:
-  - `@dev implement story` - Implement a user story
-  - `@qa *review story` - Perform quality assurance review
-  - `@architect review design` - Get architecture feedback
+### 🏃 Common Development Tasks
+1. **Story Implementation**: 
+   - Use `@dev` agent with story files from `docs/stories/`
+   - Update story files with implementation progress
+   - Follow BMAD development cycle
 
-To work with the Unity project:
-1. Open the project in Unity Hub: `UnityProject/UnityProject.sln`
-2. Work on features in the Unity Editor
-3. Write and run tests using Unity Test Framework
-4. Build the game using Unity's Build Settings
+2. **Testing Workflow**:
+   - Use `@qa` agent for test design and validation
+   - Run Unity tests via Test Runner window
+   - Tests located in `UnityProject/Assets/Tests/`
+
+3. **Unity Development**:
+   - Core scripts in `UnityProject/Assets/Scripts/Core/`
+   - UI components in `UnityProject/Assets/Scripts/UI/`
+   - Tests in `UnityProject/Assets/Tests/`
+   - Scenes in `UnityProject/Assets/Scenes/`
+
+4. **Documentation Updates**:
+   - Update story files immediately after task completion
+   - Follow BMAD documentation standards
+   - Maintain Dev Agent Record sections
 
 ### 🎮 Current Project Focus
 The current project is implementing a Gomoku (Five in a Row) game in Unity:
@@ -167,57 +176,41 @@ The current project is implementing a Gomoku (Five in a Row) game in Unity:
 - Follow the test quality principles defined in the BMAD framework
 - For Unity development, utilize Unity's testing frameworks appropriately
 
-### 🧱 Core Game Components
-The Gomoku game consists of several core components:
+### 🧱 Core Game Architecture
+**Game Logic Layer** (`UnityProject/Assets/Scripts/Core/`):
+- `BoardManager.cs` - Board state, piece placement, validation
+- `GameManager.cs` - Game state (MainMenu, Playing, GameOver), turn management
+- `WinDetector.cs` - Win condition detection in all directions
+- `InputManager.cs` - Mouse input to board coordinate conversion
 
-1. **BoardManager** (`UnityProject/Assets/Scripts/Core/BoardManager.cs`):
-   - Manages the game board state and piece placement
-   - Handles board initialization and piece placement validation
+**UI Layer** (`UnityProject/Assets/Scripts/UI/`):
+- `BoardViewManager.cs` - Visual board representation, piece rendering
+- `UIManager.cs` - UI state management, player interactions
 
-2. **GameManager** (`UnityProject/Assets/Scripts/Core/GameManager.cs`):
-   - Controls overall game state (MainMenu, Playing, Paused, GameOver)
-   - Manages player turns and game flow
-   - Handles game start, pause, resume, and end conditions
+**Supporting Systems**:
+- `ThemeManager.cs` (`Themes/`) - Visual theme management
+- `PlayerPrefsManager.cs` (`Utilities/`) - Settings persistence
 
-3. **WinDetector** (`UnityProject/Assets/Scripts/Core/WinDetector.cs`):
-   - Detects win conditions in all directions (horizontal, vertical, diagonal)
-   - Checks for draw conditions when the board is full
+**Key Dependencies**:
+- Core game logic is independent of Unity-specific dependencies
+- UI components depend on Unity UI system
+- Settings use Unity's PlayerPrefs for persistence
 
-4. **BoardViewManager** (`UnityProject/Assets/Scripts/UI/BoardViewManager.cs`):
-   - Manages the visual representation of the game board
-   - Handles piece visualization and board rendering
-   - Supports GPU instancing for performance optimization
+### 🧪 Testing
+**Running Tests in Unity:**
+1. Open Test Runner: Window → General → Test Runner
+2. Select test category (EditMode or PlayMode)
+3. Run individual tests or "Run All"
 
-5. **UIManager** (`UnityProject/Assets/Scripts/UI/UIManager.cs`):
-   - Manages the user interface elements and their interactions
-   - Handles UI state transitions and player interactions
+**Test Structure:**
+- **Unit Tests**: `BoardManagerUnitTest.cs`, `WinDetectorUnitTest.cs`, `GameManagerUnitTest.cs`
+- **Integration Tests**: `GameFlowIntegrationTest.cs`, `SettingsPersistenceIntegrationTest.cs`
+- **Validation Tests**: `WinConditionValidationTest.cs`, `BoardSizeTest.cs`
+- **Performance Tests**: `PerformanceBenchmarkTest.cs`
 
-6. **InputManager** (`UnityProject/Assets/Scripts/Core/InputManager.cs`):
-   - Handles user input for placing pieces on the board
-   - Converts mouse clicks to board coordinates
-
-7. **ThemeManager** (`UnityProject/Assets/Scripts/Themes/ThemeManager.cs`):
-   - Manages different visual themes for the game
-   - Handles theme persistence and application
-
-8. **PlayerPrefsManager** (`UnityProject/Assets/Scripts/Utilities/PlayerPrefsManager.cs`):
-   - Manages player preferences and settings persistence
-   - Handles saving and loading of game settings
-
-### 🧪 Running Tests
-To run tests in the Unity project:
-1. Open the Test Runner window in Unity (Window → General → Test Runner)
-2. Select the appropriate test category (EditMode or PlayMode)
-3. Click "Run All" to execute tests
-
-Note: The Unity Test Framework may need to be configured properly for tests to run.
-
-### 🧪 Test Structure
-The project has a comprehensive test suite organized as follows:
-- **Unit Tests**: Located in `UnityProject/Assets/Tests/` with files like `BoardManagerUnitTest.cs`, `WinDetectorUnitTest.cs`
-- **Integration Tests**: Files like `GameFlowIntegrationTest.cs`, `SettingsPersistenceIntegrationTest.cs`
-- **UI Tests**: Files like `BoardSizeUITest.cs`, `MainMenuTest.cs`
-- **Performance Tests**: Files like `PerformanceBenchmarkTest.cs`
+**Test Locations:**
+- All tests in `UnityProject/Assets/Tests/`
+- Test files follow naming convention: `*UnitTest.cs`, `*IntegrationTest.cs`
 
 ### 🎨 UI Components
 The UI is organized with the following key components:
