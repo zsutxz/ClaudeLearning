@@ -268,7 +268,7 @@ public class BugIdentificationTest : MonoBehaviour
 
         // Test game operations during invalid states
         bool invalidStateOperations = true;
-        
+
         // Try operations during game over state
         gameManager.EndGame();
         yield return new WaitForSeconds(0.1f);

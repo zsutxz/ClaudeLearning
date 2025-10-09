@@ -1,13 +1,11 @@
 ﻿using UnityEngine;
-using GomokuGame.Core.Init;
 
 namespace GomokuGame.Core
 {
     /// <summary>
     /// Handles user input for the Gomoku game
     /// </summary>
-    [InitPriority(0)]
-    public class InputManager : MonoBehaviour, IInitializable
+    public class InputManager : MonoBehaviour
     {
         #region Fields
         [SerializeField] private Camera mainCamera;
@@ -79,7 +77,7 @@ namespace GomokuGame.Core
                             if (gameManager.winDetector != null && gameManager.winDetector.CheckDraw())
                             {
                                 Debug.Log("Game is a draw!");
-                                //gameManager.DeclareDraw();
+                                gameManager.DeclareDraw();
                             }
                             else
                             {
@@ -127,22 +125,5 @@ namespace GomokuGame.Core
             return x >= 0 && x < boardSize && y >= 0 && y < boardSize;
         }
         #endregion
-
-        // Called by InitManager to perform deterministic initialization
-        public void Initialize()
-        {
-            // Try to auto-assign references if missing
-            if (mainCamera == null)
-                mainCamera = Camera.main;
-
-            if (boardManager == null)
-                boardManager = FindObjectOfType<GomokuGame.Core.BoardManager>();
-
-            if (boardViewManager == null && boardManager != null)
-                boardViewManager = boardManager.GetComponent<GomokuGame.UI.BoardViewManager>();
-
-            if (gameManager == null)
-                gameManager = FindObjectOfType<GameManager>();
-        }
     }
 }

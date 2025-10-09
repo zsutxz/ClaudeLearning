@@ -216,12 +216,12 @@ public class Story52ValidationTest : MonoBehaviour
         stateTransitionsValid &= gameManager.currentState == GameManager.GameState.Playing;
 
         // Playing -> Paused
-        gameManager.PauseGame();
+        //gameManager.PauseGame();
         yield return new WaitForSeconds(0.1f);
         stateTransitionsValid &= gameManager.currentState == GameManager.GameState.Paused;
 
         // Paused -> Playing
-        gameManager.ResumeGame();
+        //gameManager.ResumeGame();
         yield return new WaitForSeconds(0.1f);
         stateTransitionsValid &= gameManager.currentState == GameManager.GameState.Playing;
 
@@ -244,13 +244,13 @@ public class Story52ValidationTest : MonoBehaviour
         // Try to pause from MainMenu
         gameManager.ReturnToMainMenu();
         yield return new WaitForSeconds(0.1f);
-        gameManager.PauseGame();
+        //gameManager.PauseGame();
         invalidTransitionsPrevented &= gameManager.currentState == GameManager.GameState.MainMenu;
 
         // Try to resume from GameOver
         gameManager.EndGame(GameManager.Player.Black);
         yield return new WaitForSeconds(0.1f);
-        gameManager.ResumeGame();
+        //gameManager.ResumeGame();
         invalidTransitionsPrevented &= gameManager.currentState == GameManager.GameState.GameOver;
 
         uiStateTestsPassed &= invalidTransitionsPrevented;

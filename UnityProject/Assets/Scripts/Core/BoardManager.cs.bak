@@ -1,14 +1,12 @@
-﻿using GomokuGame.UI;
+﻿
+using GomokuGame.UI;
 using UnityEngine;
-using GomokuGame.Core.Init;
-
 namespace GomokuGame.Core
 {
     /// <summary>
     /// Manages the game board state and piece placement
     /// </summary>
-    [InitPriority(10)]
-    public class BoardManager : MonoBehaviour, IInitializable
+    public class BoardManager : MonoBehaviour
     {
         #region Fields
         [SerializeField] private int boardSize = 15;
@@ -33,10 +31,9 @@ namespace GomokuGame.Core
         #endregion
 
         #region Unity Lifecycle
-        // Initialization is handled deterministically by InitManager
         private void Awake()
         {
-            // Intentionally empty: use InitManager.Initialize()
+            InitializeBoard();
         }
         #endregion
 
@@ -163,8 +160,8 @@ namespace GomokuGame.Core
             // Check all four directions for capture patterns
             captures += CheckDirectionForCapture(x, y, 1, 0, player, opponent);  // Horizontal
             captures += CheckDirectionForCapture(x, y, 0, 1, player, opponent);  // Vertical
-            captures += CheckDirectionForCapture(x, y, 1, 1, player, opponent);  // Diagonal /\
-            captures += CheckDirectionForCapture(x, y, 1, -1, player, opponent); // Diagonal \\
+            captures += CheckDirectionForCapture(x, y, 1, 1, player, opponent);  // Diagonal /
+            captures += CheckDirectionForCapture(x, y, 1, -1, player, opponent); // Diagonal \
 
             if (captures > 0)
             {
@@ -252,13 +249,8 @@ namespace GomokuGame.Core
         {
             return x >= 0 && x < boardSize && y >= 0 && y < boardSize;
         }
-
-        // Called by InitManager to perform deterministic initialization
-        public void Initialize()
-        {
-            // Ensure board arrays initialized with the serialized or default size
-            InitializeBoard(boardSize);
-        }
+        #endregion
     }
-    #endregion
 }
+
+

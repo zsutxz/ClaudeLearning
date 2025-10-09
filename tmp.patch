@@ -1,0 +1,33 @@
+﻿*** Begin Patch
+*** Update File: UnityProject/Assets/Scripts/Core/InputManager.cs
+@@
+-    public class InputManager : MonoBehaviour
++    using GomokuGame.Core.Init;
++
++    [InitPriority(0)]
++    public class InputManager : MonoBehaviour, IInitializable
+     {
+@@
+-        private void Update()
++        private void Update()
+         {
+@@
+         }
++
++        // Called by InitManager to perform deterministic initialization
++        public void Initialize()
++        {
++            // Try to auto-assign references if missing
++            if (mainCamera == null)
++                mainCamera = Camera.main;
++
++            if (boardManager == null)
++                boardManager = FindObjectOfType<GomokuGame.Core.BoardManager>();
++
++            if (boardViewManager == null && boardManager != null)
++                boardViewManager = boardManager.GetComponent<GomokuGame.UI.BoardViewManager>();
++
++            if (gameManager == null)
++                gameManager = FindObjectOfType<GameManager>();
++        }
+*** End Patch
