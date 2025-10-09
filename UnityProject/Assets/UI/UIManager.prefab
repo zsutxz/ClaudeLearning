@@ -1,4 +1,4 @@
-﻿%YAML 1.1
+%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!1 &1000000000
 GameObject:
@@ -117,31 +117,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e2ff8c33acb2eb43bfe0d1240bd0387, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentPlayerText: {fileID: 0}
-  gameStateText: {fileID: 0}
-  gameOverText: {fileID: 0}
-  gameUIPanel: {fileID: 0}
-  gameOverPanel: {fileID: 0}
-  resultsScreenPanel: {fileID: 0}
-  resultsScreenController: {fileID: 0}
-  restartButton: {fileID: 0}
-  mainMenuButton: {fileID: 0}
-  mainMenuPanel: {fileID: 0}
-  settingsPanel: {fileID: 0}
-  boardSizeSlider: {fileID: 0}
-  winConditionSlider: {fileID: 0}
-  boardSizeValueText: {fileID: 0}
-  winConditionValueText: {fileID: 0}
-  boardSizeButtons: []
-  boardSize9x9Button: {fileID: 0}
-  boardSize13x13Button: {fileID: 0}
-  boardSize15x15Button: {fileID: 0}
-  boardSize19x19Button: {fileID: 0}
-  themeDropdown: {fileID: 0}
-  winConditionStandardButton: {fileID: 0}
-  winConditionCaptureButton: {fileID: 0}
-  winConditionTimeBasedButton: {fileID: 0}
-  winConditionDescriptionText: {fileID: 0}
+  mainMenuPrefab: {fileID: 0}
+  gameUIPrefab: {fileID: 0}
+  resultsPrefab: {fileID: 0}
+  settingsPrefab: {fileID: 0}
 --- !u!1001 &4953595190882915106
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -476,4 +455,3 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2240000000, guid: 97c67d8dc55b84a4bbc7892dd0f173b9, type: 3}
   m_PrefabInstance: {fileID: 8079101728637574082}
   m_PrefabAsset: {fileID: 0}
-

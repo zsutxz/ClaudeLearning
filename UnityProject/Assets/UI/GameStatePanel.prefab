@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4000000000}
   - component: {fileID: 2240000000}
   m_Layer: 5
-  m_Name: GameStateDisplay
+  m_Name: GameStatePanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

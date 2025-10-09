@@ -38,10 +38,10 @@ namespace GomokuGame.UI
 
         private void Initialize()
         {
-            InstantiatePrefab(ref mainMenuInstance, mainMenuPrefab);
-            InstantiatePrefab(ref gameUIInstance, gameUIPrefab);
-            InstantiatePrefab(ref resultsInstance, resultsPrefab);
-            InstantiatePrefab(ref settingsInstance, settingsPrefab);
+            //InstantiatePrefab(ref mainMenuInstance, mainMenuPrefab);
+            //InstantiatePrefab(ref gameUIInstance, gameUIPrefab);
+            //InstantiatePrefab(ref resultsInstance, resultsPrefab);
+            //InstantiatePrefab(ref settingsInstance, settingsPrefab);
 
             // Start with main menu active if available
             HideAllPanels();
