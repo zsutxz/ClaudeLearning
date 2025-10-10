@@ -1,8 +1,61 @@
-# Specific Unity directories to ignore (if UnityProject/ rule above doesn't work properly)
-UnityProject/logs/
-UnityProject/Temp/
-UnityProject/obj/
-UnityProject/library/
-UnityProject/.vs/
-./.claude/hook-test.log
-./node_modules*.bak
+﻿# Global ignores for this Unity Gomoku project
+# OS files
+.DS_Store
+Thumbs.db
+
+# Node modules and build artifacts
+node_modules/
+dist/
+build/
+
+# Editor directories and caches
+.vscode/
+.vs/
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Unity specific
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+MemoryCaptures/
+sysinfo/
+UserSettings/
+
+# Auto-generated project files
+*.csproj
+*.unityproj
+*.sln
+*.sln.dotCover
+
+# Crash and debug
+*.log
+crash.dmp
+
+# Archives
+*.zip
+*.rar
+*.7z
+*.tar.gz
+
+# Patches and temporary files
+temp*.patch
+tmp*.patch
+Test_Back.*
+
+# Ignore local secrets/configs
+Secrets.json
+*.keystore
+
+# Keep test.md untracked unless added explicitly
+# (file created by analysis tool)
+# test.md
