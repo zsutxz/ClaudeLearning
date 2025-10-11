@@ -123,6 +123,39 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!114 &492923778 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1140000005, guid: 015d7562f6c3e724789cc835265afbc7, type: 3}
+  m_PrefabInstance: {fileID: 4454616372920019543}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &626161903 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1140000007, guid: 015d7562f6c3e724789cc835265afbc7, type: 3}
+  m_PrefabInstance: {fileID: 4454616372920019543}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &816530668 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1140000009, guid: 015d7562f6c3e724789cc835265afbc7, type: 3}
+  m_PrefabInstance: {fileID: 4454616372920019543}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1000000000
 GameObject:
   m_ObjectHideFlags: 0
@@ -295,6 +328,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: UIManger
       objectReference: {fileID: 0}
+    - target: {fileID: 1000000001, guid: 015d7562f6c3e724789cc835265afbc7, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2240000000, guid: 015d7562f6c3e724789cc835265afbc7, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -379,6 +416,22 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5169560244228207336, guid: 015d7562f6c3e724789cc835265afbc7, type: 3}
+      propertyPath: exitGameButton
+      value: 
+      objectReference: {fileID: 816530668}
+    - target: {fileID: 5169560244228207336, guid: 015d7562f6c3e724789cc835265afbc7, type: 3}
+      propertyPath: settingsButton
+      value: 
+      objectReference: {fileID: 626161903}
+    - target: {fileID: 5169560244228207336, guid: 015d7562f6c3e724789cc835265afbc7, type: 3}
+      propertyPath: startGameButton
+      value: 
+      objectReference: {fileID: 492923778}
+    - target: {fileID: 8679057532051081529, guid: 015d7562f6c3e724789cc835265afbc7, type: 3}
+      propertyPath: mainMenuPrefab
+      value: 
+      objectReference: {fileID: 2849103219939255423, guid: 8e957fdfd1b55e7479e68e484741f22d, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

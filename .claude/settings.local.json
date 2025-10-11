@@ -1,31 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(grep:*)",
-      "Bash(ls:*)",
-      "Bash(source:*)",
-      "Bash(find:*)",
-      "Bash(mv:*)",
-      "Bash(mkdir:*)",
-      "Bash(tree:*)",
-      "Bash(ruff:*)",
-      "Bash(touch:*)",
-      "Bash(cat:*)",
-      "Bash(ruff check:*)",
-      "Bash(pytest:*)",
-      "Bash(python:*)",
-      "Bash(python -m pytest:*)",
-      "Bash(python3 -m pytest:*)",
-      "WebFetch(domain:docs.anthropic.com)",
-      "WebFetch(domain:github.com)",
-      "mcp__filesystem__write_file",
+      "Bash(pip install:*)",
       "mcp__filesystem__list_directory",
-      "mcp__filesystem__search_files",
-      "mcp__filesystem__create_directory",
-      "mcp__filesystem__read_file",
-      "mcp__filesystem__edit_file"
+      "Bash(git checkout:*)",
+      "Bash(git add:*)"
     ],
-    "deny": []
+    "deny": [],
+    "ask": []
   },
   "outputStyle": "default"
 }
