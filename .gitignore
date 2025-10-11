@@ -1,61 +1,71 @@
-﻿# Global ignores for this Unity Gomoku project
-# OS files
-.DS_Store
-Thumbs.db
+# Unity
+Library/
+Temp/
+Obj/
+UnityProject/Library/
+UnityProject/Temp/
+UnityProject/Obj/
+UnityProject/Build/
+UnityProject/Builds/
 
-# Node modules and build artifacts
-node_modules/
-dist/
-build/
-
-# Editor directories and caches
-.vscode/
-.vs/
+# Visual Studio
+*.sln
+*.csproj
+*.userprefs
 *.suo
 *.user
-*.userprefs
-*.pidb
-*.pdb
-*.mdb
-*.opendb
-*.VC.db
+*.vs/
 
-# Unity specific
-[Ll]ibrary/
-[Tt]emp/
-[Oo]bj/
-[Bb]uild/
-[Bb]uilds/
-[Ll]ogs/
-MemoryCaptures/
-sysinfo/
-UserSettings/
+# macOS
+.DS_Store
 
-# Auto-generated project files
-*.csproj
-*.unityproj
-*.sln
-*.sln.dotCover
+# Windows
+Thumbs.db
 
-# Crash and debug
+# IDE
+*.idea/
+.vscode/
+
+# Build artifacts
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Logs
 *.log
-crash.dmp
+*.log.*
 
-# Archives
-*.zip
-*.rar
-*.7z
-*.tar.gz
+# Claude Code specific
+.claude/hook-test.log
+.claude/settings.local.json
 
-# Patches and temporary files
-temp*.patch
-tmp*.patch
-Test_Back.*
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
 
-# Ignore local secrets/configs
-Secrets.json
-*.keystore
+# Agent SDK
+tantest/
 
-# Keep test.md untracked unless added explicitly
-# (file created by analysis tool)
-# test.md
+# Other
+*.patch
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*.swn
+
+# Story files should not be ignored as they are important documentation
+# docs/stories/ is intentionally not ignored
+
+# Note: Never ignore .mcp.json as it's needed for MCP server configuration
+.mcp.json
