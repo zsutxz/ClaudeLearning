@@ -1,12 +1,20 @@
-# Full-Stack Architecture: Gomoku (Five in a Row) Game
+ # Full-Stack Architecture: Gomoku (Five in a Row) Game
 
-## 1. Overview
+## 1. Overview & Introduction
 
-This document outlines the full-stack architecture for the Gomoku (Five in a Row) game implementation using Unity. The architecture follows a component-based design with clear separation of concerns between core game logic, user interface, and utility functions.
+This document outlines the comprehensive technical architecture for the Gomoku (Five in a Row) game, a local two-player strategy game developed in Unity. The design prioritizes modularity, scalability, and a clear separation of concerns, following a component-based design pattern.
 
-## 2. Technology Stack
+## 2. Architectural Principles & Goals
 
-### 2.1 Primary Technologies
+- **Modularity**: Systems are designed as independent, interchangeable modules to facilitate testing, maintenance, and future enhancements.
+- **Unity Way Architecture**: The architecture leverages Unity's core features, including the component-based system, prefabs, and ScriptableObjects.
+- **Data-Driven Design**: Game configuration (like board sizes and win conditions) is driven by data assets (ScriptableObjects) for easy tuning and modification without code changes.
+- **Testability**: Core game logic is decoupled from Unity's `MonoBehaviour` to allow for straightforward unit testing.
+- **Performance**: The architecture is designed to be performant, even with larger board sizes, by using efficient algorithms and memory management practices.
+
+## 3. Technology Stack
+
+### 3.1 Primary Technologies
 - **Game Engine**: Unity 2022.3 LTS
 - **Programming Language**: C#
 - **UI Framework**: Unity UI Toolkit
@@ -18,9 +26,9 @@ This document outlines the full-stack architecture for the Gomoku (Five in a Row
 - Visual Studio for code editing
 - Git for version control
 
-## 3. System Architecture
+## 4. System Architecture
 
-### 3.1 High-Level Architecture
+### 4.1 High-Level Architecture
 The Gomoku game follows a component-based architecture with the following layers:
 
 ```
@@ -112,9 +120,9 @@ The Gomoku game follows a component-based architecture with the following layers
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## 4. Core Components
+## 5. Detailed Component Architecture
 
-### 4.1 GameManager (Singleton)
+### 5.1 GameManager.cs (Singleton)
 The central orchestrator of the game that manages the overall game flow and state.
 
 **Responsibilities:**
@@ -130,7 +138,7 @@ The central orchestrator of the game that manages the overall game flow and stat
 - `DeclareWinner()` - Ends the game with a winner
 - `UpdateSettings()` - Updates board size and win condition
 
-### 4.2 BoardManager
+### 5.2 BoardManager.cs
 Manages the game board state and piece placement logic.
 
 **Responsibilities:**
@@ -145,7 +153,7 @@ Manages the game board state and piece placement logic.
 - `GetPieceAt()` - Returns the player at a specific position
 - `IsPositionEmpty()` - Checks if a position is empty
 
-### 4.3 WinDetector
+### 5.3 WinDetector.cs
 Handles win condition detection for the Gomoku game.
 
 **Responsibilities:**
@@ -158,7 +166,7 @@ Handles win condition detection for the Gomoku game.
 - `CheckDirection()` - Checks for win condition in a specific direction
 - `CheckDraw()` - Determines if the game is a draw
 
-### 4.4 UIManager (Singleton)
+### 5.4 UIManager (Singleton)
 Manages the user interface elements and their interactions.
 
 **Responsibilities:**
@@ -174,49 +182,75 @@ Manages the user interface elements and their interactions.
 - `SaveSettings()` - Persists user settings
 - `UpdatePlayerText()` - Updates the current player display
 
-## 5. Data Management
+## 6. Event System
 
-### 5.1 In-Memory Data
+## 7. Data & Persistence Layer
+
+### 7.1 In-Memory Data
 - Game board state stored in a 2D integer array
 - Game settings and state variables
 - UI element references
 
-### 5.2 Persistent Data
+### 7.2 Persistent Data
 - Player preferences stored using PlayerPrefs
 - Board size settings
 - Win condition settings
 
-## 6. User Interface Architecture
 
-### 6.1 UI Structure
-- **Main Menu**: Game access and settings
-- **Game UI**: Current player display and game controls
-- **Game Over**: Results display with win/draw information
-- **Settings**: Configuration options for board size and win conditions
+## 6. Event System
 
-### 6.2 UI Components
-- Text elements for displaying game information
-- Buttons for user interactions
-- Sliders for settings adjustments
-- Panels for organizing UI elements
-
-## 7. Event System
-
-### 7.1 Game Events
+### 6.1 Game Events
 - `OnGameStateChanged` - Notifies when game state changes
 - `OnPlayerChanged` - Notifies when current player changes
 - `OnGameStarted` - Notifies when a new game begins
 - `OnGameWon` - Notifies when a player wins
 - `OnGameDraw` - Notifies when the game ends in a draw
 
-### 7.2 UI Events
+### 6.2 UI Events
 - Button click handlers
 - Slider value change handlers
 - Scene navigation events
 
-## 8. Testing Architecture
+## 8. Directory Structure (Unity Project)
 
-### 8.1 Unit Testing
+```
+UnityProject/
+└── Assets/
+    ├── Scripts/
+    │   ├── Core/
+    │   │   ├── GameManager.cs
+    │   │   ├── BoardManager.cs
+    │   │   └── WinDetector.cs
+    │   ├── UI/
+    │   │   ├── UIManager.cs
+    │   │   ├── BoardViewManager.cs
+    │   │   └── ... (Menu controllers)
+    │   ├── Input/
+    │   │   └── InputManager.cs
+    │   └── Data/
+    │       └── PlayerPrefsManager.cs
+    ├── ScriptableObjects/
+    │   └── GameSettings/
+    │       ├── DefaultGomoku.asset
+    │       └── ... (Other game modes)
+    ├── Prefabs/
+    │   ├── Board.prefab
+    │   ├── Piece_Black.prefab
+    │   └── Piece_White.prefab
+    ├── Scenes/
+    │   ├── MainMenu.unity
+    │   └── Game.unity
+    └── Tests/
+        ├── EditMode/
+        │   ├── BoardManagerTests.cs
+        │   └── WinDetectorTests.cs
+        └── PlayMode/
+            └── GameFlowTests.cs
+```
+
+## 9. Testing Strategy
+
+### 9.1 Unit Testing
 - Win detection algorithm testing
 - Board management functionality testing
 - Game state management testing
@@ -226,9 +260,9 @@ Manages the user interface elements and their interactions.
 - UI interaction testing
 - Settings persistence testing
 
-## 9. Deployment Architecture
+## 10. Deployment & Performance
 
-### 9.1 Build Process
+### 10.1 Build Process
 - Unity build pipeline for target platforms
 - Asset bundling and optimization
 - Post-processing stack for visual enhancements
@@ -251,15 +285,8 @@ Manages the user interface elements and their interactions.
 
 ## 11. Security Considerations
 
-### 11.1 Data Security
-- No sensitive data storage
-- Local data persistence only
-- No network communication
-
-### 11.2 Code Security
-- Input validation for all user interactions
-- Bounds checking for array access
-- Error handling for edge cases
+- **Data Security**: No sensitive data is stored. All data is local.
+- **Code Security**: Input validation and bounds checking will be implemented to prevent common errors.
 
 ## 12. Future Enhancements
 
@@ -272,6 +299,13 @@ Manages the user interface elements and their interactions.
 ### 12.2 Architecture Improvements
 - Dependency injection for better testability
 - ScriptableObjects for configuration management
+- Addressable assets for better resource management
+- Addressable assets for better resource management
+
+### 12.2 Architecture Improvements
+- Dependency injection for better testability
+- ScriptableObjects for configuration management
+- Addressable assets for better resource management
 - Addressable assets for better resource management
 
 ## 13. Conclusion
