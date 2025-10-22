@@ -4,7 +4,10 @@
       "Bash(pip install:*)",
       "mcp__filesystem__list_directory",
       "Bash(git checkout:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Skill(pdf)",
+      "mcp__filesystem__read_file",
+      "mcp__filesystem__write_file"
     ],
     "deny": [],
     "ask": []
