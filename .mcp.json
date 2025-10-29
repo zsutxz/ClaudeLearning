@@ -1,35 +1,37 @@
-"mcpServers": {
+{
+  "mcpServers": {
     "context7": {
-        "type": "stdio",
-        "command": "npx",
-        "args": [
+      "type": "stdio",
+      "command": "npx",
+      "args": [
         "@upstash/context7-mcp"
-        ],
-        "env": {}
+      ],
+      "env": {}
     },
     "filesystem": {
-        "type": "stdio",
-        "command": "npx",
-        "args": [
+      "type": "stdio",
+      "command": "npx",
+      "args": [
         "@modelcontextprotocol/server-filesystem",
         "D:\\work\\AI\\ClaudeTest"
-        ],
-        "env": {}
+      ],
+      "env": {}
     },
     "playwright": {
-        "type": "stdio",
-        "command": "npx",
-        "args": [
+      "type": "stdio",
+      "command": "npx",
+      "args": [
         "@modelcontextprotocol/server-playwright"
-        ],
-        "env": {}
+      ],
+      "env": {}
     },
     "sequential-thinking": {
-        "type": "stdio",
-        "command": "npx",
-        "args": [
+      "type": "stdio",
+      "command": "npx",
+      "args": [
         "@modelcontextprotocol/server-sequential-thinking"
-        ],
-        "env": {}
+      ],
+      "env": {}
     }
+  }
 }
