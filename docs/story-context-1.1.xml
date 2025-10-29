@@ -1,0 +1,71 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1</storyId>
+    <title>Coin Physics and Magnetic Collection</title>
+    <status>Draft</status>
+    <generatedAt>2025-10-29</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>D:\work\AI\ClaudeTest\docs\stories\story-1.1.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>Unity developer</asA>
+    <iWant>to implement physics-based magnetic coin collection with smooth DOTween animations</iWant>
+    <soThat>that I can create engaging coin collection effects that flow naturally toward collection points with satisfying physics</soThat>
+    <tasks>4 main tasks: DOTween Animation Framework, Magnetic Collection System, Spiral Motion Patterns, Integration Testing and Validation</tasks>
+  </story>
+
+  <acceptanceCriteria>1. System must implement smooth DOTween-based animation framework for coin movement
+2. Physics-based magnetic attraction system with configurable strength parameters must be functional
+3. Spiral motion patterns near collection points must be visible when coins are within magnetic influence
+4. Natural deceleration and easing functions must be applied to coin movement
+5. Coins must flow naturally toward collection points with satisfying physics behavior</acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/tech-spec-epic-mvp-2025-10-29.md" title="Technical Specification: Responsive Intelligent Coin Animation System MVP" section="Services and Modules" snippet="Core Animation Manager (CoinAnimationManager) - Central coordination of all coin animations, performance monitoring, and system lifecycle management"/>
+      <doc path="docs/tech-spec-epic-mvp-2025-10-29.md" title="Technical Specification: Responsive Intelligent Coin Animation System MVP" section="Data Models and Contracts" snippet="CoinAnimationData - Core data structure for coin animation state management"/>
+      <doc path="docs/tech-spec-epic-mvp-2025-10-29.md" title="Technical Specification: Responsive Intelligent Coin Animation System MVP" section="Data Models and Contracts" snippet="MagneticFieldData - Physics-based magnetic field configuration with strength, radius, and falloff parameters"/>
+      <doc path="docs/tech-spec-epic-mvp-2025-10-29.md" title="Technical Specification: Responsive Intelligent Coin Animation System MVP" section="APIs and Interfaces" snippet="ICoinAnimationManager - Core animation methods: SpawnCoin, StartMagneticCollection, StopMagneticCollection"/>
+      <doc path="docs/tech-spec-epic-mvp-2025-10-29.md" title="Technical Specification: Responsive Intelligent Coin Animation System MVP" section="APIs and Interfaces" snippet="IMagneticCollectionController - Magnetic field control and physics simulation methods"/>
+      <doc path="docs/PRD.md" title="Product Requirements Document" section="Functional Requirements" snippet="FR002: Developers can configure magnetic collection physics with adjustable attraction strength and spiral motion patterns through inspector interface"/>
+    </docs>
+    <code>
+      <!-- No existing code found yet - this is a new project -->
+    </code>
+    <dependencies>
+      <dependency ecosystem="Unity" package="DOTween" version=">=1.2.632" description="Primary animation framework for smooth interpolation and sequencing"/>
+      <dependency ecosystem="Unity" package="Unity URP" version="12.0+" description="Universal Render Pipeline for shader optimization and performance"/>
+      <dependency ecosystem="Unity" package="Unity Test Framework" version="1.3+" description="Automated testing framework for unit and integration tests"/>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="Architecture" description="Use event-driven architecture for decoupled communication between components"/>
+    <constraint type="Pattern" description="Implement singleton pattern for CoinAnimationManager coordination"/>
+    <constraint type="Design" description="Follow modular design separating physics, animation, and collection systems"/>
+    <constraint type="Performance" description="Target 60fps performance with 100+ concurrent coins on minimum specification hardware"/>
+    <constraint type="Memory" description="Total memory usage must not exceed 50MB for 100 concurrent coins"/>
+    <constraint type="Testing" description="Unit tests for magnetic field physics calculations with 80% coverage target"/>
+    <constraint type="Unity" description="Support Unity 2021.3 LTS and later versions"/>
+    <constraint type="Platform" description="Cross-platform compatibility for Windows, macOS, and Linux"/>
+  </constraints>
+
+  <interfaces>
+    <interface name="ICoinAnimationManager" kind="interface" signature="void SpawnCoin(Vector3 position, int coinId = -1); void StartMagneticCollection(Vector3 centerPoint, float radius = 5f, float strength = 10f); void StopMagneticCollection();" path="docs/tech-spec-epic-mvp-2025-10-29.md"/>
+    <interface name="IMagneticCollectionController" kind="interface" signature="void CreateMagneticField(Vector3 center, float radius, float strength); void ApplyMagneticForce(CoinAnimationData coinData, float deltaTime); Vector3 CalculateSpiralMotion(Vector3 currentPosition, Vector3 targetPosition, float time);" path="docs/tech-spec-epic-mvp-2025-10-29.md"/>
+    <interface name="IPerformanceMonitor" kind="interface" signature="void StartMonitoring(); PerformanceMetrics GetCurrentMetrics(); event UnityAction&lt;PerformanceTier&gt; OnPerformanceTierChanged;" path="docs/tech-spec-epic-mvp-2025-10-29.md"/>
+  </interfaces>
+
+  <tests>
+    <standards>Use Unity Test Framework v1.3+ with NUnit for unit testing. Target 80% coverage for core business logic (physics calculations, animation management) and 60% for utility classes. Focus on object pool lifecycle management, performance monitoring calculations, and magnetic field physics calculations.</standards>
+    <locations>Tests should be placed in Assets/Tests/ directory with subdirectories: UnitTests/ for component testing, IntegrationTests/ for system interactions, and PerformanceTests/ for stress testing and benchmarking.</locations>
+    <ideas>
+      <test idea="Magnetic field physics validation" mappedTo="AC-2,AC-3">Test magnetic force calculations at various distances and strengths to ensure accurate spiral motion patterns</test>
+      <test idea="DOTween animation performance" mappedTo="AC-1,AC-4">Benchmark animation sequences with varying coin counts to validate 60fps target performance</test>
+      <test idea="Integration stress test" mappedTo="AC-5">Run 100+ concurrent coins through complete spawn→animate→collect→return lifecycle</test>
+      <test idea="Configuration validation" mappedTo="AC-2">Test inspector interface controls for magnetic field parameters and verify runtime behavior changes</test>
+    </ideas>
+  </tests>
+</story-context>
