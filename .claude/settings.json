@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo PostToolUse hook triggered for mcp__filesystem__write_file >> .claude\\hook-test.log"
+            "command": "echo PostToolUse hook triggered for mcp__filesystem__write_file >> .claude\\post-hook-test.log"
           }
         ]
       }
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo PreToolUse hook triggered for mcp__filesystem__write_file >> .claude\\hook-test.log"
+            "command": "echo PreToolUse hook triggered for mcp__filesystem__write_file >> .claude\\pre-hook-test.log"
           }
         ]
       }

@@ -6,5 +6,30 @@
         "@upstash/context7-mcp"
         ],
         "env": {}
+    },
+    "filesystem": {
+        "type": "stdio",
+        "command": "npx",
+        "args": [
+        "@modelcontextprotocol/server-filesystem",
+        "D:\\work\\AI\\ClaudeTest"
+        ],
+        "env": {}
+    },
+    "playwright": {
+        "type": "stdio",
+        "command": "npx",
+        "args": [
+        "@modelcontextprotocol/server-playwright"
+        ],
+        "env": {}
+    },
+    "sequential-thinking": {
+        "type": "stdio",
+        "command": "npx",
+        "args": [
+        "@modelcontextprotocol/server-sequential-thinking"
+        ],
+        "env": {}
     }
 }
