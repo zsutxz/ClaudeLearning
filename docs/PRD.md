@@ -115,7 +115,8 @@ The Unity animation asset market represents $40M annually, yet lacks a solution 
 
 ### Epic 1: Core Animation System (MVP)
 
-**Stories (6):**
+**Stories (7):**
+- Unity Environment Setup and Configuration
 - Coin Physics and Magnetic Collection
 - Object Pooling and Memory Management
 - Performance Optimization and Scaling
