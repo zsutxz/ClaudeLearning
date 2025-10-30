@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using DG.Tweening;
 using CoinAnimation.Core;
 
 namespace CoinAnimation.Animation
@@ -69,10 +68,6 @@ namespace CoinAnimation.Animation
 
             _instance = this;
             DontDestroyOnLoad(gameObject);
-
-            // 初始化DOTween
-            DOTween.SetTweensCapacity(100, 20);
-            DOTween.logBehaviour = LogBehaviour.ErrorsOnly;
         }
 
         #endregion
@@ -121,7 +116,6 @@ namespace CoinAnimation.Animation
         {
             if (_instance == this)
             {
-                DOTween.KillAll();
                 _instance = null;
             }
         }

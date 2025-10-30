@@ -6,7 +6,7 @@ using CoinAnimation.Animation;
 namespace CoinAnimation.Examples
 {
     /// <summary>
-    /// 极简金币演示脚本
+    /// 纯Unity协程实现的金币演示脚本
     /// </summary>
     public class SimpleCoinDemo : MonoBehaviour
     {
@@ -37,7 +37,7 @@ namespace CoinAnimation.Examples
             yield return new WaitForSeconds(2f);
             StartCoinCollection();
 
-            Debug.Log("极简金币演示完成！");
+            Debug.Log("纯Unity金币演示完成！");
         }
 
         private void CreateCoin()

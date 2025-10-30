@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.TestTools;
 using NUnit.Framework;
-using DG.Tweening;
 using CoinAnimation.Core;
 using CoinAnimation.Animation;
 
@@ -22,7 +21,6 @@ namespace CoinAnimation.Tests
         [SetUp]
         public void SetUp()
         {
-            DOTween.SetTweensCapacity(100, 20);
             CreateTestEnvironment();
         }
 
@@ -30,7 +28,6 @@ namespace CoinAnimation.Tests
         public void TearDown()
         {
             CleanupTestEnvironment();
-            DOTween.KillAll();
         }
 
         private void CreateTestEnvironment()

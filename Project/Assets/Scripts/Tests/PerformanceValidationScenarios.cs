@@ -21,7 +21,7 @@ namespace CoinAnimation.Tests
         [TearDown]
         public void TearDown()
         {
-            DG.Tweening.DOTween.KillAll();
+            // 清理测试
         }
 
         [Test]

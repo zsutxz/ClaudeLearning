@@ -66,8 +66,8 @@ namespace CoinAnimation.Core
             // AC2: URP Installation and Configuration
             ValidateURPInstallation();
             
-            // AC3: DOTween Integration
-            ValidateDOTweenIntegration();
+            // AC3: Animation System
+            ValidateAnimationSystem();
             
             // AC4: Project Structure
             ValidateProjectStructure();
@@ -122,26 +122,30 @@ namespace CoinAnimation.Core
             });
         }
         
-        private void ValidateDOTweenIntegration()
+        private void ValidateAnimationSystem()
         {
-            var dotweenInstalled = false;
+            var animationSystemValid = false;
             try
             {
-                var dotweenType = Type.GetType("DG.Tweening.DOTween, DOTween");
-                dotweenInstalled = dotweenType != null;
+                // 检查核心动画组件是否可用
+                var controllerType = System.Type.GetType("CoinAnimation.Animation.CoinAnimationController");
+                var managerType = System.Type.GetType("CoinAnimation.Animation.CoinAnimationManager");
+                var stateType = System.Type.GetType("CoinAnimation.Core.CoinAnimationState");
+
+                animationSystemValid = controllerType != null && managerType != null && stateType != null;
             }
             catch
             {
-                dotweenInstalled = false;
+                animationSystemValid = false;
             }
-            
+
             validationResults.Add(new ValidationResult
             {
-                testName = "DOTween Integration (AC3)",
-                passed = dotweenInstalled,
-                message = dotweenInstalled ? 
-                    "DOTween is properly integrated and accessible" : 
-                    "DOTween is not installed or integrated"
+                testName = "Animation System (AC3)",
+                passed = animationSystemValid,
+                message = animationSystemValid ?
+                    "Unity Coroutine-based animation system is working" :
+                    "Animation system components are missing"
             });
         }
         
@@ -195,18 +199,17 @@ namespace CoinAnimation.Core
             
             var manifestContent = System.IO.File.ReadAllText(manifestPath);
             var hasURP = manifestContent.Contains("com.unity.render-pipelines.universal");
-            var hasDOTween = manifestContent.Contains("com.unityDOTween");
             var hasTestFramework = manifestContent.Contains("com.unity.test-framework");
-            
-            var allPackagesConfigured = hasURP && hasDOTween && hasTestFramework;
-            
+
+            var allPackagesConfigured = hasURP && hasTestFramework;
+
             validationResults.Add(new ValidationResult
             {
                 testName = "Package Manager Configuration (AC5)",
                 passed = allPackagesConfigured,
-                message = allPackagesConfigured ? 
-                    "All required packages are configured in manifest.json" : 
-                    $"Missing packages - URP: {hasURP}, DOTween: {hasDOTween}, Test Framework: {hasTestFramework}"
+                message = allPackagesConfigured ?
+                    "All required packages are configured in manifest.json" :
+                    $"Missing packages - URP: {hasURP}, Test Framework: {hasTestFramework}"
             });
         }
         
