@@ -6,7 +6,6 @@ using NUnit.Framework;
 using DG.Tweening;
 using CoinAnimation.Core;
 using CoinAnimation.Animation;
-using CoinAnimation.Physics;
 
 namespace CoinAnimation.Tests
 {
@@ -19,8 +18,6 @@ namespace CoinAnimation.Tests
 
         private GameObject _testCoin;
         private CoinAnimationController _coinController;
-        private GameObject _testMagneticController;
-        private MagneticCollectionController _magneticController;
 
         [SetUp]
         public void SetUp()
@@ -47,21 +44,11 @@ namespace CoinAnimation.Tests
             Rigidbody rb = _testCoin.AddComponent<Rigidbody>();
             rb.useGravity = false;
             _testCoin.AddComponent<SphereCollider>();
-
-            // 创建磁性控制器
-            _testMagneticController = new GameObject("TestMagneticController");
-            _magneticController = _testMagneticController.AddComponent<MagneticCollectionController>();
-
-            // 创建收集点
-            GameObject collectionPoint = new GameObject("CollectionPoint");
-            collectionPoint.transform.position = new Vector3(0, 0, 5);
-            _magneticController.SendMessage("SetCollectionPoint", collectionPoint.transform);
         }
 
         private void CleanupTestEnvironment()
         {
             if (_testCoin != null) Object.DestroyImmediate(_testCoin);
-            if (_testMagneticController != null) Object.DestroyImmediate(_testMagneticController);
         }
 
         #endregion
@@ -120,13 +107,6 @@ namespace CoinAnimation.Tests
             Assert.AreEqual(CoinAnimationState.Pooled, _coinController.CurrentState);
             Assert.IsFalse(_coinController.IsAnimating);
             Assert.IsFalse(_coinController.gameObject.activeSelf);
-        }
-
-        [Test]
-        public void Test_MagneticController_InitializesCorrectly()
-        {
-            Assert.IsNotNull(_magneticController);
-            Assert.AreEqual(0, _magneticController.gameObject.transform.childCount);
         }
 
         #endregion

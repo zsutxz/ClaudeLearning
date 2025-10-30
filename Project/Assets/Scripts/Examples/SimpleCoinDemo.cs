@@ -2,12 +2,11 @@ using System.Collections;
 using UnityEngine;
 using CoinAnimation.Core;
 using CoinAnimation.Animation;
-using CoinAnimation.Physics;
 
 namespace CoinAnimation.Examples
 {
     /// <summary>
-    /// 简单的金币演示脚本
+    /// 极简金币演示脚本
     /// </summary>
     public class SimpleCoinDemo : MonoBehaviour
     {
@@ -34,11 +33,11 @@ namespace CoinAnimation.Examples
                 yield return new WaitForSeconds(0.2f);
             }
 
-            // 等待2秒后创建磁性收集器
+            // 等待2秒后开始收集
             yield return new WaitForSeconds(2f);
-            CreateMagneticCollector();
+            StartCoinCollection();
 
-            Debug.Log("简单金币演示完成！");
+            Debug.Log("极简金币演示完成！");
         }
 
         private void CreateCoin()
@@ -67,17 +66,17 @@ namespace CoinAnimation.Examples
             }
         }
 
-        private void CreateMagneticCollector()
+        private void StartCoinCollection()
         {
-            if (collectionPoint == null) return;
-
-            GameObject magneticObj = new GameObject("MagneticCollector");
-            magneticObj.transform.position = collectionPoint.position;
-
-            var magneticController = magneticObj.AddComponent<MagneticCollectionController>();
-            magneticController.SetCollectionPoint(collectionPoint);
-
-            Debug.Log("磁性收集器已创建");
+            // 收集所有金币
+            var coins = FindObjectsOfType<CoinAnimationController>();
+            foreach (var coinController in coins)
+            {
+                if (coinController.CurrentState != CoinAnimationState.Pooled && collectionPoint != null)
+                {
+                    coinController.CollectCoin(collectionPoint.position, 1f);
+                }
+            }
         }
 
         private void OnDrawGizmos()

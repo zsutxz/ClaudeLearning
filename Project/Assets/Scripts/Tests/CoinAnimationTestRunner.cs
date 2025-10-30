@@ -4,7 +4,6 @@ using NUnit.Framework;
 using System.Collections;
 using CoinAnimation.Core;
 using CoinAnimation.Animation;
-using CoinAnimation.Physics;
 using DG.Tweening;
 
 namespace CoinAnimation.Tests
@@ -25,8 +24,8 @@ namespace CoinAnimation.Tests
             Assert.IsTrue(System.Type.GetType("CoinAnimation.Animation.CoinAnimationManager") != null,
                 "CoinAnimationManager type should be available");
 
-            Assert.IsTrue(System.Type.GetType("CoinAnimation.Physics.MagneticCollectionController") != null,
-                "MagneticCollectionController type should be available");
+            Assert.IsTrue(System.Type.GetType("CoinAnimation.Animation.CoinAnimationController") != null,
+                "CoinAnimationController type should be available");
 
             Debug.Log("✅ 测试环境验证通过");
         }
@@ -51,16 +50,8 @@ namespace CoinAnimation.Tests
         }
 
         [UnityTest]
-        public IEnumerator AcceptanceCriteria_2_BasicMagneticCollection()
+        public IEnumerator AcceptanceCriteria_2_BasicCoinAnimation()
         {
-            // 创建测试磁性控制器
-            GameObject magneticObj = new GameObject("TestMagnetic");
-            var magneticController = magneticObj.AddComponent<MagneticCollectionController>();
-
-            GameObject collectionPoint = new GameObject("CollectionPoint");
-            collectionPoint.transform.position = Vector3.forward * 5;
-            magneticController.SetCollectionPoint(collectionPoint.transform);
-
             // 创建测试金币
             GameObject coinObj = new GameObject("TestCoin");
             coinObj.transform.position = Vector3.forward * 2;
@@ -82,18 +73,16 @@ namespace CoinAnimation.Tests
             Assert.AreEqual(CoinAnimationState.Idle, coinController.CurrentState, "移动完成后应该回到空闲状态");
 
             // 测试金币收集
-            coinController.CollectCoin(collectionPoint.transform.position, 0.5f);
+            coinController.CollectCoin(Vector3.zero, 0.5f);
             Assert.AreEqual(CoinAnimationState.Collecting, coinController.CurrentState, "应该进入收集状态");
 
             yield return new WaitForSeconds(0.6f);
             Assert.AreEqual(CoinAnimationState.Pooled, coinController.CurrentState, "收集完成后应该进入池化状态");
 
             // 清理
-            Object.DestroyImmediate(magneticObj);
-            Object.DestroyImmediate(collectionPoint);
             Object.DestroyImmediate(coinObj);
 
-            Debug.Log("✅ 基本磁性收集验证通过");
+            Debug.Log("✅ 基本金币动画验证通过");
         }
 
         [UnityTest]

@@ -150,10 +150,9 @@ namespace CoinAnimation.Core
             var requiredDirectories = new[]
             {
                 "Assets/Scripts/Core",
-                "Assets/Scripts/Animation", 
-                "Assets/Scripts/Physics",
-                "Assets/Scripts/Tests",
-                "Assets/Scripts/Settings"
+                "Assets/Scripts/Animation",
+                "Assets/Scripts/Examples",
+                "Assets/Scripts/Tests"
             };
             
             var allDirectoriesExist = true;
