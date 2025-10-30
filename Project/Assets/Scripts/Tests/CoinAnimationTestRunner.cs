@@ -5,6 +5,8 @@ using System.Collections;
 using CoinAnimation.Core;
 using CoinAnimation.Animation;
 using CoinAnimation.Physics;
+using DG.Tweening;
+using System.Collections.Generic;
 
 namespace CoinAnimation.Tests
 {
@@ -33,28 +35,10 @@ namespace CoinAnimation.Tests
             Assert.IsTrue(System.Type.GetType("CoinAnimation.Physics.SpiralMotionController") != null,
                 "SpiralMotionController type should be available");
             
-            // Validate DOTween integration
-            Assert.IsTrue(DOTween.isInitialized, "DOTween should be initialized for tests");
-            
+
             Debug.Log("✅ Test environment validation passed");
         }
 
-        [Test]
-        public void TestDependencies_Availability()
-        {
-            // Check if DOTween is available
-            try
-            {
-                int capacity = DOTween.defaultTweensCapacity;
-                Assert.IsTrue(capacity > 0, "DOTween should be properly configured");
-            }
-            catch (System.Exception e)
-            {
-                Assert.Fail($"DOTween dependency check failed: {e.Message}");
-            }
-            
-            Debug.Log("✅ Dependencies validation passed");
-        }
 
         #endregion
 

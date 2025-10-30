@@ -1,3 +1,4 @@
+#define DOTWEEN_INSTALLED
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -176,16 +177,21 @@ namespace CoinAnimation.Animation
         /// <param name="targetPosition">Target position</param>
         /// <param name="duration">Animation duration</param>
         /// <param name="ease">DOTween easing function</param>
+    #if DOTWEEN_INSTALLED
         public void AnimateToPosition(Vector3 targetPosition, float duration, Ease ease = Ease.OutQuad)
+#else
+        public void AnimateToPosition(Vector3 targetPosition, float duration)
+#endif
         {
             if (!_isInitialized)
             {
                 Debug.LogError("[CoinAnimationController] Not initialized!");
                 return;
             }
-            
+
             KillAllTweens();
-            
+
+#if DOTWEEN_INSTALLED
             // Create main movement animation
             Tween moveTween = transform.DOMove(targetPosition, duration / animationSpeed)
                 .SetEase(ease)
@@ -196,15 +202,23 @@ namespace CoinAnimation.Animation
                 .OnComplete(() => {
                     OnMovementComplete();
                 });
-            
+
             _activeTweens.Add(moveTween);
-            
+
             // Add rotation animation for visual appeal
             Tween rotationTween = transform.DORotate(Vector3.up * rotationSpeed * duration, duration / animationSpeed, RotateMode.LocalAxisAdd)
                 .SetEase(Ease.Linear)
                 .SetUpdate(UpdateType.Fixed);
+#else
+            // Fallback without DOTween - basic movement
+            Debug.LogWarning("[CoinAnimationController] DOTween not available. Using basic movement.");
+            StartCoroutine(MoveToPositionCoroutine(targetPosition, duration));
+            return;
+#endif
             
+        #if DOTWEEN_INSTALLED
             _activeTweens.Add(rotationTween);
+#endif
         }
 
         /// <summary>
@@ -423,6 +437,43 @@ namespace CoinAnimation.Animation
                     tween.Play();
                 }
             }
+        }
+
+        #endregion
+
+        #region Fallback Methods (No DOTween)
+
+        /// <summary>
+        /// Fallback movement coroutine when DOTween is not available
+        /// </summary>
+        /// <param name="targetPosition">Target position</param>
+        /// <param name="duration">Movement duration</param>
+        /// <returns></returns>
+        private System.Collections.IEnumerator MoveToPositionCoroutine(Vector3 targetPosition, float duration)
+        {
+            SetState(CoinAnimationState.Moving);
+
+            Vector3 startPosition = transform.position;
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = elapsed / duration;
+
+                // Simple easing (ease-out quad)
+                t = 1f - (1f - t) * (1f - t);
+
+                transform.position = Vector3.Lerp(startPosition, targetPosition, t);
+
+                // Simple rotation
+                transform.Rotate(Vector3.up, rotationSpeed * Time.deltaTime);
+
+                yield return null;
+            }
+
+            transform.position = targetPosition;
+            OnMovementComplete();
         }
 
         #endregion
