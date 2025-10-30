@@ -282,8 +282,7 @@ namespace CoinAnimation.Physics
                         
                         // Animate coin to new position
                         float moveDuration = updateInterval * 1.5f; // Slight overlap for smoothness
-                        spiral.CoinController.AnimateToPosition(targetPosition, moveDuration, 
-                            CoinAnimationEasing.MagneticAttraction);
+                        spiral.CoinController.AnimateToPosition(targetPosition, moveDuration);
                     }
                     
                     lastUpdateTime = currentTime;
@@ -296,8 +295,7 @@ namespace CoinAnimation.Physics
             // Ensure coin reaches final target
             if (!spiral.IsComplete && spiral.CoinController != null)
             {
-                spiral.CoinController.AnimateToPosition(spiral.TargetPosition, 0.2f, 
-                    CoinAnimationEasing.QuickSnap);
+                spiral.CoinController.AnimateToPosition(spiral.TargetPosition, 0.2f);
             }
             
             // Clean up
