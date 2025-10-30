@@ -1,0 +1,16 @@
+{
+    "name": "CoinAnimation.Settings",
+    "rootNamespace": "CoinAnimation.Settings",
+    "references": [
+        "CoinAnimation.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

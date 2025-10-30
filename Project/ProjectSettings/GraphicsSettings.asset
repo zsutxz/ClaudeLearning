@@ -1,0 +1,125 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!30 &1
+GraphicsSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 13
+  m_Deferred:
+    m_Mode: 1
+    m_Shader: {fileID: 69, guid: 0000000000000000f000000000000000, type: 0}
+  m_DeferredReflections:
+    m_Mode: 1
+    m_Shader: {fileID: 74, guid: 0000000000000000f000000000000000, type: 0}
+  m_ScreenSpaceShadows:
+    m_Mode: 1
+    m_Shader: {fileID: 64, guid: 0000000000000000f000000000000000, type: 0}
+  m_LegacyDeferred:
+    m_Mode: 1
+    m_Shader: {fileID: 63, guid: 0000000000000000f000000000000000, type: 0}
+  m_DepthNormals:
+    m_Mode: 1
+    m_Shader: {fileID: 62, guid: 0000000000000000f000000000000000, type: 0}
+  m_MotionVectors:
+    m_Mode: 1
+    m_Shader: {fileID: 75, guid: 0000000000000000f000000000000000, type: 0}
+  m_LightHalo:
+    m_Mode: 1
+    m_Shader: {fileID: 105, guid: 0000000000000000f000000000000000, type: 0}
+  m_LensFlare:
+    m_Mode: 1
+    m_Shader: {fileID: 102, guid: 0000000000000000f000000000000000, type: 0}
+  m_AlwaysIncludedShaders:
+  - {fileID: 7, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 15104, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 15105, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 15106, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 10770, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 16000, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 17000, guid: 0000000000000000f000000000000000, type: 0}
+  m_PreloadedShaders: []
+  m_SpritesDefaultMaterial: {fileID: 10754, guid: 0000000000000000f000000000000000,
+    type: 0}
+  m_CustomRenderPipeline: {fileID: 11400000, guid: 00000000000000000000000000000000,
+    type: 2}
+  m_TransparencySortMode: 0
+  m_TransparencySortAxis: {x: 0, y: 0, z: 1}
+  m_DefaultRenderingLayerMask: 1
+  m_RendererSettings:
+    m_RendererSettings: []
+  m_RenderingLayerNames:
+  - Default
+  m_RendererDataList:
+  - {fileID: 0}
+  m_UseSRPBatcher: 1
+  m_SRPBatcherPolicy: 1
+  m_OpaqueLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_TransparentLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_DefaultParticleSystem:
+    material: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+    materialShaders: []
+  m_DefaultTerrainMaterial:
+    material: {fileID: 2100000, guid: 594ea882c5a793440b60ff72d896021e, type: 2}
+    materialShaders: []
+  m_LightmapStripping: 0
+  m_FogStripping: 0
+  m_InstancingStripping: 0
+  m_LightmapKeepPlain: 1
+  m_LightmapKeepDirCombined: 1
+  m_LightmapKeepDynamicPlain: 1
+  m_LightmapKeepDynamicDirCombined: 1
+  m_LightmapKeepShadowMask: 1
+  m_LightmapKeepSubtractive: 1
+  m_FogKeepLinear: 1
+  m_FogKeepExp: 1
+  m_FogKeepExp2: 1
+  m_AlbedoSwatchInfos: []
+  m_LightsUseLinearIntensity: 0
+  m_LightsUseColorTemperature: 0
+  m_LogWhenShaderIsCompiled: 0
+  m_AllowEnlightenSupportForUpgradedProject: 0
+  m_SRPDefaultSettings:
+    m_Script: {fileID: 11500000, guid: bf2edee5c58d82540a51f03df9d2c88c, type: 3}
+    m_Camera:
+      renderingPath: 1
+    m_ExportHDRP: 0
+    m_SupportedScriptingBackends: 0
+    m_LegacyShaders: 1
+    m_VRSettings: 0
+    m_RenderingPath: 1
+    m_MobileRenderingPath: 1
+    m_Lightmapping:
+      enabled: 1
+      mode: 0
+      lightmapper: 0
+      directLightMode: 0
+      indirectLightMode: 0
+      aoMode: 0
+      giMode: 0
+    m_SupportedBuildTargets:
+    - Standalone
+    - iOS
+    - Android
+    m_ShaderVariantLogLevel: 0
+    m_ExportURP: 0
+    m_ExportHDRP: 0
+    m_SupportedScriptingBackends: 0
+    m_LegacyShaders: 1
+    m_VRSettings: 0
+    m_DefaultSettings:
+      universalRenderPipelinePath: Assets/Scripts/Settings/UniversalRenderPipelineAsset.asset
+      universalRendererPath: Assets/Scripts/Settings/ForwardRenderer.asset
+    m_LowQualitySettings:
+      universalRenderPipelinePath: Assets/Scripts/Settings/URPSettings_LowQuality.asset
+      universalRendererPath: Assets/Scripts/Settings/ForwardRenderer.asset
+    m_MediumQualitySettings:
+      universalRenderPipelinePath: Assets/Scripts/Settings/URPSettings_MediumQuality.asset
+      universalRendererPath: Assets/Scripts/Settings/ForwardRenderer.asset
+    m_HighQualitySettings:
+      universalRenderPipelinePath: Assets/Scripts/Settings/URPSettings_HighQuality.asset
+      universalRendererPath: Assets/Scripts/Settings/ForwardRenderer.asset
+    m_ShaderVariantLogLevel: 0
