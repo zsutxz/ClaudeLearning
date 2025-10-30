@@ -130,9 +130,10 @@ The project follows a simplified development approach:
 - **Zero External Dependencies**: Pure Unity implementation
 
 ### 📁 Key Configuration Files
-- `Project/Packages/manifest.json` - Core Unity packages only ( zero external dependencies)
+- `Project/Packages/manifest.json` - Core Unity packages only (zero external dependencies)
 - `Project/ProjectSettings/` - Unity project configuration
 - `docs/stories/` - Development stories with logical progression (Story 1.1 → 1.2 → 1.3)
+- `docs/tech-spec-epic-mvp.md` - Complete technical specifications and API reference
 
 ### 💡 Usage Guidelines
 
@@ -169,6 +170,14 @@ coinController.StopCurrentAnimation();
 - Monitor memory usage during extended animations
 - Test on target platforms for performance validation
 
+#### UGUI Prefab Creation (Current Task: Story 1.2)
+When creating UGUI coin prefabs for the animation system:
+1. **Canvas Setup**: Create a Screen Space - Overlay Canvas for UGUI coins
+2. **Image Component**: Use Unity UI Image component for visual representation
+3. **Component Structure**: Ensure `CoinAnimationController` is attached to the same GameObject
+4. **Animation Compatibility**: Verify RectTransform positioning works with coroutine animations
+5. **Prefab Standardization**: Create consistent prefab structure for batch spawning
+
 ### ⚠️ Important Notes
 - **Coroutine-Based**: All animations use Unity's coroutine system with custom mathematical easing
 - **Memory Efficient**: Minimal memory footprint for high performance (587 lines of core code)
@@ -196,5 +205,10 @@ This project represents a significant architectural simplification journey:
 - **Zero-Dependency Strategy**: Maximum compatibility through pure Unity implementation
 - **Performance-First Design**: 60fps target with 50+ concurrent coins validated
 - **Documentation Excellence**: Comprehensive bilingual documentation for accessibility
+- **UGUI Integration**: Current focus on creating standardized UGUI coin prefabs
 
 This codebase serves as an exemplar of how complex functionality (smooth coin animations) can be implemented with minimal complexity through careful architectural decisions and leveraging Unity's built-in capabilities effectively.
+
+### 🎯 Current Development Focus
+
+**Story 1.2 - Task 5**: Creating UGUI coin prefabs to provide standardized visual components for the animation system. This task ensures all coin animations use consistent prefacts with proper UGUI Canvas integration while maintaining the zero-dependency philosophy.

@@ -3,7 +3,7 @@
 Date: 2025-10-30
 Author: Jane
 Epic ID: MVP
-Status: Completed
+Status: In Progress (80% Complete)
 
 ---
 
@@ -15,7 +15,7 @@ The system addresses Unity developers' need for lightweight, dependency-free ani
 
 ## Objectives and Scope
 
-### In-Scope Features (MVP)
+### In-Scope Features (MVP - Revised Scope)
 
 1. **Coroutine-Based Animation System**
    - Pure Unity implementation with zero external dependencies
@@ -23,23 +23,30 @@ The system addresses Unity developers' need for lightweight, dependency-free ani
    - Smooth position interpolation with rotation animation
    - Multi-phase collection animations (scale → move → scale)
 
-2. **Simple State Management**
+2. **UGUI Prefab System**
+   - Standardized coin prefabs using Unity UI Image components
+   - Canvas-based rendering for optimal UI integration
+   - Reusable visual components with proper RectTransform setup
+   - Consistent visual appearance across all coin animations
+
+3. **Simple State Management**
    - Clear state machine: Idle, Moving, Collecting, Pooled
    - Event-driven state transitions
    - Automatic lifecycle management
    - Manual override capability
 
-3. **Performance Optimization**
+4. **Performance Optimization**
    - Lightweight coroutine execution
    - Minimal memory footprint (<20MB for 50 coins)
    - Frame-rate independent animations
    - Linear performance scaling
 
-### Out-of-Scope Features
+### Out-of-Scope Features (MVP Scope Reduction)
 
-- Magnetic collection physics (removed for simplicity)
-- DOTween integration (replaced with pure Unity coroutines)
-- Complex spatial optimization algorithms
+- Object pooling and advanced memory management (current system efficient enough)
+- Complex performance optimization algorithms (already exceeded targets)
+- Advanced customization interfaces (deferred to post-MVP)
+- Comprehensive accessibility features (deferred to post-MVP)
 - Advanced particle systems and visual effects
 - Multi-threaded animation processing
 - Machine learning-based performance optimization

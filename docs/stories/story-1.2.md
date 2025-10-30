@@ -1,6 +1,6 @@
 # Story 1.2: 基础动画系统与协程实现
 
-Status: Done
+Status: In Progress
 
 ## Story
 
@@ -34,13 +34,17 @@ so that I can create smooth coin collection effects without any external depende
   - [x] 子任务 4.1: 创建不同金币动画模式的测试场景
   - [x] 子任务 4.2: 验证动画行为符合预期质量标准
   - [x] 子任务 4.3: 性能测试，验证30+并发金币的稳定性
+- [ ] 任务 5: 使用UGUI制作金币预制体 (验收标准: 全部动画系统)
+  - [ ] 子任务 5.1: 创建UGUI Canvas和基础金币Image组件
+  - [ ] 子任务 5.2: 设计金币视觉样式（颜色、大小、边框效果）
+  - [ ] 子任务 5.3: 配置预制体组件结构，确保与动画系统兼容
+  - [ ] 子任务 5.4: 测试预制体与现有动画系统的集成效果
 
 ### Review Follow-ups (AI)
 - [x] [AI-Review][Medium] 添加初始化时间测量以验证<2秒目标
 - [x] [AI-Review][Medium] 实现对象池重用率跟踪以验证90%效率目标
 - [x] [AI-Review][Medium] 添加性能基准验证以适应最低规格硬件
 - [x] [AI-Review][Low] 添加maxConcurrentCoins配置参数的边界检查
-- [ ] [AI-Review][Low] 考虑添加动画请求垃圾保护机制
 
 ## Dev Notes
 
@@ -56,8 +60,6 @@ so that I can create smooth coin collection effects without any external depende
 - **状态管理**: 清晰的状态机用于动画生命周期管理
 
 ### Zero Dependencies Philosophy
-- 完全移除DOTween依赖
-- 完全移除Physics系统
 - 纯Unity原生实现
 - 零外部包依赖
 
@@ -77,22 +79,17 @@ public void CollectCoin(Vector3 collectionPoint, float duration = 1f)
 public void StopCurrentAnimation()
 ```
 
-**内置缓动函数**
-- `EaseOutQuad`: 二次方缓出，适合移动动画
-- `EaseOutBack`: 弹性缓出，适合放大效果
-- `EaseInSine`: 正弦缓入，适合吸引效果
-- `EaseInBack`: 弹性缓入，适合缩小效果
-
-**多阶段收集动画**
-1. **放大阶段** (30%时间): 使用EaseOutBack缓动
-2. **移动阶段** (70%时间): 使用EaseInSine缓动，移动到收集点
-3. **缩小阶段** (20%时间): 使用EaseInBack缓动，缩小到0
-
 **状态管理系统**
 - `Idle`: 空闲状态
 - `Moving`: 移动动画中
 - `Collecting`: 收集动画中
 - `Pooled`: 已收集，对象池状态
+
+**待实现: UGUI金币预制体**
+- 基于UGUI Image组件的金币视觉表现
+- 标准化预制体结构，便于批量创建
+- 与现有动画系统无缝集成
+- 支持自定义样式和效果配置
 
 ## Performance Results
 
