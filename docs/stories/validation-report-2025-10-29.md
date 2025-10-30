@@ -1,6 +1,6 @@
 # Validation Report
 
-**Document:** docs/stories/story-1.2.md
+**Document:** docs/stories/story-1.1.md
 **Checklist:** bmad/bmm/workflows/4-implementation/create-story/checklist.md
 **Date:** 2025-10-29
 
@@ -14,7 +14,7 @@
 Pass Rate: 8/8 (100%)
 
 ✓ **Title includes story id and title**
-Evidence: "# Story 1.2: Unity Environment Setup and Configuration" (Line 1)
+Evidence: "# Story 1.1: Unity Environment Setup and Configuration" (Line 1)
 
 ✓ **Status set to Draft**
 Evidence: "Status: Draft" (Line 3)
@@ -50,7 +50,7 @@ Evidence: Each task explicitly references corresponding AC numbers, e.g., "Task 
 Evidence: References section includes 5 specific source citations from PRD and tech spec documents (Lines 80-84)
 
 ✓ **File saved to stories directory from config**
-Evidence: File created at "docs/stories/story-1.2.md" which matches config dev_story_location
+Evidence: File created at "docs/stories/story-1.1.md" which matches config dev_story_location
 
 ✓ **epics.md explicitly enumerates this story under the target epic**
 Evidence: PRD Epic 1 lists "Unity Environment Setup and Configuration" as the first story, providing validation for story creation

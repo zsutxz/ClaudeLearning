@@ -2,70 +2,100 @@
   <metadata>
     <epicId>1</epicId>
     <storyId>1</storyId>
-    <title>Coin Physics and Magnetic Collection</title>
-    <status>Draft</status>
-    <generatedAt>2025-10-29</generatedAt>
+    <title>Unity Environment Setup and Configuration</title>
+    <status>Done</status>
+    <generatedAt>2025-10-30</generatedAt>
     <generator>BMAD Story Context Workflow</generator>
     <sourceStoryPath>D:\work\AI\ClaudeTest\docs\stories\story-1.1.md</sourceStoryPath>
   </metadata>
 
   <story>
     <asA>Unity developer</asA>
-    <iWant>to implement physics-based magnetic coin collection with smooth DOTween animations</iWant>
-    <soThat>that I can create engaging coin collection effects that flow naturally toward collection points with satisfying physics</soThat>
-    <tasks>4 main tasks: DOTween Animation Framework, Magnetic Collection System, Spiral Motion Patterns, Integration Testing and Validation</tasks>
+    <iWant>set up the Unity environment and configure the project structure for the ultra-simplified coin animation system</iWant>
+    <soThat>I have a solid foundation with zero external dependencies, optimized packages, and project settings properly configured for developing the coroutine-based animation system</soThat>
+    <tasks>7 main tasks covering Unity version configuration, URP setup, zero dependency management, project structure, package management, build settings, and environment validation</tasks>
   </story>
 
-  <acceptanceCriteria>1. System must implement smooth DOTween-based animation framework for coin movement
-2. Physics-based magnetic attraction system with configurable strength parameters must be functional
-3. Spiral motion patterns near collection points must be visible when coins are within magnetic influence
-4. Natural deceleration and easing functions must be applied to coin movement
-5. Coins must flow naturally toward collection points with satisfying physics behavior</acceptanceCriteria>
+  <acceptanceCriteria>1. Unity project must be configured with Unity 2021.3 LTS or later version compatibility
+2. Universal Render Pipeline (URP) must be properly installed and configured for optimized rendering
+3. Project must maintain zero external dependencies, using pure Unity coroutine implementation
+4. Project directory structure must follow simplified organization with Core/, Animation/, Examples/, Tests/ folders
+5. Unity Package Manager must be configured with only essential core dependencies
+6. Build settings must be optimized for target platforms (Windows, macOS, Linux)
+7. Input validation and error handling systems must be established for the development environment</acceptanceCriteria>
 
   <artifacts>
     <docs>
-      <doc path="docs/tech-spec-epic-mvp-2025-10-29.md" title="Technical Specification: Responsive Intelligent Coin Animation System MVP" section="Services and Modules" snippet="Core Animation Manager (CoinAnimationManager) - Central coordination of all coin animations, performance monitoring, and system lifecycle management"/>
-      <doc path="docs/tech-spec-epic-mvp-2025-10-29.md" title="Technical Specification: Responsive Intelligent Coin Animation System MVP" section="Data Models and Contracts" snippet="CoinAnimationData - Core data structure for coin animation state management"/>
-      <doc path="docs/tech-spec-epic-mvp-2025-10-29.md" title="Technical Specification: Responsive Intelligent Coin Animation System MVP" section="Data Models and Contracts" snippet="MagneticFieldData - Physics-based magnetic field configuration with strength, radius, and falloff parameters"/>
-      <doc path="docs/tech-spec-epic-mvp-2025-10-29.md" title="Technical Specification: Responsive Intelligent Coin Animation System MVP" section="APIs and Interfaces" snippet="ICoinAnimationManager - Core animation methods: SpawnCoin, StartMagneticCollection, StopMagneticCollection"/>
-      <doc path="docs/tech-spec-epic-mvp-2025-10-29.md" title="Technical Specification: Responsive Intelligent Coin Animation System MVP" section="APIs and Interfaces" snippet="IMagneticCollectionController - Magnetic field control and physics simulation methods"/>
-      <doc path="docs/PRD.md" title="Product Requirements Document" section="Functional Requirements" snippet="FR002: Developers can configure magnetic collection physics with adjustable attraction strength and spiral motion patterns through inspector interface"/>
+      <doc path="docs/tech-spec-epic-mvp-2025-10-29.md" title="Technical Specification: Responsive Intelligent Coin Animation System MVP">
+        <section>Dependencies and Integrations</section>
+        <snippet>Unity Engine Requirements: Unity Version 2021.3 LTS (minimum), 2022.3 LTS (recommended), 2023.2+ (advanced features); Render Pipeline: Universal Render Pipeline (URP) 12.0+ required for shader optimization</snippet>
+        <section>System Architecture Alignment</section>
+        <snippet>The system will follow a modular component design with: Event-driven architecture for decoupled communication; Singleton pattern for centralized animation management; Zero dependencies strategy for maximum compatibility</snippet>
+      </doc>
+      <doc path="docs/PRD.md" title="Responsive Intelligent Coin Animation System Product Requirements Document">
+        <section>Epic 1: Core Animation System (MVP)</section>
+        <snippet>Stories (7): Unity Environment Setup and Configuration, Basic Animation System and Coroutine Implementation, Object Pooling and Memory Management, Performance Optimization and Scaling, Basic Customization Interface, Unity Package Structure and Documentation, Cross-Platform Compatibility</snippet>
+        <section>Functional Requirements FR001</section>
+        <snippet>Unity developers can drag-and-drop coin animation prefabs into existing scenes without requiring additional setup or configuration</snippet>
+        <section>Non-Functional Requirements: Unity Compatibility</section>
+        <snippet>Asset must support Unity 2021.3 LTS and later versions with full compatibility across Windows, macOS, and Linux platforms</snippet>
+      </doc>
     </docs>
     <code>
-      <!-- No existing code found yet - this is a new project -->
+      <artifact path="Project/" kind="directory" symbol="UnityProject" lines="root" reason="Main Unity project directory for coin animation system">
+        <component path="Project/Assets/Scripts/Core/" kind="directory" symbol="CoreSystems" reason="Core system components and data structures"/>
+        <component path="Project/Assets/Scripts/Animation/" kind="directory" symbol="AnimationControllers" reason="Pure Unity coroutine animation systems"/>
+        <component path="Project/Assets/Scripts/Examples/" kind="directory" symbol="DemoComponents" reason="Example implementations and demos"/>
+        <component path="Project/Assets/Scripts/Tests/" kind="directory" symbol="TestInfrastructure" reason="Unit and integration test suites"/>
+      </artifact>
     </code>
     <dependencies>
-      <dependency ecosystem="Unity" package="DOTween" version=">=1.2.632" description="Primary animation framework for smooth interpolation and sequencing"/>
-      <dependency ecosystem="Unity" package="Unity URP" version="12.0+" description="Universal Render Pipeline for shader optimization and performance"/>
-      <dependency ecosystem="Unity" package="Unity Test Framework" version="1.3+" description="Automated testing framework for unit and integration tests"/>
+      <unity>
+        <package name="Unity Engine" version="2021.3 LTS+" description="Unity version requirement for compatibility"/>
+        <package name="Universal Render Pipeline (URP)" version="12.0+" description="Required for shader optimization and performance"/>
+        <package name="Unity Test Framework" version="1.3+" description="For automated testing infrastructure"/>
+        <package name="Unity TextMeshPro" version="3.0+" description="Dependency for UI elements"/>
+      </unity>
     </dependencies>
   </artifacts>
 
   <constraints>
-    <constraint type="Architecture" description="Use event-driven architecture for decoupled communication between components"/>
-    <constraint type="Pattern" description="Implement singleton pattern for CoinAnimationManager coordination"/>
-    <constraint type="Design" description="Follow modular design separating physics, animation, and collection systems"/>
-    <constraint type="Performance" description="Target 60fps performance with 100+ concurrent coins on minimum specification hardware"/>
-    <constraint type="Memory" description="Total memory usage must not exceed 50MB for 100 concurrent coins"/>
-    <constraint type="Testing" description="Unit tests for magnetic field physics calculations with 80% coverage target"/>
-    <constraint type="Unity" description="Support Unity 2021.3 LTS and later versions"/>
-    <constraint type="Platform" description="Cross-platform compatibility for Windows, macOS, and Linux"/>
+    <constraint type="architecture">Follow Unity's recommended project structure patterns for asset packages</constraint>
+    <constraint type="architecture">Implement assembly definitions for optimal compilation times and dependency management</constraint>
+    <constraint type="performance">Configure Unity settings for optimal 60fps performance target</constraint>
+    <constraint type="performance">Set up memory management and garbage collection optimization</constraint>
+    <constraint type="testing">Set up Unity Test Framework configuration for automated testing</constraint>
+    <constraint type="testing">Create test infrastructure for unit, integration, and performance testing</constraint>
+    <constraint type="platform">Asset must support Unity 2021.3 LTS and later versions with full compatibility across Windows, macOS, and Linux platforms</constraint>
+    <constraint type="dependencies">Zero external dependencies - pure Unity coroutine implementation only</constraint>
   </constraints>
 
   <interfaces>
-    <interface name="ICoinAnimationManager" kind="interface" signature="void SpawnCoin(Vector3 position, int coinId = -1); void StartMagneticCollection(Vector3 centerPoint, float radius = 5f, float strength = 10f); void StopMagneticCollection();" path="docs/tech-spec-epic-mvp-2025-10-29.md"/>
-    <interface name="IMagneticCollectionController" kind="interface" signature="void CreateMagneticField(Vector3 center, float radius, float strength); void ApplyMagneticForce(CoinAnimationData coinData, float deltaTime); Vector3 CalculateSpiralMotion(Vector3 currentPosition, Vector3 targetPosition, float time);" path="docs/tech-spec-epic-mvp-2025-10-29.md"/>
-    <interface name="IPerformanceMonitor" kind="interface" signature="void StartMonitoring(); PerformanceMetrics GetCurrentMetrics(); event UnityAction&lt;PerformanceTier&gt; OnPerformanceTierChanged;" path="docs/tech-spec-epic-mvp-2025-10-29.md"/>
+    <interface name="ICoinAnimationManager" kind="interface" signature="public interface ICoinAnimationManager" path="Assets/Scripts/Core/ICoinAnimationManager.cs">
+      <description>Central coordination of all coin animations, performance monitoring, and system lifecycle management</description>
+    </interface>
+    <interface name="ICoinObjectPool" kind="interface" signature="public interface ICoinObjectPool" path="Assets/Scripts/Core/ICoinObjectPool.cs">
+      <description>Memory-efficient coin instantiation, lifecycle management, garbage collection prevention</description>
+    </interface>
+    <interface name="ICoinAnimationController" kind="interface" signature="public interface ICoinAnimationController" path="Assets/Scripts/Animation/ICoinAnimationController.cs">
+      <description>Pure Unity coroutine-based animation control with easing functions</description>
+    </interface>
   </interfaces>
 
   <tests>
-    <standards>Use Unity Test Framework v1.3+ with NUnit for unit testing. Target 80% coverage for core business logic (physics calculations, animation management) and 60% for utility classes. Focus on object pool lifecycle management, performance monitoring calculations, and magnetic field physics calculations.</standards>
-    <locations>Tests should be placed in Assets/Tests/ directory with subdirectories: UnitTests/ for component testing, IntegrationTests/ for system interactions, and PerformanceTests/ for stress testing and benchmarking.</locations>
+    <standards>Unity Test Framework v1.3+ with NUnit. Coverage target: 80% for core business logic, 60% for utility classes. Automated testing pipeline with continuous integration. Unit tests for object pool lifecycle management, performance monitoring calculations, coroutine animation calculations. Integration tests for API interface contract compliance, event system reliability, component communication protocols. Performance testing with Unity Profiler + Custom Performance Benchmark Suite.</standards>
+    <locations>
+      <location path="Project/Assets/Scripts/Tests/" pattern="*Test*.cs" description="Unit and integration test files"/>
+      <location path="Project/Assets/Scripts/Tests/" pattern="*Performance*.cs" description="Performance validation test files"/>
+    </locations>
     <ideas>
-      <test idea="Magnetic field physics validation" mappedTo="AC-2,AC-3">Test magnetic force calculations at various distances and strengths to ensure accurate spiral motion patterns</test>
-      <test idea="DOTween animation performance" mappedTo="AC-1,AC-4">Benchmark animation sequences with varying coin counts to validate 60fps target performance</test>
-      <test idea="Integration stress test" mappedTo="AC-5">Run 100+ concurrent coins through complete spawn→animate→collect→return lifecycle</test>
-      <test idea="Configuration validation" mappedTo="AC-2">Test inspector interface controls for magnetic field parameters and verify runtime behavior changes</test>
+      <test ac="1" idea="Unity version compatibility test - verify project settings support Unity 2021.3 LTS+ features"/>
+      <test ac="2" idea="URP configuration test - validate URP pipeline installation and renderer setup"/>
+      <test ac="3" idea="Zero dependency validation test - verify no external packages are required"/>
+      <test ac="4" idea="Project structure validation test - ensure all required directories exist with proper naming"/>
+      <test ac="5" idea="Package manager test - validate manifest.json contains only core dependencies"/>
+      <test ac="6" idea="Build settings test - verify target platform configuration and optimization settings"/>
+      <test ac="7" idea="Environment validation test - run validation scripts to verify complete setup"/>
     </ideas>
   </tests>
 </story-context>
