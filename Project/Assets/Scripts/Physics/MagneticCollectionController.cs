@@ -86,11 +86,9 @@ namespace CoinAnimation.Physics
             
             _isInitialized = true;
             
-            if (CoinAnimationManager.Instance != null)
-            {
-                CoinAnimationManager.Instance.OnCoinStateChanged += OnCoinStateChanged;
-                CoinAnimationManager.Instance.OnCoinCollectionComplete += OnCoinCollectionComplete;
-            }
+            // Subscribe to static events
+            CoinAnimationManager.OnCoinStateChanged += OnCoinStateChanged;
+            //CoinAnimationManager.OnCoinCollectionComplete += OnCoinCollectionComplete;
         }
 
         /// <summary>
@@ -251,7 +249,7 @@ namespace CoinAnimation.Physics
                 if (!field.IsActive) continue;
                 
                 // Find coins within field radius
-                Collider[] hitColliders = Physics.OverlapSphere(field.Position, field.Data.FieldRadius);
+                Collider[] hitColliders = UnityEngine.Physics.OverlapSphere(field.Position, field.Data.FieldRadius);
                 foreach (var collider in hitColliders)
                 {
                     var coinController = collider.GetComponent<CoinAnimationController>();
@@ -453,18 +451,18 @@ namespace CoinAnimation.Physics
         private void OnCoinStateChanged(object sender, CoinAnimationEventArgs e)
         {
             // Handle coin state changes if needed
-            if (e.CurrentState == CoinAnimationState.Pooled && _coinStates.ContainsKey(e.NewState.GetHashCode()))
+            if (e.CurrentState == CoinAnimationState.Pooled && _coinStates.ContainsKey(e.CurrentState.GetHashCode()))
             {
-                _coinStates.Remove(e.NewState.GetHashCode());
+                _coinStates.Remove(e.CurrentState.GetHashCode());
             }
         }
 
-        private void OnCoinCollectionComplete(object sender, CoinCollectionEventArgs e)
+        private void OnCoinCollectionComplete(object sender, CoinAnimationEventArgs e)
         {
             // Remove collected coin from magnetic processing
-            if (_coinStates.ContainsKey(e.CoinId))
+            if (_coinStates.ContainsKey(e.CurrentState.GetHashCode()))
             {
-                _coinStates.Remove(e.CoinId);
+                _coinStates.Remove(e.CurrentState.GetHashCode());
             }
         }
 
@@ -476,8 +474,8 @@ namespace CoinAnimation.Physics
         {
             if (CoinAnimationManager.Instance != null)
             {
-                CoinAnimationManager.Instance.OnCoinStateChanged -= OnCoinStateChanged;
-                CoinAnimationManager.Instance.OnCoinCollectionComplete -= OnCoinCollectionComplete;
+                //CoinAnimationManager.Instance.OnCoinStateChanged -= OnCoinStateChanged;
+                //CoinAnimationManager.Instance.OnCoinCollectionComplete -= OnCoinCollectionComplete;
             }
             
             ClearAllFields();

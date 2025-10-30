@@ -7,6 +7,8 @@ using System.Diagnostics;
 using CoinAnimation.Core;
 using CoinAnimation.Animation;
 using CoinAnimation.Physics;
+using DG.Tweening;
+using System.Linq;
 
 namespace CoinAnimation.Tests
 {
@@ -154,50 +156,6 @@ namespace CoinAnimation.Tests
             public int AffectedCoinCount;
         }
 
-        /// <summary>
-        /// Measure performance metrics during test
-        /// </summary>
-        /// <param name="duration">Duration to measure</param>
-        /// <returns>Performance metrics</returns>
-        private PerformanceMetrics MeasurePerformance(float duration)
-        {
-            PerformanceMetrics metrics = new PerformanceMetrics();
-            List<float> fpsSamples = new List<float>();
-            
-            float startTime = Time.time;
-            float lastFrameTime = startTime;
-            long startMemory = System.GC.GetTotalMemory(false);
-            
-            while (Time.time - startTime < duration)
-            {
-                float currentTime = Time.time;
-                float deltaTime = currentTime - lastFrameTime;
-                float currentFPS = 1f / deltaTime;
-                
-                fpsSamples.Add(currentFPS);
-                metrics.FrameCount++;
-                lastFrameTime = currentTime;
-                
-                yield return null;
-            }
-            
-            // Calculate metrics
-            metrics.TotalTime = Time.time - startTime;
-            metrics.AverageFPS = fpsSamples.Count > 0 ? fpsSamples.Sum() / fpsSamples.Count : 0f;
-            metrics.MinFPS = fpsSamples.Count > 0 ? fpsSamples.Min() : 0f;
-            metrics.MaxFPS = fpsSamples.Count > 0 ? fpsSamples.Max() : 0f;
-            metrics.MemoryUsed = System.GC.GetTotalMemory(false) - startMemory;
-            
-            // Get system status
-            if (_animationManager != null)
-                metrics.ActiveAnimationCount = _animationManager.ActiveCoinCount;
-            
-            if (_spiralController != null)
-                metrics.ActiveSpiralCount = _spiralController.ActiveSpiralCount;
-            
-            if (_magneticController != null)
-                metrics.AffectedCoinCount = _magneticController.AffectedCoinCount;
-        }
 
         #endregion
 
@@ -221,9 +179,9 @@ namespace CoinAnimation.Tests
                 float duration = Random.Range(1f, 2f);
                 coin.AnimateToPosition(targetPosition, duration);
             }
-            
+
             // Measure performance
-            yield return StartCoroutine(MeasurePerformanceCoroutine(TEST_DURATION));
+            yield return MeasurePerformanceCoroutine(TEST_DURATION);
         }
 
         [UnityTest]
@@ -257,10 +215,10 @@ namespace CoinAnimation.Tests
                     Random.Range(-10f, 10f)
                 );
             }
-            
+
             // Measure performance under magnetic influence
-            yield return StartCoroutine(MeasurePerformanceCoroutine(TEST_DURATION));
-            
+            yield return MeasurePerformanceCoroutine(TEST_DURATION);
+
             // Clean up fields
             foreach (int fieldId in fieldIds)
             {
@@ -301,10 +259,11 @@ namespace CoinAnimation.Tests
             }
             
             UnityEngine.Debug.Log($"Started {spiralCount} concurrent spiral animations");
-            
+
             // Measure performance
-            yield return StartCoroutine(MeasurePerformanceCoroutine(TEST_DURATION));
+            yield return MeasurePerformanceCoroutine(TEST_DURATION);
         }
+
 
         [UnityTest]
         public IEnumerator PerformanceTest_MixedWorkload()
