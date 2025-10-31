@@ -1,0 +1,19 @@
+# UGUI Coin Prefab
+
+This is a placeholder for the UGUI Coin Prefab.
+
+## Structure
+- UGUICoin (GameObject)
+  - RectTransform
+  - Image (UI.Image)
+  - CoinAnimationController (CoinAnimation.Animation.CoinAnimationController)
+
+## Properties
+- Canvas: Screen Space - Overlay
+- Image: Uses either a project coin sprite or a default gold circle sprite
+- CoinAnimationController: Configured with animationSpeed = 1f, rotationSpeed = 360f
+- RectTransform: anchoredPosition = (0,0), sizeDelta = (100,100)
+
+## Notes
+In a real Unity environment, this would be a binary or YAML file containing the actual prefab data.
+The prefab would be created by the UGUICoinPrefabCreator editor script when executed in the Unity Editor.

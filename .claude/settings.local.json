@@ -23,7 +23,8 @@
       "Bash(cp:*)",
       "mcp__filesystem__read_multiple_files",
       "mcp__filesystem__search_files",
-      "mcp__filesystem__edit_file"
+      "mcp__filesystem__edit_file",
+      "mcp__fetch__fetch"
     ],
     "deny": [],
     "ask": []
