@@ -39,7 +39,7 @@ namespace CoinAnimation.Tests
             _controller = _testCoin.AddComponent<UGUICoinAnimationController>();
 
             // 设置基础属性
-            _image.color = Color.gold;
+            _image.color = Color.yellow;
             _testCoin.GetComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
         }
 
@@ -90,7 +90,7 @@ namespace CoinAnimation.Tests
             _controller.OnStateChanged += (sender, args) =>
             {
                 stateChangedEventFired = true;
-                receivedState = args.NewState;
+                receivedState = args.CurrentState;
             };
 
             // Act
@@ -278,7 +278,7 @@ namespace CoinAnimation.Tests
                 coin.transform.SetParent(_testCanvas.transform, false);
 
                 Image image = coin.AddComponent<Image>();
-                image.color = Color.gold;
+                image.color = Color.yellow;
                 coin.GetComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
 
                 controllers[i] = coin.AddComponent<UGUICoinAnimationController>();

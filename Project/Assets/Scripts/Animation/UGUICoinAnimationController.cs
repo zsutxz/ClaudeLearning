@@ -15,8 +15,8 @@ namespace CoinAnimation.Animation
         #region Configuration
 
         [Header("Animation Settings")]
-        [SerializeField] private float animationSpeed = 1f;
-        [SerializeField] private float rotationSpeed = 360f;
+        [SerializeField] public float animationSpeed = 1f;
+        [SerializeField] public float rotationSpeed = 360f;
 
         [Header("Effects")]
         [SerializeField] private ParticleSystem collectionEffect;

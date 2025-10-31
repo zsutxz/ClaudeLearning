@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using CoinAnimation.Animation;
+using CoinAnimation.Core;
 
 namespace CoinAnimation.Examples
 {
@@ -273,7 +274,7 @@ namespace CoinAnimation.Examples
         private void OnCoinStateChanged(object sender, CoinAnimationEventArgs e)
         {
             // 可以在这里添加状态变化时的视觉效果
-            Debug.Log($"UGUI Coin state changed: {e.OldState} -> {e.NewState}");
+            Debug.Log($"UGUI Coin state changed: {e.PreviousState} -> {e.CurrentState}");
         }
 
         /// <summary>

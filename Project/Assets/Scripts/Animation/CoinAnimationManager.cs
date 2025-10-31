@@ -44,7 +44,7 @@ namespace CoinAnimation.Animation
 
         [SerializeField] private int maxConcurrentCoins = 50;
 
-        private readonly Dictionary<int, CoinAnimationController> _activeCoins = new Dictionary<int, CoinAnimationController>();
+        private readonly Dictionary<int, MonoBehaviour> _activeCoins = new Dictionary<int, MonoBehaviour>();
         private int _coinIdCounter = 0;
 
         #endregion
@@ -74,7 +74,7 @@ namespace CoinAnimation.Animation
 
         #region Coin Management
 
-        public int RegisterCoin(CoinAnimationController coinController)
+        public int RegisterCoin(MonoBehaviour coinController)
         {
             if (coinController == null) return -1;
 
@@ -102,7 +102,7 @@ namespace CoinAnimation.Animation
 
         #region Event Triggers
 
-        internal void TriggerCollectionComplete(int coinId, Vector3 collectionPoint)
+        internal void TriggerCollectionComplete(int coinId, Vector2 collectionPoint)
         {
             var args = new CoinCollectionEventArgs(coinId, collectionPoint);
             OnCoinCollectionComplete?.Invoke(this, args);
@@ -126,9 +126,9 @@ namespace CoinAnimation.Animation
     public class CoinCollectionEventArgs : EventArgs
     {
         public int CoinId { get; }
-        public Vector3 CollectionPoint { get; }
+        public Vector2 CollectionPoint { get; }
 
-        public CoinCollectionEventArgs(int coinId, Vector3 collectionPoint)
+        public CoinCollectionEventArgs(int coinId, Vector2 collectionPoint)
         {
             CoinId = coinId;
             CollectionPoint = collectionPoint;
