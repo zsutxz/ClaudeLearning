@@ -6,7 +6,8 @@ using CoinAnimation.Core;
 namespace CoinAnimation.Animation
 {
     /// <summary>
-    /// 金币动画控制器 - 使用协程实现
+    /// Enhanced coin animation controller with memory management integration
+    /// Story 1.3 Task 3 - Performance Integration
     /// </summary>
     [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(Collider))]
@@ -22,6 +23,10 @@ namespace CoinAnimation.Animation
         [SerializeField] private ParticleSystem collectionEffect;
         [SerializeField] private AudioSource collectionAudio;
 
+        [Header("Memory Optimization")]
+        [SerializeField] private bool enableMemoryOptimization = true;
+        [SerializeField] private bool enableGCPrevention = true;
+
         #endregion
 
         #region Private Fields
@@ -32,6 +37,11 @@ namespace CoinAnimation.Animation
         private CoinAnimationState _currentState = CoinAnimationState.Idle;
         private int _coinId = -1;
 
+        // Memory management integration
+        private MemoryManagementSystem _memorySystem;
+        private CoinObjectPool _objectPool;
+        private bool _isMemoryTracked = false;
+
         #endregion
 
         #region Properties
@@ -39,6 +49,7 @@ namespace CoinAnimation.Animation
         public CoinAnimationState CurrentState => _currentState;
         public int CoinId => _coinId;
         public bool IsAnimating => _currentAnimationCoroutine != null;
+        public bool IsMemoryOptimized => enableMemoryOptimization && _memorySystem != null;
 
         #endregion
 
@@ -54,13 +65,39 @@ namespace CoinAnimation.Animation
         {
             _rigidbody = GetComponent<Rigidbody>();
             _collider = GetComponent<Collider>();
+            
+            // Find memory and pool systems
+            _memorySystem = FindObjectOfType<MemoryManagementSystem>();
+            _objectPool = FindObjectOfType<CoinObjectPool>();
         }
 
         private void Start()
         {
+            // Register with memory tracking system if available
+            RegisterWithMemorySystem();
+            
+            // Legacy registration for backward compatibility
             if (CoinAnimationManager.Instance != null)
             {
                 _coinId = CoinAnimationManager.Instance.RegisterCoin(this);
+            }
+        }
+
+        private void RegisterWithMemorySystem()
+        {
+            if (enableMemoryOptimization && _memorySystem != null && !_isMemoryTracked)
+            {
+                _memorySystem.TrackObject(this, "CoinAnimationController");
+                _isMemoryTracked = true;
+            }
+        }
+
+        private void UnregisterFromMemorySystem()
+        {
+            if (enableMemoryOptimization && _memorySystem != null && _isMemoryTracked)
+            {
+                _memorySystem.UntrackObject(this, "CoinAnimationController");
+                _isMemoryTracked = false;
             }
         }
 
@@ -72,8 +109,54 @@ namespace CoinAnimation.Animation
         {
             if (_currentState == newState) return;
 
+            var previousState = _currentState;
             _currentState = newState;
-            OnStateChanged?.Invoke(this, new CoinAnimationEventArgs(_currentState, newState, 0f, true));
+            
+            var args = new CoinAnimationEventArgs(previousState, newState, 0f, true);
+            OnStateChanged?.Invoke(this, args);
+
+            // Handle memory-related state changes
+            HandleMemoryStateChange(previousState, newState);
+        }
+
+        private void HandleMemoryStateChange(CoinAnimationState previousState, CoinAnimationState newState)
+        {
+            if (!enableMemoryOptimization) return;
+
+            switch (newState)
+            {
+                case CoinAnimationState.Moving:
+                    // Consider GC prevention for movement animations
+                    if (enableGCPrevention && _memorySystem != null)
+                    {
+                        _memorySystem.EnableGCPrevention();
+                    }
+                    break;
+
+                case CoinAnimationState.Collecting:
+                    // Enable GC prevention for complex collection animations
+                    if (enableGCPrevention && _memorySystem != null)
+                    {
+                        _memorySystem.EnableGCPrevention();
+                    }
+                    break;
+
+                case CoinAnimationState.Pooled:
+                    // Disable GC prevention when coin returns to pool
+                    if (_memorySystem != null)
+                    {
+                        _memorySystem.DisableGCPrevention();
+                    }
+                    break;
+
+                case CoinAnimationState.Idle:
+                    // Allow normal GC when idle
+                    if (_memorySystem != null)
+                    {
+                        _memorySystem.DisableGCPrevention();
+                    }
+                    break;
+            }
         }
 
         #endregion
@@ -98,6 +181,12 @@ namespace CoinAnimation.Animation
         {
             StopCurrentAnimation();
             SetState(CoinAnimationState.Collecting);
+
+            // Enable GC prevention for smooth animation
+            if (enableGCPrevention && _memorySystem != null)
+            {
+                _memorySystem.EnableGCPrevention();
+            }
 
             _currentAnimationCoroutine = StartCoroutine(CollectCoinCoroutine(collectionPoint, duration / animationSpeed));
         }
@@ -196,6 +285,12 @@ namespace CoinAnimation.Animation
                 CoinAnimationManager.Instance.TriggerCollectionComplete(_coinId, collectionPoint);
             }
 
+            // Disable GC prevention after animation completes
+            if (_memorySystem != null)
+            {
+                _memorySystem.DisableGCPrevention();
+            }
+
             SetState(CoinAnimationState.Pooled);
             gameObject.SetActive(false);
             _currentAnimationCoroutine = null;
@@ -232,6 +327,12 @@ namespace CoinAnimation.Animation
                 StopCoroutine(_currentAnimationCoroutine);
                 _currentAnimationCoroutine = null;
             }
+
+            // Disable GC prevention when animation stops
+            if (_memorySystem != null)
+            {
+                _memorySystem.DisableGCPrevention();
+            }
         }
 
         /// <summary>
@@ -248,6 +349,23 @@ namespace CoinAnimation.Animation
         public void ResumeAnimations()
         {
             SetState(CoinAnimationState.Moving);
+        }
+
+        /// <summary>
+        /// Return this coin to the pool manually
+        /// </summary>
+        public void ReturnToPool()
+        {
+            if (_objectPool != null)
+            {
+                _objectPool.ReturnCoin(gameObject);
+            }
+            else
+            {
+                // Fallback: disable and let manager handle
+                gameObject.SetActive(false);
+                SetState(CoinAnimationState.Pooled);
+            }
         }
 
         #endregion
@@ -280,11 +398,73 @@ namespace CoinAnimation.Animation
 
         #endregion
 
+        #region Memory Optimization
+
+        /// <summary>
+        /// Optimize memory usage for this coin
+        /// </summary>
+        public void OptimizeMemoryUsage()
+        {
+            if (!enableMemoryOptimization) return;
+
+            // Stop any ongoing animations
+            StopCurrentAnimation();
+
+            // Return to idle state
+            SetState(CoinAnimationState.Idle);
+
+            // Force cleanup
+            if (collectionEffect != null && collectionEffect.isPlaying)
+            {
+                collectionEffect.Stop();
+            }
+
+            if (collectionAudio != null && collectionAudio.isPlaying)
+            {
+                collectionAudio.Stop();
+            }
+
+            // Reset transform to default
+            transform.localPosition = Vector3.zero;
+            transform.localRotation = Quaternion.identity;
+            transform.localScale = Vector3.one;
+
+            // Reset physics
+            if (_rigidbody != null)
+            {
+                _rigidbody.velocity = Vector3.zero;
+                _rigidbody.angularVelocity = Vector3.zero;
+            }
+        }
+
+        /// <summary>
+        /// Get memory usage information for this coin
+        /// </summary>
+        public CoinMemoryInfo GetMemoryInfo()
+        {
+            return new CoinMemoryInfo
+            {
+                CoinId = _coinId,
+                CurrentState = _currentState,
+                IsAnimating = IsAnimating,
+                IsMemoryOptimized = IsMemoryOptimized,
+                IsMemoryTracked = _isMemoryTracked,
+                HasActiveEffects = (collectionEffect != null && collectionEffect.isPlaying) ||
+                                 (collectionAudio != null && collectionAudio.isPlaying),
+                Timestamp = DateTime.UtcNow
+            };
+        }
+
+        #endregion
+
         #region Cleanup
 
         private void OnDestroy()
         {
             StopCurrentAnimation();
+
+            // Unregister from memory tracking system
+            UnregisterFromMemorySystem();
 
             if (_coinId != -1 && CoinAnimationManager.Instance != null)
             {
@@ -294,4 +474,23 @@ namespace CoinAnimation.Animation
 
         #endregion
     }
+
+    #region Supporting Classes
+
+    /// <summary>
+    /// Memory information for individual coin
+    /// </summary>
+    [Serializable]
+    public class CoinMemoryInfo
+    {
+        public int CoinId;
+        public CoinAnimationState CurrentState;
+        public bool IsAnimating;
+        public bool IsMemoryOptimized;
+        public bool IsMemoryTracked;
+        public bool HasActiveEffects;
+        public DateTime Timestamp;
+    }
+
+    #endregion
 }

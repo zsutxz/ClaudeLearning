@@ -6,9 +6,10 @@ using CoinAnimation.Core;
 namespace CoinAnimation.Animation
 {
     /// <summary>
-    /// 简化的金币动画管理器
+    /// Enhanced coin animation manager with object pooling integration
+    /// Story 1.3 - Object Pooling and Memory Management Integration
     /// </summary>
-    public class CoinAnimationManager : MonoBehaviour
+    public class CoinAnimationManager : MonoBehaviour, ICoinAnimationManager
     {
         #region Singleton
 
@@ -38,21 +39,47 @@ namespace CoinAnimation.Animation
         public static event EventHandler<CoinAnimationEventArgs> OnCoinStateChanged;
         public static event EventHandler<CoinCollectionEventArgs> OnCoinCollectionComplete;
 
+        // ICoinAnimationManager events
+        public event Action<Guid> OnAnimationStarted;
+        public event Action<Guid> OnAnimationCompleted;
+        public event Action<PerformanceMetrics> OnPerformanceThresholdExceeded;
+
         #endregion
 
         #region Fields
 
+        [Header("Pool Configuration")]
+        [SerializeField] private ObjectPoolConfiguration poolConfiguration;
+        [SerializeField] private GameObject coinPrefab;
+        [SerializeField] private bool useObjectPooling = true;
+
+        [Header("Legacy Settings")]
         [SerializeField] private int maxConcurrentCoins = 50;
 
-        private readonly Dictionary<int, MonoBehaviour> _activeCoins = new Dictionary<int, MonoBehaviour>();
+        // Pool management
+        private CoinObjectPool _objectPool;
+        private readonly Dictionary<int, GameObject> _activeCoinObjects = new Dictionary<int, GameObject>();
+        private readonly Dictionary<Guid, List<int>> _animationSessions = new Dictionary<Guid, List<int>>();
         private int _coinIdCounter = 0;
+
+        // Performance tracking
+        private PerformanceMetrics _currentMetrics;
+        private float _lastMetricsUpdate = 0f;
+        private float _metricsUpdateInterval = 1f;
+
+        // ICoinAnimationManager compatibility
+        private readonly Dictionary<Guid, CoinAnimationSession> _activeSessions = new Dictionary<Guid, CoinAnimationSession>();
 
         #endregion
 
         #region Properties
 
-        public int ActiveCoinCount => _activeCoins.Count;
-        public bool IsAtCapacity => _activeCoins.Count >= maxConcurrentCoins;
+        public int ActiveCoinCount => _activeCoinObjects.Count;
+        public bool IsAtCapacity => _activeCoinObjects.Count >= maxConcurrentCoins;
+
+        // Pool properties
+        public PoolPerformanceMetrics PoolMetrics => _objectPool?.GetPerformanceMetrics() ?? new PoolPerformanceMetrics();
+        public bool IsPoolInitialized => _objectPool != null;
 
         #endregion
 
@@ -68,33 +95,180 @@ namespace CoinAnimation.Animation
 
             _instance = this;
             DontDestroyOnLoad(gameObject);
+            
+            InitializeSystem();
+        }
+
+        private void InitializeSystem()
+        {
+            // Initialize pool configuration if not assigned
+            if (poolConfiguration == null)
+            {
+                poolConfiguration = ObjectPoolConfiguration.CreateHighEndConfig();
+                Debug.Log("[CoinAnimationManager] Using default high-end pool configuration");
+            }
+            
+            poolConfiguration.ValidateAndFix();
+            
+            // Initialize object pool if enabled
+            if (useObjectPooling)
+            {
+                InitializeObjectPool();
+            }
+            
+            // Initialize performance metrics
+            _currentMetrics = new PerformanceMetrics
+            {
+                timestamp = DateTime.UtcNow,
+                currentFrameRate = 60f,
+                activeAnimations = 0,
+                memoryUsage = 0f,
+                cpuUsage = 0f,
+                isPerformanceOptimal = true
+            };
+            
+            Debug.Log($"[CoinAnimationManager] System initialized with pooling: {useObjectPooling}");
+        }
+
+        private void InitializeObjectPool()
+        {
+            if (coinPrefab == null)
+            {
+                Debug.LogError("[CoinAnimationManager] Coin prefab is required for object pooling!");
+                useObjectPooling = false;
+                return;
+            }
+            
+            GameObject poolObject = new GameObject("CoinObjectPool");
+            poolObject.transform.SetParent(transform);
+            _objectPool = poolObject.AddComponent<CoinObjectPool>();
+            
+            // Configure the pool
+            _objectPool.enabled = true;
+            
+            Debug.Log($"[CoinAnimationManager] Object pool initialized with config: {poolConfiguration.GetConfigurationSummary()}");
         }
 
         #endregion
 
         #region Coin Management
 
+        /// <summary>
+        /// Legacy registration method for backward compatibility
+        /// </summary>
+        [Obsolete("Use GetCoinFromPool instead for pooled coin management")]
         public int RegisterCoin(MonoBehaviour coinController)
         {
             if (coinController == null) return -1;
 
-            if (_activeCoins.Count >= maxConcurrentCoins)
+            if (_activeCoinObjects.Count >= maxConcurrentCoins)
             {
                 Debug.LogWarning($"[CoinAnimationManager] 达到最大容量 ({maxConcurrentCoins})");
                 return -1;
             }
 
             int coinId = ++_coinIdCounter;
-            _activeCoins.Add(coinId, coinController);
+            var coinObject = coinController.gameObject;
+            _activeCoinObjects.Add(coinId, coinObject);
 
             return coinId;
         }
 
+        /// <summary>
+        /// Get a coin from the object pool (new pooling method)
+        /// </summary>
+        /// <returns>Coin GameObject or null if pool is unavailable</returns>
+        public GameObject GetCoinFromPool()
+        {
+            if (!useObjectPooling || _objectPool == null)
+            {
+                Debug.LogWarning("[CoinAnimationManager] Object pooling is not enabled or initialized");
+                return null;
+            }
+
+            GameObject coin = _objectPool.GetCoin();
+            if (coin != null)
+            {
+                int coinId = ++_coinIdCounter;
+                _activeCoinObjects.Add(coinId, coin);
+                
+                // Set up the coin controller
+                var controller = coin.GetComponent<CoinAnimationController>();
+                if (controller != null)
+                {
+                    // The controller will automatically register itself in Start()
+                    // but we need to ensure it has the correct coin ID
+                    var idField = typeof(CoinAnimationController).GetField("_coinId", 
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (idField != null)
+                    {
+                        idField.SetValue(controller, coinId);
+                    }
+                }
+                
+                return coin;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Return a coin to the object pool
+        /// </summary>
+        /// <param name="coinId">ID of the coin to return</param>
+        public void ReturnCoinToPool(int coinId)
+        {
+            if (_activeCoinObjects.ContainsKey(coinId))
+            {
+                GameObject coin = _activeCoinObjects[coinId];
+                _activeCoinObjects.Remove(coinId);
+                
+                if (useObjectPooling && _objectPool != null && coin != null)
+                {
+                    _objectPool.ReturnCoin(coin);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Return a coin GameObject to the pool
+        /// </summary>
+        /// <param name="coin">Coin GameObject to return</param>
+        public void ReturnCoinToPool(GameObject coin)
+        {
+            if (coin == null) return;
+            
+            // Find the coin ID and remove from active tracking
+            int coinIdToRemove = -1;
+            foreach (var kvp in _activeCoinObjects)
+            {
+                if (kvp.Value == coin)
+                {
+                    coinIdToRemove = kvp.Key;
+                    break;
+                }
+            }
+            
+            if (coinIdToRemove != -1)
+            {
+                _activeCoinObjects.Remove(coinIdToRemove);
+            }
+            
+            if (useObjectPooling && _objectPool != null)
+            {
+                _objectPool.ReturnCoin(coin);
+            }
+        }
+
+        /// <summary>
+        /// Legacy unregistration method for backward compatibility
+        /// </summary>
+        [Obsolete("Use ReturnCoinToPool instead for pooled coin management")]
         public void UnregisterCoin(int coinId)
         {
-            if (_activeCoins.ContainsKey(coinId))
+            if (_activeCoinObjects.ContainsKey(coinId))
             {
-                _activeCoins.Remove(coinId);
+                _activeCoinObjects.Remove(coinId);
             }
         }
 
@@ -106,6 +280,170 @@ namespace CoinAnimation.Animation
         {
             var args = new CoinCollectionEventArgs(coinId, collectionPoint);
             OnCoinCollectionComplete?.Invoke(this, args);
+            
+            // Automatically return coin to pool when collection is complete
+            if (useObjectPooling)
+            {
+                ReturnCoinToPool(coinId);
+            }
+        }
+
+        #endregion
+
+        #region ICoinAnimationManager Implementation
+
+        public void Initialize(CoinAnimationConfiguration configuration)
+        {
+            // Apply configuration if provided
+            if (configuration != null)
+            {
+                maxConcurrentCoins = configuration.maxConcurrentAnimations;
+                // Apply other configuration settings as needed
+            }
+            
+            Debug.Log("[CoinAnimationManager] ICoinAnimationManager initialized");
+        }
+
+        public Guid StartCoinAnimation(Transform target, int coinCount = 1)
+        {
+            Guid sessionId = Guid.NewGuid();
+            var session = new CoinAnimationSession
+            {
+                SessionId = sessionId,
+                Target = target,
+                CoinCount = coinCount,
+                StartTime = DateTime.UtcNow,
+                CoinIds = new List<int>()
+            };
+            
+            _activeSessions[sessionId] = session;
+            
+            // Spawn coins for this animation session
+            for (int i = 0; i < coinCount; i++)
+            {
+                if (useObjectPooling)
+                {
+                    GameObject coin = GetCoinFromPool();
+                    if (coin != null)
+                    {
+                        // Position coin at target and start animation
+                        coin.transform.position = target.position;
+                        
+                        var controller = coin.GetComponent<CoinAnimationController>();
+                        if (controller != null)
+                        {
+                            // Start animation with collection to target position
+                            controller.CollectCoin(target.position, 2f);
+                        }
+                    }
+                }
+            }
+            
+            OnAnimationStarted?.Invoke(sessionId);
+            
+            // Auto-complete session after delay (simplified)
+            StartCoroutine(CompleteAnimationSession(sessionId, 3f));
+            
+            return sessionId;
+        }
+
+        public void StopCoinAnimation(Guid sessionId)
+        {
+            if (_activeSessions.ContainsKey(sessionId))
+            {
+                // Stop all coins in this session
+                var session = _activeSessions[sessionId];
+                foreach (int coinId in session.CoinIds)
+                {
+                    if (_activeCoinObjects.ContainsKey(coinId))
+                    {
+                        GameObject coin = _activeCoinObjects[coinId];
+                        var controller = coin.GetComponent<CoinAnimationController>();
+                        controller?.StopCurrentAnimation();
+                        
+                        // Return coin to pool
+                        ReturnCoinToPool(coinId);
+                    }
+                }
+                
+                _activeSessions.Remove(sessionId);
+                OnAnimationCompleted?.Invoke(sessionId);
+            }
+        }
+
+        public PerformanceMetrics GetPerformanceMetrics()
+        {
+            UpdatePerformanceMetrics();
+            return _currentMetrics;
+        }
+
+        public void Cleanup()
+        {
+            // Return all active coins to pool
+            var activeCoinsCopy = new List<int>(_activeCoinObjects.Keys);
+            foreach (int coinId in activeCoinsCopy)
+            {
+                ReturnCoinToPool(coinId);
+            }
+            
+            // Clear active sessions
+            _activeSessions.Clear();
+            
+            Debug.Log("[CoinAnimationManager] System cleanup completed");
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private System.Collections.IEnumerator CompleteAnimationSession(Guid sessionId, float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            
+            if (_activeSessions.ContainsKey(sessionId))
+            {
+                _activeSessions.Remove(sessionId);
+                OnAnimationCompleted?.Invoke(sessionId);
+            }
+        }
+
+        private void UpdatePerformanceMetrics()
+        {
+            if (Time.time - _lastMetricsUpdate < _metricsUpdateInterval) return;
+            
+            _currentMetrics.timestamp = DateTime.UtcNow;
+            _currentMetrics.activeAnimations = _activeCoinObjects.Count;
+            _currentMetrics.currentFrameRate = 1f / Time.deltaTime;
+            
+            // Estimate memory usage
+            if (useObjectPooling && _objectPool != null)
+            {
+                var poolMetrics = _objectPool.GetPerformanceMetrics();
+                _currentMetrics.memoryUsage = poolMetrics.MemoryUsage / (1024f * 1024f); // Convert to MB
+            }
+            
+            // Determine if performance is optimal
+            _currentMetrics.isPerformanceOptimal = 
+                _currentMetrics.currentFrameRate >= 30f && 
+                _currentMetrics.memoryUsage < 100f && // Less than 100MB
+                _activeCoinObjects.Count < maxConcurrentCoins * 0.9f;
+            
+            // Trigger performance warning if needed
+            if (!_currentMetrics.isPerformanceOptimal)
+            {
+                OnPerformanceThresholdExceeded?.Invoke(_currentMetrics);
+            }
+            
+            _lastMetricsUpdate = Time.time;
+        }
+
+        #endregion
+
+        #region Update Loop
+
+        private void Update()
+        {
+            UpdatePerformanceMetrics();
         }
 
         #endregion
@@ -116,12 +454,15 @@ namespace CoinAnimation.Animation
         {
             if (_instance == this)
             {
+                Cleanup();
                 _instance = null;
             }
         }
 
         #endregion
     }
+
+    #region Supporting Classes
 
     public class CoinCollectionEventArgs : EventArgs
     {
@@ -134,4 +475,20 @@ namespace CoinAnimation.Animation
             CollectionPoint = collectionPoint;
         }
     }
+
+    /// <summary>
+    /// Animation session data for ICoinAnimationManager compatibility
+    /// </summary>
+    [Serializable]
+    public class CoinAnimationSession
+    {
+        public Guid SessionId;
+        public Transform Target;
+        public int CoinCount;
+        public DateTime StartTime;
+        public List<int> CoinIds;
+        public bool IsCompleted;
+    }
+
+    #endregion
 }
