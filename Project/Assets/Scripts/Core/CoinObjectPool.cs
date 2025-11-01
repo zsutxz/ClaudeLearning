@@ -98,6 +98,9 @@ namespace CoinAnimation.Core
         /// </summary>
         public bool IsPoolInitialized => _isInitialized;
 
+        public int TotalRequests { get; internal set; }
+        public int PoolHits { get; internal set; }
+
         #endregion
 
         #region Events

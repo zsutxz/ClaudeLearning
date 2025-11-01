@@ -91,6 +91,11 @@ namespace CoinAnimation.Core
         public bool IsMemoryWarning => CurrentMemoryUsageMB > memoryWarningThresholdMB;
 
         /// <summary>
+        /// Memory warning threshold in MB
+        /// </summary>
+        public float MemoryWarningThresholdMB => memoryWarningThresholdMB;
+
+        /// <summary>
         /// Is memory usage currently at critical level
         /// </summary>
         public bool IsMemoryCritical => CurrentMemoryUsageMB > memoryCriticalThresholdMB;

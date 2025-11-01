@@ -3,7 +3,6 @@
     "rootNamespace": "CoinAnimation.Animation",
     "references": [
         "CoinAnimation.Core",
-        "CoinAnimation.Settings",
         "Unity.Mathematics",
         "Unity.Collections"
     ],

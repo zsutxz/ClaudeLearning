@@ -82,7 +82,7 @@ namespace CoinAnimation.Core
     /// <summary>
     /// Performance metrics for monitoring system performance
     /// </summary>
-    [Serializable]
+    [System.Serializable]
     public class PerformanceMetrics
     {
         public float currentFrameRate;
@@ -91,6 +91,13 @@ namespace CoinAnimation.Core
         public float cpuUsage;
         public bool isPerformanceOptimal;
         public DateTime timestamp;
+
+        public float FPS { get; internal set; }
+        public float MemoryUsageMB { get; internal set; }
+        public int ActiveCoins { get; internal set; }
+        public float PoolEfficiency { get; internal set; }
+        public float CPUUsage { get; internal set; }
+        public float GPUUsage { get; internal set; }
     }
     
     /// <summary>
