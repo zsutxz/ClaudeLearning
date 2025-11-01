@@ -13,65 +13,95 @@ The project uses a clean, simplified structure with only essential components:
 1. **CoinAnimation.Core** - Core interfaces and state definitions
    - `CoinAnimationState` - State machine definitions (Idle, Moving, Collecting, Paused, Pooled)
    - `ICoinAnimationManager` - Basic system interface
+   - `ICoinObjectPool` - Object pooling interface
    - `PerformanceMetrics` - Performance monitoring data structure
+   - `UnityEnvironmentValidator` - Environment validation utilities
+   - `URPConfigurationManager` - URP pipeline configuration
+   - `MemoryManagementSystem` - Advanced memory management
 
 2. **CoinAnimation.Animation** - Pure Unity coroutine animations
    - `CoinAnimationController` - Individual coin controller with coroutine-based movement
+   - `UGUICoinAnimationController` - UGUI-specific coin controller
    - `CoinAnimationManager` - Simple singleton manager for coin coordination
+   - `MemoryPoolIntegration` - Object pooling integration
+   - `CoinObjectPool` - Efficient object pooling implementation
    - Built-in easing functions for natural movement
 
-3. **Examples** - Demonstration and usage examples
+3. **CoinAnimation.Examples** - Demonstration and usage examples
    - `SimpleCoinDemo` - Basic demonstration script
-   - `README.md` - Usage documentation
+   - `UGUICoinDemo` - UGUI-specific demonstration
+   - `README.md` - Bilingual usage documentation (English/Chinese)
 
-4. **Tests** - Comprehensive test coverage
+4. **CoinAnimation.Tests** - Comprehensive test coverage
    - `CoinAnimationTestSuite` - Core functionality tests
-   - `PerformanceValidationScenarios` - Performance tests
+   - `PerformanceValidationScenarios` - Performance tests (30+ concurrent coins)
    - `UnityEnvironmentValidatorTest` - Environment verification
+   - `UGUICoinAnimationTests` - UGUI-specific tests
+   - `ObjectPoolTests` - Object pooling functionality tests
+   - `MemoryManagementTests` - Memory management validation
+   - `IntegrationTests` - End-to-end integration tests
+   - `URPConfigurationTest` - URP configuration tests
+   - `ProjectConfigurationTest` - Project setup validation
+
+5. **CoinAnimation.Editor** - Unity Editor tools
+   - `UGUICoinPrefabCreator` - Automated UGUI coin prefab creation tool
 
 #### Key Architectural Patterns
 - **Coroutine-Based Animation**: All animations use Unity coroutines with custom easing functions
 - **State Machine**: CoinAnimationState enum for clear lifecycle management
 - **Event-Driven Architecture**: Clean event system for state transitions
 - **Singleton Pattern**: CoinAnimationManager for centralized coordination
+- **Object Pooling**: Efficient CoinObjectPool for memory management and performance
 - **Zero Dependencies**: No external plugins or packages required
+- **UGUI Integration**: Dedicated UGUICoinAnimationController for UI-based animations
+- **Memory Management**: Advanced MemoryManagementSystem for resource optimization
 
 ### ⚙️ Development Commands
 
-#### Environment Validation
+#### Unity Test Runner
 ```bash
-# Unity Menu: Coin Animation > Validate Environment
-# Automated validation of Unity version, URP setup, project structure, and dependencies
-# Essential for ensuring proper zero-dependency configuration
+# Window > General > Test Runner
+# Run all tests: Ctrl+Shift+T (Windows) / Cmd+Shift+T (Mac)
+# Run selected test: Ctrl+T (Windows) / Cmd+T (Mac)
+
+# Core test suites:
+Unity Test Runner > CoinAnimationTestSuite        # Core functionality tests
+Unity Test Runner > PerformanceValidationScenarios # Performance tests (30+ coins)
+Unity Test Runner > UnityEnvironmentValidatorTest # Environment validation
+Unity Test Runner > UGUICoinAnimationTests       # UGUI-specific tests
+Unity Test Runner > ObjectPoolTests              # Object pooling tests
+Unity Test Runner > MemoryManagementTests        # Memory management tests
+Unity Test Runner > IntegrationTests             # Integration tests
 ```
 
-#### Testing Framework
+#### Custom Unity Menu
 ```bash
-# Unity Test Runner (Window > General > Test Runner)
-# Run all: Ctrl+Shift+T (Windows) / Cmd+Shift+T (Mac)
-# Run selected: Ctrl+T (Windows) / Cmd+T (Mac)
+# Coin Animation > Validate Environment
+# Validates Unity version, project structure, and dependencies
 
-# Performance validation tests (30+ concurrent coins)
-Unity Test Runner > PerformanceValidationScenarios
-
-# Environment validation tests
-Unity Test Runner > UnityEnvironmentValidatorTest
-
-# Core functionality tests
-Unity Test Runner > CoinAnimationTestSuite
+# Coin Animation > Create UGUI Coin Prefab
+# Creates standardized UGUI coin prefabs with proper Canvas setup
 ```
 
-#### Build Configuration
+#### Build and Deployment
 ```bash
-# Unity Menu: File > Build Settings
+# File > Build Settings
 # Target Platforms: Windows, macOS, Linux, iOS, Android
 # Scripting Backend: IL2CPP for production builds
 # API Compatibility Level: .NET Standard 2.1
 
-# Performance Tiers
+# Performance configurations:
 # Low Quality: 20 coins max, basic rendering
 # Medium Quality: 50 coins max, standard effects
 # High Quality: 50 coins max, full effects
+```
+
+#### Editor Tools
+```bash
+# UGUICoinPrefabCreator editor script
+# Creates standardized UGUI coin prefabs via Unity menu
+# Ensures proper RectTransform and Canvas setup
+# Automatically attaches CoinAnimationController component
 ```
 
 ### 🔧 Core Systems Integration
@@ -83,17 +113,27 @@ Unity Test Runner > CoinAnimationTestSuite
 - **Multi-Phase Collection**: Scale up → Move → Scale down animation sequence
 - **Rotation Animation**: Continuous rotation during movement
 
-#### Animation Controller
+#### Animation Controllers
+
+**CoinAnimationController (3D/World Space)**
 - `AnimateToPosition(targetPosition, duration)` - Move with easing and rotation
 - `CollectCoin(collectionPoint, duration)` - Multi-phase collection animation
 - `StopCurrentAnimation()` - Stop any running animation
 - Built-in state management and event triggering
 
+**UGUICoinAnimationController (UI/Canvas)**
+- `AnimateToPosition(targetPosition, duration)` - RectTransform-based movement
+- `CollectCoin(collectionPoint, duration)` - UI-optimized collection animation
+- `StopCurrentAnimation()` - Stop any running animation
+- Canvas-aware positioning and scaling
+
 #### Performance Features
 - **Coroutine-Driven**: Lightweight animations with minimal overhead
 - **Memory Efficient**: No external library dependencies
+- **Object Pooling**: CoinObjectPool for efficient memory management
 - **Adaptive Scaling**: Automatic performance adjustment based on coin count
 - **60fps Target**: Optimized for smooth performance
+- **Memory Management System**: Advanced resource monitoring and cleanup
 
 ### 📊 Performance Specifications
 - **Target Frame Rate**: 60fps sustained performance
@@ -134,10 +174,15 @@ The project follows a simplified development approach:
 - `Project/ProjectSettings/` - Unity project configuration
 - `docs/stories/` - Development stories with logical progression (Story 1.1 → 1.2 → 1.3)
 - `docs/tech-spec-epic-mvp.md` - Complete technical specifications and API reference
+- `Project/Assets/Scripts/Examples/README.md` - Bilingual usage documentation (Chinese/English)
+- `docs/PRD.md` - Product requirements document
+- `docs/epic-stories.md` - Epic story definitions and development roadmap
 
 ### 💡 Usage Guidelines
 
 #### Creating Coin Animations
+
+**3D/World Space Coins**
 ```csharp
 // Get the coin controller
 var coinController = coinObject.GetComponent<CoinAnimationController>();
@@ -152,12 +197,31 @@ coinController.CollectCoin(collectionPoint, 1.5f);
 coinController.StopCurrentAnimation();
 ```
 
+**UGUI/Canvas Coins**
+```csharp
+// Get the UGUI coin controller
+var uguiCoinController = coinObject.GetComponent<UGUICoinAnimationController>();
+
+// Animate with RectTransform positioning
+uguiCoinController.AnimateToPosition(targetPosition, 1.0f);
+
+// Collect with UI-optimized animation
+uguiCoinController.CollectCoin(collectionPoint, 1.5f);
+```
+
 #### Animation States
 1. **Idle** - Coin is not animating
 2. **Moving** - Coin is moving to a target position
 3. **Collecting** - Coin is being collected with scale effects
 4. **Paused** - Animation temporarily suspended
 5. **Pooled** - Coin is ready for reuse
+
+#### Object Pooling
+The system includes efficient object pooling for optimal performance:
+- `CoinObjectPool` - Manages coin lifecycle and reuse
+- `MemoryPoolIntegration` - Integrates pooling with animation system
+- Automatic cleanup and resource management
+- Configurable pool sizes based on performance needs
 
 #### Multi-Phase Collection Animation
 1. **Scale Up** (30% duration): EaseOutBack easing to 1.5x size
@@ -211,4 +275,12 @@ This codebase serves as an exemplar of how complex functionality (smooth coin an
 
 ### 🎯 Current Development Focus
 
-**Story 1.2 - Task 5**: Creating UGUI coin prefabs to provide standardized visual components for the animation system. This task ensures all coin animations use consistent prefacts with proper UGUI Canvas integration while maintaining the zero-dependency philosophy.
+**Story 1.2 - UGUI Integration**: Complete UGUI coin prefab system with dedicated `UGUICoinAnimationController` for Canvas-based animations. The system now supports both 3D world space coins and UGUI canvas coins with optimized performance for each use case.
+
+**Recent Achievements**:
+- ✅ Complete UGUI coin animation controller implementation
+- ✅ Automated UGUI coin prefab creation via Unity Editor menu
+- ✅ Comprehensive test suite for UGUI-specific functionality
+- ✅ Object pooling system for memory-efficient resource management
+- ✅ Advanced memory management system with performance monitoring
+- ✅ Bilingual documentation (English/Chinese) for accessibility
