@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using CoinAnimation.Core;
+using CoinAnimation.Animation;
 
 namespace CoinAnimation.Core
 {
