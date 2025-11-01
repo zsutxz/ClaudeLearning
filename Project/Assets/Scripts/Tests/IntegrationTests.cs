@@ -1,11 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.TestTools;
 using NUnit.Framework;
 using CoinAnimation.Core;
 using CoinAnimation.Animation;
+using Object = UnityEngine.Object;
 
 namespace CoinAnimation.Tests
 {
@@ -107,7 +109,7 @@ namespace CoinAnimation.Tests
             // Verify system metrics
             var poolMetrics = _objectPool.GetPerformanceMetrics();
             var memoryStats = _memorySystem.GetMemoryStatistics();
-            var integrationMetrics = _integration.GetIntegratedMetrics();
+            var integrationMetrics = _integration.CurrentMetrics;
 
             Assert.IsTrue(poolMetrics.PoolHits > 0, "Pool should have recorded hits");
             Assert.IsTrue(memoryStats.CurrentMemoryMB > 0, "Memory system should track usage");
@@ -203,7 +205,7 @@ namespace CoinAnimation.Tests
         {
             // Arrange
             bool optimizationTriggered = false;
-            _integration.OnIntegratedOptimization += (sender, args) => {
+            _integration.OnIntegratedOptimization += args => {
                 optimizationTriggered = true;
             };
 
@@ -311,7 +313,7 @@ namespace CoinAnimation.Tests
             bool correlationDetected = false;
             PerformanceCorrelationEventArgs correlationArgs = null;
 
-            _integration.OnPerformanceCorrelation += (sender, args) => {
+            _integration.OnPerformanceCorrelation += args => {
                 correlationDetected = true;
                 correlationArgs = args;
             };
@@ -342,7 +344,7 @@ namespace CoinAnimation.Tests
             yield return new WaitForSeconds(3f); // Wait for monitoring
 
             // 3. Trigger metrics update
-            var metrics = _integration.GetIntegratedMetrics();
+            var metrics = _integration.CurrentMetrics;
 
             // Assert
             Assert.IsNotNull(metrics, "Integration metrics should be available");
@@ -412,8 +414,8 @@ namespace CoinAnimation.Tests
             yield return new WaitForSeconds(3f);
 
             // Assert
-            int totalCoins = allBatches.Sum(batch => batch.Count);
-            int activeCoins = allBatches.Sum(batch => batch.Count(coin => coin.activeInHierarchy));
+            int totalCoins = allBatches.SelectMany(batch => batch).Count();
+            int activeCoins = allBatches.SelectMany(batch => batch).Count(coin => coin.activeInHierarchy);
 
             Assert.Less(activeCoins, totalCoins / 2, "Most coins should be inactive after animations");
 

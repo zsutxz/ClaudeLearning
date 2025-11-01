@@ -43,6 +43,7 @@ namespace CoinAnimation.Core
 
         // Pool management
         private int _currentPoolSize = 0;
+        private bool _isInitialized = false;
         private float _lastContractionCheck = 0f;
         private float _lastPerformanceReport = 0f;
         private readonly object _poolSizeLock = new object();
@@ -91,6 +92,11 @@ namespace CoinAnimation.Core
         /// Is pool empty (no available coins)
         /// </summary>
         public bool IsEmpty => _availableCoins.IsEmpty;
+
+        /// <summary>
+        /// Is pool initialized and ready for use
+        /// </summary>
+        public bool IsPoolInitialized => _isInitialized;
 
         #endregion
 
@@ -159,6 +165,7 @@ namespace CoinAnimation.Core
 
             _lastContractionCheck = Time.time;
             _lastPerformanceReport = Time.time;
+            _isInitialized = true;
 
             Debug.Log($"[CoinObjectPool] Pool initialized with {_currentPoolSize} coins");
         }
@@ -305,12 +312,11 @@ namespace CoinAnimation.Core
             coin.transform.localRotation = Quaternion.identity;
             coin.transform.localScale = Vector3.one;
 
-            // Reset animation controller if present
-            var animationController = coin.GetComponent<CoinAnimationController>();
-            if (animationController != null)
+            // Reset animation state using SendMessage (since we can't directly reference Animation assembly)
+            if (coin.GetComponent("CoinAnimationController") != null)
             {
-                animationController.StopCurrentAnimation();
-                animationController.SetState(CoinAnimationState.Pooled);
+                coin.SendMessage("StopCurrentAnimation", SendMessageOptions.DontRequireReceiver);
+                coin.SendMessage("SetState", CoinAnimationState.Pooled, SendMessageOptions.DontRequireReceiver);
             }
 
             // Reset physics components

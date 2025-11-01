@@ -4,7 +4,7 @@
     "references": [
         "CoinAnimation.Core",
         "CoinAnimation.Animation",
-        "CoinAnimation.Physics",
+        "CoinAnimation.Settings",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

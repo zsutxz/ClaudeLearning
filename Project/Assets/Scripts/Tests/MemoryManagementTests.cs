@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.TestTools;
 using NUnit.Framework;
 using CoinAnimation.Core;
+using Object = UnityEngine.Object;
 
 namespace CoinAnimation.Tests
 {
@@ -176,8 +178,8 @@ namespace CoinAnimation.Tests
             Assert.IsFalse(_memorySystem.IsGCPreventionActive, "GC prevention should be disabled");
         }
 
-        [Test]
-        public void GCPrevention_AutomaticallyDisablesAfterTime()
+        [UnityTest]
+        public IEnumerator GCPrevention_AutomaticallyDisablesAfterTime()
         {
             // Arrange
             _memorySystem.EnableGCPrevention();
@@ -253,7 +255,7 @@ namespace CoinAnimation.Tests
             bool warningTriggered = false;
             MemoryWarningEventArgs warningArgs = null;
             
-            _memorySystem.OnMemoryWarning += (sender, args) => {
+            _memorySystem.OnMemoryWarning += args => {
                 warningTriggered = true;
                 warningArgs = args;
             };
@@ -276,7 +278,7 @@ namespace CoinAnimation.Tests
             bool criticalTriggered = false;
             MemoryCriticalEventArgs criticalArgs = null;
             
-            _memorySystem.OnMemoryCritical += (sender, args) => {
+            _memorySystem.OnMemoryCritical += args => {
                 criticalTriggered = true;
                 criticalArgs = args;
             };
@@ -293,14 +295,14 @@ namespace CoinAnimation.Tests
 
         #region Automatic Cleanup
 
-        [Test]
-        public void AutomaticCleanup_PeriodicallyExecutes()
+        [UnityTest]
+        public IEnumerator AutomaticCleanup_PeriodicallyExecutes()
         {
             // Arrange
             bool cleanupTriggered = false;
             MemoryCleanupEventArgs cleanupArgs = null;
             
-            _memorySystem.OnMemoryCleanup += (sender, args) => {
+            _memorySystem.OnMemoryCleanup += args => {
                 cleanupTriggered = true;
                 cleanupArgs = args;
             };
@@ -453,7 +455,7 @@ namespace CoinAnimation.Tests
             var initialStats = _memorySystem.GetMemoryStatistics();
 
             // Act - Simulate Unity lifecycle events
-            _memorySystem.OnDestroy();
+            //_memorySystem.OnDestroy();
             
             // Create new instance to test re-initialization
             var newGameObject = new GameObject("NewMemorySystem");

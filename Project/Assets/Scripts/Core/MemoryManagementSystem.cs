@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading;
 using UnityEngine;
 using CoinAnimation.Core;
+using Debug = UnityEngine.Debug;
 
 namespace CoinAnimation.Core
 {
@@ -208,7 +209,7 @@ namespace CoinAnimation.Core
             if (currentMB > memoryCriticalThresholdMB)
             {
                 var criticalArgs = new MemoryCriticalEventArgs(currentMB, _peakMemoryUsage / (1024f * 1024f));
-                OnMemoryCritical?.Invoke(this, criticalArgs);
+                OnMemoryCritical?.Invoke(criticalArgs);
                 
                 // Force emergency cleanup
                 ForceEmergencyCleanup();
@@ -216,7 +217,7 @@ namespace CoinAnimation.Core
             else if (currentMB > memoryWarningThresholdMB)
             {
                 var warningArgs = new MemoryWarningEventArgs(currentMB, memoryWarningThresholdMB);
-                OnMemoryWarning?.Invoke(this, warningArgs);
+                OnMemoryWarning?.Invoke(warningArgs);
             }
         }
 
@@ -373,7 +374,7 @@ namespace CoinAnimation.Core
             foreach (var leak in leaksDetected)
             {
                 _leakReports.Add(leak);
-                OnMemoryLeakDetected?.Invoke(this, leak);
+                OnMemoryLeakDetected?.Invoke(leak);
                 
                 Debug.LogWarning($"[MemoryManagementSystem] Potential memory leak detected: {leak.ObjectKey} " +
                                $"(Age: {leak.Age.TotalMinutes:F1} min, Category: {leak.Category})");
@@ -426,7 +427,7 @@ namespace CoinAnimation.Core
                 CleanupNumber = _cleanupCount
             };
 
-            OnMemoryCleanup?.Invoke(this, cleanupArgs);
+            OnMemoryCleanup?.Invoke(cleanupArgs);
 
             if (memoryFreed > 1f) // Only log if significant memory was freed
             {
@@ -555,7 +556,7 @@ namespace CoinAnimation.Core
 
         private void OnDestroy()
         {
-            CancelAllInvocations();
+            CancelInvoke();
             _memoryTrackers.Clear();
             _leakReports.Clear();
             _memoryHistory.Clear();

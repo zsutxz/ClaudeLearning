@@ -2,9 +2,8 @@ using System;
 using System.Collections;
 using UnityEngine;
 using CoinAnimation.Core;
-using CoinAnimation.Animation;
 
-namespace CoinAnimation.Core
+namespace CoinAnimation.Animation
 {
     /// <summary>
     /// Integrates object pool with memory management system
@@ -164,7 +163,7 @@ namespace CoinAnimation.Core
 
         #region Event Handlers
 
-        private void OnMemoryWarningHandler(object sender, MemoryWarningEventArgs args)
+        private void OnMemoryWarningHandler(MemoryWarningEventArgs args)
         {
             Debug.LogWarning($"[MemoryPoolIntegration] Memory warning: {args.CurrentMemoryMB:F2} MB " +
                            $"(threshold: {args.WarningThresholdMB:F2} MB)");
@@ -180,7 +179,7 @@ namespace CoinAnimation.Core
             }
         }
 
-        private void OnMemoryCriticalHandler(object sender, MemoryCriticalEventArgs args)
+        private void OnMemoryCriticalHandler(MemoryCriticalEventArgs args)
         {
             Debug.LogError($"[MemoryPoolIntegration] Memory critical: {args.CurrentMemoryMB:F2} MB " +
                           $"(peak: {args.PeakMemoryMB:F2} MB)");
@@ -191,7 +190,7 @@ namespace CoinAnimation.Core
             }
         }
 
-        private void OnMemoryLeakDetectedHandler(object sender, MemoryLeakReport report)
+        private void OnMemoryLeakDetectedHandler(MemoryLeakReport report)
         {
             if (enableLeakTracking)
             {
@@ -199,7 +198,7 @@ namespace CoinAnimation.Core
             }
         }
 
-        private void OnMemoryCleanupHandler(object sender, MemoryCleanupEventArgs args)
+        private void OnMemoryCleanupHandler(MemoryCleanupEventArgs args)
         {
             Debug.Log($"[MemoryPoolIntegration] Memory cleanup freed {args.MemoryFreedMB:F2} MB " +
                      $"in {args.Duration.TotalSeconds:F2}s");
@@ -238,7 +237,7 @@ namespace CoinAnimation.Core
                     RecommendedAction = "Reduce pool size or optimize memory usage"
                 };
 
-                OnPerformanceCorrelation?.Invoke(this, correlationArgs);
+                OnPerformanceCorrelation?.Invoke(correlationArgs);
                 Debug.LogWarning($"[MemoryPoolIntegration] Performance correlation detected: {correlationArgs.CorrelationType}");
             }
 
@@ -254,7 +253,7 @@ namespace CoinAnimation.Core
                     RecommendedAction = "Investigate memory leaks in coin objects"
                 };
 
-                OnPerformanceCorrelation?.Invoke(this, correlationArgs);
+                OnPerformanceCorrelation?.Invoke(correlationArgs);
                 Debug.LogError($"[MemoryPoolIntegration] Critical correlation: {correlationArgs.CorrelationType}");
             }
         }
@@ -319,7 +318,7 @@ namespace CoinAnimation.Core
                 Success = memoryAfter < memoryBefore
             };
 
-            OnIntegratedOptimization?.Invoke(this, optimizationArgs);
+            OnIntegratedOptimization?.Invoke(optimizationArgs);
 
             _autoContractionActive = false;
 
@@ -344,7 +343,7 @@ namespace CoinAnimation.Core
         private IEnumerator DisableGCPreventionAfterDelay(float delay)
         {
             yield return new WaitForSeconds(delay);
-            
+
             if (_gcPreventionActive)
             {
                 _memorySystem.DisableGCPrevention();

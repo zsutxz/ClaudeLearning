@@ -3,6 +3,8 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using NUnit.Framework;
 using CoinAnimation.Core;
+using CoinAnimation.Animation;
+using Object = UnityEngine.Object;
 
 namespace CoinAnimation.Tests
 {
