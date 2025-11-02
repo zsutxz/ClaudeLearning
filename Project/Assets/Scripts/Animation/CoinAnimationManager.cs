@@ -132,11 +132,20 @@ namespace CoinAnimation.Animation
 
         private void InitializeObjectPool()
         {
+            // Try to find coin prefab if not assigned
             if (coinPrefab == null)
             {
-                Debug.LogError("[CoinAnimationManager] Coin prefab is required for object pooling!");
-                useObjectPooling = false;
-                return;
+                coinPrefab = FindDefaultCoinPrefab();
+                if (coinPrefab == null)
+                {
+                    Debug.LogWarning("[CoinAnimationManager] Coin prefab not found, object pooling disabled. Please assign a coin prefab in the inspector.");
+                    useObjectPooling = false;
+                    return;
+                }
+                else
+                {
+                    Debug.Log($"[CoinAnimationManager] Auto-detected coin prefab: {coinPrefab.name}");
+                }
             }
             
             GameObject poolObject = new GameObject("CoinObjectPool");
@@ -192,13 +201,14 @@ namespace CoinAnimation.Animation
                 int coinId = ++_coinIdCounter;
                 _activeCoinObjects.Add(coinId, coin);
                 
-                // Set up the coin controller
-                var controller = coin.GetComponent<CoinAnimationController>();
+                // Set up the coin controller (support both UGUI and 3D controllers)
+                var controller = GetCoinAnimationController(coin);
                 if (controller != null)
                 {
                     // The controller will automatically register itself in Start()
                     // but we need to ensure it has the correct coin ID
-                    var idField = typeof(CoinAnimationController).GetField("_coinId", 
+                    var controllerType = controller.GetType();
+                    var idField = controllerType.GetField("_coinId",
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     if (idField != null)
                     {
@@ -328,12 +338,13 @@ namespace CoinAnimation.Animation
                     {
                         // Position coin at target and start animation
                         coin.transform.position = target.position;
-                        
-                        var controller = coin.GetComponent<CoinAnimationController>();
+
+                        var controller = GetCoinAnimationController(coin);
                         if (controller != null)
                         {
-                            // Start animation with collection to target position
-                            controller.CollectCoin(target.position, 2f);
+                            // Try to call CollectCoin using reflection
+                            var collectMethod = controller.GetType().GetMethod("CollectCoin", new[] { typeof(Vector3), typeof(float) });
+                            collectMethod?.Invoke(controller, new object[] { target.position, 2f });
                         }
                     }
                 }
@@ -358,8 +369,14 @@ namespace CoinAnimation.Animation
                     if (_activeCoinObjects.ContainsKey(coinId))
                     {
                         GameObject coin = _activeCoinObjects[coinId];
-                        var controller = coin.GetComponent<CoinAnimationController>();
-                        controller?.StopCurrentAnimation();
+                        var controller = GetCoinAnimationController(coin);
+
+                        // Try to call StopCurrentAnimation using reflection
+                        if (controller != null)
+                        {
+                            var stopMethod = controller.GetType().GetMethod("StopCurrentAnimation");
+                            stopMethod?.Invoke(controller, null);
+                        }
                         
                         // Return coin to pool
                         ReturnCoinToPool(coinId);
@@ -390,6 +407,103 @@ namespace CoinAnimation.Animation
             _activeSessions.Clear();
             
             Debug.Log("[CoinAnimationManager] System cleanup completed");
+        }
+
+        #endregion
+
+        #region Prefab Detection
+
+        private GameObject FindDefaultCoinPrefab()
+        {
+            // Try common prefab paths
+            string[] prefabPaths = {
+                "Assets/Res/Prefabs/UI/UGUICoin.prefab",
+                "Assets/Prefabs/Coin.prefab",
+                "Assets/Res/Prefabs/Coin.prefab"
+            };
+
+            foreach (string path in prefabPaths)
+            {
+                GameObject prefab = Resources.Load<GameObject>(path.Replace("Assets/", "").Replace(".prefab", ""));
+                if (prefab != null)
+                {
+                    return prefab;
+                }
+            }
+
+            // Try to find in project using AssetDatabase (editor only)
+            #if UNITY_EDITOR
+            string[] guids = UnityEditor.AssetDatabase.FindAssets("t:Prefab UGUICoin");
+            if (guids.Length > 0)
+            {
+                string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
+                return UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            }
+
+            // Fallback: try any prefab with coin animation controller
+            guids = UnityEditor.AssetDatabase.FindAssets("t:Prefab");
+            foreach (string guid in guids)
+            {
+                string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
+                GameObject prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                if (prefab != null && HasCoinAnimationController(prefab))
+                {
+                    Debug.Log($"[CoinAnimationManager] Found coin controller in prefab: {path}");
+                    return prefab;
+                }
+            }
+            #endif
+
+            return null;
+        }
+
+        private bool HasCoinAnimationController(GameObject prefab)
+        {
+            if (prefab == null) return false;
+
+            // Check for any coin animation controller type
+            var controllers = prefab.GetComponentsInChildren<MonoBehaviour>();
+            foreach (var controller in controllers)
+            {
+                if (controller != null)
+                {
+                    string typeName = controller.GetType().Name;
+                    if (typeName.Contains("CoinAnimation") && typeName.Contains("Controller"))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private MonoBehaviour GetCoinAnimationController(GameObject coin)
+        {
+            if (coin == null) return null;
+
+            // Try UGUI coin animation controller first
+            var uguiController = coin.GetComponent<UGUICoinAnimationController>();
+            if (uguiController != null) return uguiController;
+
+            // Try standard coin animation controller
+            var standardController = coin.GetComponent<CoinAnimationController>();
+            if (standardController != null) return standardController;
+
+            // Fallback: try any coin animation controller type
+            var controllers = coin.GetComponentsInChildren<MonoBehaviour>();
+            foreach (var controller in controllers)
+            {
+                if (controller != null)
+                {
+                    string typeName = controller.GetType().Name;
+                    if (typeName.Contains("CoinAnimation") && typeName.Contains("Controller"))
+                    {
+                        return controller;
+                    }
+                }
+            }
+
+            return null;
         }
 
         #endregion
