@@ -2,10 +2,19 @@
 
 ## 问题描述
 
+### 原始错误
 在运行 CoinAnimationManager 时出现以下错误：
 ```
 [CoinAnimationManager] Coin prefab is required for object pooling!
 UnityEngine.Debug:LogError (object)
+```
+
+### CoinObjectPool 错误
+修复后又出现 CoinObjectPool 相关错误：
+```
+[CoinObjectPool] Coin prefab is required!
+UnityEngine.Debug:LogError (object)
+InvalidOperationException: Coin prefab must be assigned
 ```
 
 ## 修复内容
@@ -27,7 +36,13 @@ UnityEngine.Debug:LogError (object)
 - **反射调用**: 使用反射来调用控制器方法，确保兼容性
 - **类型检测**: 自动检测并适配不同类型的动画控制器
 
-### 3. 改进的错误处理
+### 3. CoinObjectPool 修复
+- **延迟预制体设置**: 添加 `SetCoinPrefab()` 方法支持延迟配置
+- **改进初始化逻辑**: 对象池现在可以在设置预制体后初始化
+- **自动配置**: CoinAnimationManager 自动配置对象池的预制体
+- **验证增强**: 防止预制体重复设置和不必要的重建
+
+### 4. 改进的错误处理
 - **警告而非错误**: 找不到预制体时输出警告而非错误
 - **优雅降级**: 禁用对象池但保持其他功能正常工作
 - **详细日志**: 提供清晰的诊断信息
@@ -51,6 +66,12 @@ private MonoBehaviour GetCoinAnimationController(GameObject coin)
 private bool HasCoinAnimationController(GameObject prefab)
 ```
 检查预制体是否包含硬币动画控制器。
+
+### `SetCoinPrefab(GameObject prefab)` (CoinObjectPool)
+```csharp
+public void SetCoinPrefab(GameObject prefab)
+```
+设置对象池的硬币预制体，支持延迟初始化。
 
 ## 编辑器工具
 
@@ -153,6 +174,12 @@ collectMethod?.Invoke(controller, new object[] { target.position, 2f });
 4. 提供详细的诊断信息
 
 ## 更新日志
+
+### v1.1.0 (2025-11-02) - CoinObjectPool 修复
+- ✅ 修复 CoinObjectPool 预制体配置错误
+- ✅ 添加 `SetCoinPrefab()` 方法支持延迟预制体设置
+- ✅ 改进对象池初始化逻辑
+- ✅ 增强测试覆盖和验证功能
 
 ### v1.0.0 (2025-11-02)
 - ✅ 添加自动预制体检测功能

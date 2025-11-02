@@ -112,6 +112,133 @@ namespace CoinAnimation.Tests
             Debug.Log("=== 动画会话测试完成 ===");
         }
 
+        [ContextMenu("Test CoinObjectPool Configuration")]
+        public void TestCoinObjectPoolConfiguration()
+        {
+            Debug.Log("=== CoinObjectPool 配置测试 ===");
+
+            var manager = CoinAnimationManager.Instance;
+            if (manager != null)
+            {
+                Debug.Log("✅ CoinAnimationManager 实例存在");
+
+                // 检查对象池状态
+                if (manager.IsPoolInitialized)
+                {
+                    Debug.Log("✅ 对象池已初始化");
+
+                    // 测试获取多个硬币
+                    var testCoins = new List<GameObject>();
+                    for (int i = 0; i < 5; i++)
+                    {
+                        var coin = manager.GetCoinFromPool();
+                        if (coin != null)
+                        {
+                            testCoins.Add(coin);
+                            Debug.Log($"✅ 获取测试硬币 {i + 1}: {coin.name}");
+
+                            // 检查硬币状态
+                            var uguiController = coin.GetComponent<UGUICoinAnimationController>();
+                            var standardController = coin.GetComponent<CoinAnimationController>();
+
+                            if (uguiController != null)
+                            {
+                                Debug.Log($"  📝 硬币 {i + 1} 有 UGUICoinAnimationController");
+                            }
+                            else if (standardController != null)
+                            {
+                                Debug.Log($"  📝 硬币 {i + 1} 有 CoinAnimationController");
+                            }
+                            else
+                            {
+                                Debug.LogWarning($"  ⚠️ 硬币 {i + 1} 没有检测到动画控制器");
+                            }
+                        }
+                        else
+                        {
+                            Debug.LogError($"❌ 无法获取测试硬币 {i + 1}");
+                        }
+                    }
+
+                    // 返回所有测试硬币到池中
+                    foreach (var coin in testCoins)
+                    {
+                        manager.ReturnCoinToPool(coin);
+                        Debug.Log($"🔄 测试硬币已返回到池中: {coin.name}");
+                    }
+
+                    Debug.Log($"✅ 成功测试了 {testCoins.Count} 个硬币的获取和返回");
+                }
+                else
+                {
+                    Debug.LogError("❌ 对象池未初始化");
+                }
+            }
+            else
+            {
+                Debug.LogError("❌ CoinAnimationManager 实例不存在");
+            }
+
+            Debug.Log("=== CoinObjectPool 配置测试完成 ===");
+        }
+
+        [ContextMenu("Test Complete System Initialization")]
+        public void TestCompleteSystemInitialization()
+        {
+            Debug.Log("=== 完整系统初始化测试 ===");
+
+            try
+            {
+                // 1. 测试管理器创建
+                var manager = CoinAnimationManager.Instance;
+                Debug.Log("✅ 1. CoinAnimationManager 创建成功");
+
+                // 2. 测试对象池初始化
+                if (manager.IsPoolInitialized)
+                {
+                    Debug.Log("✅ 2. 对象池初始化成功");
+
+                    // 3. 测试基本操作
+                    var coin = manager.GetCoinFromPool();
+                    if (coin != null)
+                    {
+                        Debug.Log("✅ 3. 基本对象池操作成功");
+
+                        // 4. 测试硬币控制器
+                        var controller = coin.GetComponent<UGUICoinAnimationController>();
+                        if (controller != null)
+                        {
+                            Debug.Log("✅ 4. 硬币动画控制器检测成功");
+                        }
+                        else
+                        {
+                            Debug.LogWarning("⚠️ 4. 未检测到预期的动画控制器类型");
+                        }
+
+                        // 5. 测试返回操作
+                        manager.ReturnCoinToPool(coin);
+                        Debug.Log("✅ 5. 硬币返回池中成功");
+
+                        Debug.Log("🎉 完整系统初始化测试通过！");
+                    }
+                    else
+                    {
+                        Debug.LogError("❌ 3. 基本对象池操作失败");
+                    }
+                }
+                else
+                {
+                    Debug.LogError("❌ 2. 对象池初始化失败");
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"❌ 系统初始化测试失败: {e.Message}\n{e.StackTrace}");
+            }
+
+            Debug.Log("=== 完整系统初始化测试完成 ===");
+        }
+
         private void StopTestAnimation()
         {
             // 这个方法会被Invoke调用

@@ -150,17 +150,21 @@ namespace CoinAnimation.Core
                 Debug.LogWarning($"[CoinObjectPool] Invalid expansionBatchSize, using calculated: {expansionBatchSize}");
             }
 
-            if (coinPrefab == null)
-            {
-                Debug.LogError("[CoinObjectPool] Coin prefab is required!");
-                throw new InvalidOperationException("Coin prefab must be assigned");
-            }
+            // Note: coinPrefab validation is now done in InitializePool
+            // to allow for delayed prefab assignment
         }
 
         private void InitializePool()
         {
+            // Validate coin prefab before initializing
+            if (coinPrefab == null)
+            {
+                Debug.LogWarning("[CoinObjectPool] Coin prefab not set, pool initialization delayed. Use SetCoinPrefab() to configure.");
+                return;
+            }
+
             Debug.Log($"[CoinObjectPool] Initializing pool with {initialPoolSize} coins");
-            
+
             for (int i = 0; i < initialPoolSize; i++)
             {
                 CreateNewCoinInPool();
@@ -499,6 +503,35 @@ namespace CoinAnimation.Core
                 _currentPoolSize = 0;
 
                 Debug.Log("[CoinObjectPool] Pool cleared");
+            }
+        }
+
+        /// <summary>
+        /// Set the coin prefab for pool initialization
+        /// This allows delayed prefab assignment after pool creation
+        /// </summary>
+        /// <param name="prefab">Coin prefab to use for pool objects</param>
+        public void SetCoinPrefab(GameObject prefab)
+        {
+            if (prefab == null)
+            {
+                Debug.LogError("[CoinObjectPool] Cannot set null coin prefab");
+                return;
+            }
+
+            if (coinPrefab != null && coinPrefab != prefab)
+            {
+                Debug.LogWarning("[CoinObjectPool] Changing coin prefab after pool is initialized is not supported");
+                return;
+            }
+
+            coinPrefab = prefab;
+
+            // If pool hasn't been initialized yet, initialize it now
+            if (!_isInitialized)
+            {
+                Debug.Log("[CoinObjectPool] Coin prefab set, initializing pool...");
+                InitializePool();
             }
         }
 

@@ -151,11 +151,13 @@ namespace CoinAnimation.Animation
             GameObject poolObject = new GameObject("CoinObjectPool");
             poolObject.transform.SetParent(transform);
             _objectPool = poolObject.AddComponent<CoinObjectPool>();
-            
-            // Configure the pool
+
+            // Configure the pool with the detected prefab
+            _objectPool.SetCoinPrefab(coinPrefab);
             _objectPool.enabled = true;
-            
+
             Debug.Log($"[CoinAnimationManager] Object pool initialized with config: {poolConfiguration.GetConfigurationSummary()}");
+            Debug.Log($"[CoinAnimationManager] Pool configured with prefab: {coinPrefab.name}");
         }
 
         #endregion
