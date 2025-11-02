@@ -49,6 +49,7 @@ namespace CoinAnimation.Core
         // 预测结果
         private PredictionResult _lastPrediction;
         private float _lastPredictionTime = 0f;
+        private System.Collections.IEnumerator _predictionCoroutine;
 
         // 性能统计
         private PredictionStats _stats = new PredictionStats();
@@ -79,7 +80,8 @@ namespace CoinAnimation.Core
 
             if (enablePrediction)
             {
-                StartCoroutine(PredictionCoroutine());
+                _predictionCoroutine = PredictionCoroutine();
+                StartCoroutine(_predictionCoroutine);
             }
         }
 
@@ -304,7 +306,7 @@ namespace CoinAnimation.Core
         {
             if (_coinDemandHistory.Count < 5) return new float[] { 0 };
 
-            var recentData = _coinDemandHistory.TakeLast(10).ToArray();
+            var recentData = EnumerableExtensions.TakeLast(_coinDemandHistory, 10);
 
             return new float[]
             {
@@ -321,7 +323,7 @@ namespace CoinAnimation.Core
         {
             if (_memoryUsageHistory.Count < 5) return new float[] { 0 };
 
-            var recentData = _memoryUsageHistory.TakeLast(10).ToArray();
+            var recentData = EnumerableExtensions.TakeLast(_memoryUsageHistory, 10);
 
             return new float[]
             {
@@ -342,7 +344,7 @@ namespace CoinAnimation.Core
         {
             if (_coinDemandHistory.Count < 2) return 0f;
 
-            var recent = _coinDemandHistory.TakeLast(10).ToArray();
+            var recent = EnumerableExtensions.TakeLast(_coinDemandHistory, 10);
             return CalculateTrend(recent);
         }
 
@@ -350,7 +352,7 @@ namespace CoinAnimation.Core
         {
             if (_memoryUsageHistory.Count < 2) return 0f;
 
-            var recent = _memoryUsageHistory.TakeLast(10).ToArray();
+            var recent = EnumerableExtensions.TakeLast(_memoryUsageHistory, 10);
             return CalculateTrend(recent);
         }
 
@@ -672,13 +674,15 @@ namespace CoinAnimation.Core
         {
             enablePrediction = enabled;
 
-            if (enabled && !IsInvoking(nameof(PredictionCoroutine)))
+            if (enabled && _predictionCoroutine == null)
             {
-                StartCoroutine(PredictionCoroutine());
+                _predictionCoroutine = PredictionCoroutine();
+                StartCoroutine(_predictionCoroutine);
             }
-            else if (!enabled && IsInvoking(nameof(PredictionCoroutine)))
+            else if (!enabled && _predictionCoroutine != null)
             {
-                StopCoroutine(nameof(PredictionCoroutine));
+                StopCoroutine(_predictionCoroutine);
+                _predictionCoroutine = null;
             }
         }
 
@@ -688,6 +692,12 @@ namespace CoinAnimation.Core
 
         private void OnDestroy()
         {
+            if (_predictionCoroutine != null)
+            {
+                StopCoroutine(_predictionCoroutine);
+                _predictionCoroutine = null;
+            }
+
             _dataHistory.Clear();
             _coinDemandHistory.Clear();
             _memoryUsageHistory.Clear();

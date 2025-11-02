@@ -341,6 +341,12 @@ namespace CoinAnimation.Core
         public float currentFrameRate;
         public float memoryUsage;
         public System.DateTime timestamp;
+
+        public float MemoryUsageMB { get; internal set; }
+        public float FPS { get; internal set; }
+        public float FrameTime { get; internal set; }
+        public int ActiveCoinsCount { get; set; }
+        public float FrameRate { get; set; }
     }
 
     /// <summary>

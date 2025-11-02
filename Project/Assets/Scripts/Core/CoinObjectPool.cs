@@ -542,6 +542,11 @@ namespace CoinAnimation.Core
             Debug.Log("[CoinObjectPool] Pool destroyed and cleaned up");
         }
 
+        internal void SetPoolSize(int objectPoolSize)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 

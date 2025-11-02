@@ -85,12 +85,14 @@ namespace CoinAnimation.Core
     [System.Serializable]
     public class PerformanceMetrics
     {
+        internal readonly float fps;
         public float currentFrameRate;
         public int activeAnimations;
         public float memoryUsage;
         public float cpuUsage;
         public bool isPerformanceOptimal;
         public DateTime timestamp;
+        internal float frameTime;
 
         public float FPS { get; internal set; }
         public float MemoryUsageMB { get; internal set; }

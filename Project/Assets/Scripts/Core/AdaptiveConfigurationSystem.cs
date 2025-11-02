@@ -912,6 +912,16 @@ namespace CoinAnimation.Core
         public float PoolEfficiency;
         public float CPUUsage;
         public float GPUUsage;
+
+        public float PoolHitRate { get; internal set; }
+        public float AllocatedMemoryMB { get; internal set; }
+        public float GCCount { get; internal set; }
+        public float FrameTime { get; internal set; }
+        public float RenderTime { get; internal set; }
+        public PerformanceTrend Trend { get; internal set; }
+        public float MemoryMB { get; internal set; }
+        public DashboardState State { get; internal set; }
+        public int ActiveAlerts { get; internal set; }
     }
 
     [System.Serializable]

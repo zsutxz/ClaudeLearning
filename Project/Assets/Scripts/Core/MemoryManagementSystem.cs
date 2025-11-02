@@ -230,10 +230,15 @@ namespace CoinAnimation.Core
         {
             var snapshot = new MemorySnapshot
             {
-                timestamp = DateTime.UtcNow,
-                memoryUsage = _currentMemoryUsage,
-                isGCPreventionActive = _gcPreventionActive,
-                activeTrackers = _memoryTrackers.Count
+                Timestamp = DateTime.UtcNow,
+                TotalMemoryMB = _currentMemoryUsage / (1024f * 1024f),
+                ManagedMemoryMB = _currentMemoryUsage / (1024f * 1024f), // 近似值
+                UnmanagedMemoryMB = 0f, // 暂时设为0，需要实际测量
+                ActiveCoinsCount = _memoryTrackers.Count,
+                PooledObjectsCount = _memoryTrackers.Count,
+                FrameRate = 60f, // 默认值，需要从性能系统获取
+                GCGeneration = GC.GetGeneration(_currentMemoryUsage),
+                GCCollectionCount = new int[] { GC.CollectionCount(0), GC.CollectionCount(1), GC.CollectionCount(2) }
             };
 
             _memoryHistory.Enqueue(snapshot);
@@ -508,11 +513,11 @@ namespace CoinAnimation.Core
             if (_memoryHistory.Count < 10) return 0f;
 
             var snapshots = new List<MemorySnapshot>(_memoryHistory);
-            var timeSpan = (float)(snapshots[snapshots.Count - 1].timestamp - snapshots[0].timestamp).TotalMinutes;
+            var timeSpan = (float)(snapshots[snapshots.Count - 1].Timestamp - snapshots[0].Timestamp).TotalMinutes;
             
             if (timeSpan <= 0) return 0f;
 
-            var memoryDelta = snapshots[snapshots.Count - 1].memoryUsage - snapshots[0].memoryUsage;
+            var memoryDelta = (snapshots[snapshots.Count - 1].TotalMemoryMB - snapshots[0].TotalMemoryMB) * (1024f * 1024f);
             var growthRateMB = (memoryDelta / (1024f * 1024f)) / timeSpan;
 
             return growthRateMB;
@@ -591,19 +596,24 @@ namespace CoinAnimation.Core
     /// Memory snapshot for historical tracking
     /// </summary>
     [Serializable]
-    public class MemorySnapshot
+    public class SystemMemorySnapshot
     {
-        public DateTime timestamp;
-        public long memoryUsage;
-        public bool isGCPreventionActive;
-        public int activeTrackers;
+        public DateTime Timestamp;
+        public float TotalMemoryMB;
+        public float ManagedMemoryMB;
+        public float UnmanagedMemoryMB;
+        public int ActiveCoinsCount;
+        public int PooledObjectsCount;
+        public float FrameRate;
+        public int GCGeneration;
+        public int[] GCCollectionCount;
     }
 
     /// <summary>
     /// Memory leak detection report
     /// </summary>
     [Serializable]
-    public class MemoryLeakReport
+    public class MemoryLeakDetectionReport
     {
         public string ObjectKey;
         public string Category;
