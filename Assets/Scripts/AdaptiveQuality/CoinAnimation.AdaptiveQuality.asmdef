@@ -1,0 +1,17 @@
+{
+    "name": "CoinAnimation.AdaptiveQuality",
+    "rootNamespace": "CoinAnimation.AdaptiveQuality",
+    "references": [
+        "CoinAnimation.Core",
+        "CoinAnimation.Animation"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
