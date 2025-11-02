@@ -63,7 +63,6 @@ The project has achieved remarkable simplification with only **587 lines of core
 
 **Story 2.2: Cross-Platform Compatibility and Deployment**
 - Ensure compatibility across Unity 2021.3 LTS and later
-- Test and optimize for Windows, macOS, and mobile platforms
-- Verify URP compatibility across different graphics hardware
-- Create platform-specific optimization settings
+- Test and optimize for Windows
+- Verify URP compatibility
 - Acceptance Criteria: Asset functions identically across all supported platforms

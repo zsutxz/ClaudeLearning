@@ -1,0 +1,64 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>2</storyId>
+    <title>Cross-Platform Compatibility and Deployment</title>
+    <status>Draft</status>
+    <generatedAt>2025-11-02</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>D:\work\AI\ClaudeTest\docs\stories\story-2.2.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>Unity developer</asA>
+    <iWant>deploy the coin animation system across multiple Unity versions and platforms</iWant>
+    <soThat>my assets work reliably in any target environment without modifications or compatibility concerns</soThat>
+    <tasks>Task 1: Unity Version Compatibility Validation (AC: 1) - Test Unity 2021.3 LTS compatibility, Test Unity 2022.3 LTS compatibility, Verify script API compatibility, Create version-specific configuration profiles; Task 2: Platform-Specific Optimization (AC: 2) - Windows platform performance testing, Windows-specific feature verification, Resolve platform-specific issues, Create platform deployment guidelines; Task 3: URP Render Pipeline Compatibility (AC: 3) - Test URP 12+ versions, Verify URP-specific features, Check shader compatibility, Optimize rendering performance; Task 4: Cross-Platform Consistency Validation (AC: 4) - Test functional consistency, Compare performance benchmarks, Verify visual effect consistency, Create compatibility report</tasks>
+  </story>
+
+  <acceptanceCriteria>1. System must be compatible with Unity 2021.3 LTS and later versions
+2. Windows platform testing and optimization must be completed
+3. Universal Render Pipeline (URP) compatibility must be verified
+4. Asset functionality must be identical across all supported platforms</acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/epic-stories.md" title="Epic Stories" section="Epic 2: Essential Enhancement Features" snippet="Story 2.2: Cross-Platform Compatibility and Deployment - Ensure compatibility across Unity 2021.3 LTS and later, test and optimize for Windows, verify URP compatibility" />
+      <doc path="docs/PRD.md" title="Product Requirements Document" section="Non-Functional Requirements NFR3" snippet="Compatibility: Unity 2021.3 LTS or later, works with all Unity render pipelines, cross-platform compatibility (Windows, macOS, Linux, iOS, Android)" />
+      <doc path="docs/PRD.md" title="Product Requirements Document" section="Functional Requirements FR6" snippet="Developer API: Simple method calls for common operations, event system for state notifications, singleton manager for global coordination" />
+    </docs>
+    <code>
+      <code path="Project/Assets/Scripts/Core/ICoinAnimationManager.cs" kind="interface" symbol="ICoinAnimationManager" lines="1-100" reason="Core interface that defines system API for cross-platform compatibility" />
+      <code path="Project/Assets/Scripts/Core/UnityEnvironmentValidator.cs" kind="validator" symbol="UnityEnvironmentValidator" lines="1-200" reason="Provides Unity version and environment validation for compatibility testing" />
+      <code path="Project/Assets/Scripts/Core/URPConfigurationManager.cs" kind="manager" symbol="URPConfigurationManager" lines="1-50" reason="Manages URP pipeline configuration across different Unity versions" />
+      <code path="Project/Assets/Scripts/Animation/CoinAnimationManager.cs" kind="manager" symbol="CoinAnimationManager" lines="1-300" reason="Main system manager that needs cross-platform testing" />
+    </code>
+    <dependencies>
+      <unity version="2021.3+" packages="com.unity.render-pipelines.universal@14.0.8, com.unity.test-framework@1.3.9, com.unity.textmeshpro@3.0.6" />
+      <modules modules="animation, ui, physics, particlesystem, imgui, assetbundle" />
+    </dependencies>
+  </artifacts>
+
+  <constraints>Zero external dependencies, pure Unity implementation, event-driven architecture, modular separation (Core/Animation/Tests), thread-safe operations, ICoinAnimationManager interface compliance, 60fps performance target, 90%+ test coverage requirement</constraints>
+  
+  <interfaces>
+    <interface name="ICoinAnimationManager" kind="interface" signature="void Initialize(CoinAnimationConfiguration configuration)" path="Project/Assets/Scripts/Core/ICoinAnimationManager.cs" />
+    <interface name="ICoinAnimationManager" kind="interface" signature="Guid StartCoinAnimation(Transform target, int coinCount = 1)" path="Project/Assets/Scripts/Core/ICoinAnimationManager.cs" />
+    <interface name="ICoinAnimationManager" kind="interface" signature="void StopCoinAnimation(Guid sessionId)" path="Project/Assets/Scripts/Core/ICoinAnimationManager.cs" />
+    <interface name="ICoinAnimationManager" kind="interface" signature="PerformanceMetrics GetPerformanceMetrics()" path="Project/Assets/Scripts/Core/ICoinAnimationManager.cs" />
+    <interface name="ICoinAnimationManager" kind="interface" signature="void Cleanup()" path="Project/Assets/Scripts/Core/ICoinAnimationManager.cs" />
+  </interfaces>
+  
+  <tests>
+    <standards>Unity Test Framework, automated compatibility testing across Unity versions, platform-specific performance benchmarking, visual consistency validation, integration testing with performance monitoring systems, 90%+ test coverage requirement</standards>
+    <locations>Project/Assets/Scripts/Tests/, Project/Assets/Scripts/Tests/Compatibility/, Project/Assets/Scripts/Tests/Performance/</locations>
+    <ideas>
+      <test idea="Unity version compatibility test matrix (2021.3 LTS, 2022.3 LTS, 2023.x)" ac="1" />
+      <test idea="Windows platform performance benchmarking (60fps target validation)" ac="2" />
+      <test idea="URP 12+ version compatibility testing with shader validation" ac="3" />
+      <test idea="Cross-platform functional consistency test suite" ac="4" />
+      <test idea="Memory usage consistency across Unity versions" ac="1" />
+      <test idea="Visual effect consistency validation across render pipelines" ac="3" />
+    </ideas>
+  </tests>
+</story-context>

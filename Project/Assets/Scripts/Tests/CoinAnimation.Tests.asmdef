@@ -4,6 +4,7 @@
     "references": [
         "CoinAnimation.Core",
         "CoinAnimation.Animation",
+        "CoinAnimation.Compatibility",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],
