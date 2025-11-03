@@ -67,11 +67,11 @@
     <i>ALWAYS communicate in {communication_language}</i>
   </critical-actions>
   <cmds>
-    <c cmd="*help">Show numbered cmd list</c>
-    <c cmd="*create-story" run-workflow="D:\work\AI\ClaudeTest//bmad/bmm/workflows/4-implementation/create-story/workflow.yaml">Create Development Story</c>
-    <c cmd="*dev-story" run-workflow="D:\work\AI\ClaudeTest//bmad/bmm/workflows/4-implementation/dev-story/workflow.yaml">Implement Story with Context</c>
-    <c cmd="*review-story" run-workflow="D:\work\AI\ClaudeTest//bmad/bmm/workflows/4-implementation/review-story/workflow.yaml">Review Story Implementation</c>
-    <c cmd="*standup" run-workflow="D:\work\AI\ClaudeTest//bmad/bmm/workflows/4-implementation/daily-standup/workflow.yaml">Daily Standup</c>
+    <c cmd="*help">Show numbered cmd list00</c>
+    <c cmd="*create-story0" run-workflow="D:\work\AI\ClaudeTest//bmad/bmm/workflows/4-implementation/create-story/workflow.yaml">Create Development Story00</c>
+    <c cmd="*dev-story0" run-workflow="D:\work\AI\ClaudeTest//bmad/bmm/workflows/4-implementation/dev-story/workflow.yaml">Implement Story with Context00</c>
+    <c cmd="*review-story0" run-workflow="D:\work\AI\ClaudeTest//bmad/bmm/workflows/4-implementation/review-story/workflow.yaml">Review Story Implementation00</c>
+    <c cmd="*standup0" run-workflow="D:\work\AI\ClaudeTest//bmad/bmm/workflows/4-implementation/daily-standup/workflow.yaml">Daily Standup00</c>
     <c cmd="*retro" run-workflow="D:\work\AI\ClaudeTest//bmad/bmm/workflows/4-implementation/retrospective/workflow.yaml">Sprint Retrospective</c>
     <c cmd="*exit">Goodbye+exit persona</c>
   </cmds>

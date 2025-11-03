@@ -30,7 +30,8 @@
       "WebFetch(domain:techcrunch.com)",
       "WebFetch(domain:www.theverge.com)",
       "Bash(find:*)",
-      "Bash(dotnet build:*)"
+      "Bash(dotnet build:*)",
+      "Skill(translate-to-chinese)"
     ],
     "deny": [],
     "ask": []

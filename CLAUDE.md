@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+### git规则
+   - 不自动提交
+
+
 ### 🎯 Project Overview
 This is a **Unity 2022.3.5f1** project implementing an ultra-simplified coin animation system using pure Unity coroutines. The system achieves smooth animations with zero external dependencies, optimized for high performance with 50+ concurrent coins through lightweight coroutine-based animations.
 
@@ -284,3 +288,4 @@ This codebase serves as an exemplar of how complex functionality (smooth coin an
 - ✅ Object pooling system for memory-efficient resource management
 - ✅ Advanced memory management system with performance monitoring
 - ✅ Bilingual documentation (English/Chinese) for accessibility
+- 
