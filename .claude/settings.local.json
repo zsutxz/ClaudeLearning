@@ -31,7 +31,8 @@
       "WebFetch(domain:www.theverge.com)",
       "Bash(find:*)",
       "Bash(dotnet build:*)",
-      "Skill(translate-to-chinese)"
+      "Skill(translate-to-chinese)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []
