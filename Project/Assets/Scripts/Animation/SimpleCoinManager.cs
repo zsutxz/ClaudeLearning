@@ -105,6 +105,20 @@ namespace CoinAnimation.Animation
         }
 
         /// <summary>
+        /// 创建飞行动画（带抛物线轨迹）
+        /// </summary>
+        public void CreateFlyAnimation(Vector3 startPosition, Vector3 targetPosition)
+        {
+            GameObject coin = GetCoin();
+            if (coin != null)
+            {
+                coin.transform.position = startPosition;
+                BasicCoinAnimation animation = coin.GetComponent<BasicCoinAnimation>();
+                animation.FlyTo(targetPosition);
+            }
+        }
+
+        /// <summary>
         /// 清理所有金币
         /// </summary>
         public void ClearAllCoins()

@@ -14,19 +14,21 @@ This is a **Unity 2022.3.5f1** project implementing a **极简** coin animation 
 #### 核心文件结构 (仅4个文件)
 
 1. **BasicCoinAnimation.cs** - 金币动画控制器
-   - `MoveTo()` - 移动到目标位置
+   - `MoveTo()` - 移动到目标位置（直线轨迹）
+   - `FlyTo()` - 飞行到目标位置（抛物线轨迹）
    - `Collect()` - 收集金币动画
    - `StopAnimation()` - 停止动画
    - `Reset()` - 重置金币状态
 
 2. **SimpleCoinManager.cs** - 金币管理器
    - `CreateCoinAnimation()` - 创建移动动画
+   - `CreateFlyAnimation()` - 创建飞行动画
    - `CreateCollectionAnimation()` - 创建收集动画
    - `ClearAllCoins()` - 清理所有金币
    - 内置对象池管理
 
 3. **BasicCoinDemo.cs** - 演示脚本
-   - 按键控制：M-移动，C-收集，X-清理
+   - 按键控制：M-移动，F-飞行，C-收集，X-清理
    - GUI界面操作
    - 简单的使用示例
 
@@ -44,6 +46,9 @@ This is a **Unity 2022.3.5f1** project implementing a **极简** coin animation 
 // 创建移动动画
 coinManager.CreateCoinAnimation(startPos, targetPos);
 
+// 创建飞行动画（带抛物线轨迹）
+coinManager.CreateFlyAnimation(startPos, targetPos);
+
 // 创建收集动画
 coinManager.CreateCollectionAnimation(startPos, collectPoint);
 
@@ -56,8 +61,11 @@ coinManager.ClearAllCoins();
 // 获取金币动画组件
 BasicCoinAnimation coin = coinObject.GetComponent<BasicCoinAnimation>();
 
-// 移动金币
+// 移动金币（直线轨迹）
 coin.MoveTo(targetPosition, 1f);
+
+// 飞行金币（抛物线轨迹）
+coin.FlyTo(targetPosition, 1.5f);
 
 // 收集金币
 coin.Collect(collectionPoint, 0.5f);
@@ -69,7 +77,8 @@ coin.StopAnimation();
 ### 🎮 演示控制
 
 **按键操作:**
-- **M** - 演示移动动画
+- **M** - 演示移动动画（直线轨迹）
+- **F** - 演示飞行动画（抛物线轨迹）
 - **C** - 演示收集动画
 - **X** - 清理所有金币
 

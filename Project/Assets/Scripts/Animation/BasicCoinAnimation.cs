@@ -21,6 +21,15 @@ namespace CoinAnimation.Animation
         }
 
         /// <summary>
+        /// 飞行动画到目标位置（带抛物线轨迹）
+        /// </summary>
+        public void FlyTo(Vector3 targetPosition, float duration = 1.5f)
+        {
+            StopAnimation();
+            _currentAnimation = StartCoroutine(FlyToTarget(targetPosition, duration));
+        }
+
+        /// <summary>
         /// 收集金币到目标点
         /// </summary>
         public void Collect(Vector3 collectPoint, float duration = 0.5f)
@@ -72,6 +81,50 @@ namespace CoinAnimation.Animation
             }
 
             transform.position = target;
+            _currentAnimation = null;
+        }
+
+        /// <summary>
+        /// 飞行动画协程（抛物线轨迹）
+        /// </summary>
+        private IEnumerator FlyToTarget(Vector3 target, float duration)
+        {
+            Vector3 start = transform.position;
+            float elapsed = 0f;
+
+            // 计算抛物线高度（中点抬高）
+            Vector3 midPoint = (start + target) / 2f;
+            float arcHeight = Vector3.Distance(start, target) * 0.3f; // 弧线高度为距离的30%
+            midPoint.y += arcHeight;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = elapsed / duration;
+
+                // 使用贝塞尔曲线计算位置
+                Vector3 a = Vector3.Lerp(start, midPoint, t);
+                Vector3 b = Vector3.Lerp(midPoint, target, t);
+                Vector3 position = Vector3.Lerp(a, b, t);
+
+                // 添加上下浮动效果
+                float floatOffset = Mathf.Sin(t * Mathf.PI * 2f) * 0.1f;
+                position.y += floatOffset;
+
+                transform.position = position;
+
+                // 飞行时的旋转效果（更快更活泼）
+                transform.Rotate(0, 720f * Time.deltaTime, 0);
+
+                // 轻微的缩放脉冲效果
+                float scale = 1f + Mathf.Sin(t * Mathf.PI * 4f) * 0.05f;
+                transform.localScale = Vector3.one * scale;
+
+                yield return null;
+            }
+
+            transform.position = target;
+            transform.localScale = Vector3.one;
             _currentAnimation = null;
         }
 

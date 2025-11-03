@@ -22,6 +22,10 @@ namespace CoinAnimation.Examples
             {
                 DemoMoveAnimation();
             }
+            else if (Input.GetKeyDown(KeyCode.F))
+            {
+                DemoFlyAnimation();
+            }
             else if (Input.GetKeyDown(KeyCode.C))
             {
                 DemoCollectAnimation();
@@ -45,6 +49,18 @@ namespace CoinAnimation.Examples
         }
 
         /// <summary>
+        /// 演示飞行动画（带抛物线轨迹）
+        /// </summary>
+        [ContextMenu("演示飞行动画")]
+        public void DemoFlyAnimation()
+        {
+            if (coinManager != null && spawnPoint != null && targetPoint != null)
+            {
+                coinManager.CreateFlyAnimation(spawnPoint.position, targetPoint.position);
+            }
+        }
+
+        /// <summary>
         /// 演示收集动画
         /// </summary>
         [ContextMenu("演示收集动画")]
@@ -58,12 +74,17 @@ namespace CoinAnimation.Examples
 
         private void OnGUI()
         {
-            GUILayout.BeginArea(new Rect(10, 10, 200, 150));
+            GUILayout.BeginArea(new Rect(10, 10, 200, 180));
             GUILayout.Label("金币动画演示", GUI.skin.box);
 
             if (GUILayout.Button("移动动画 (M)"))
             {
                 DemoMoveAnimation();
+            }
+
+            if (GUILayout.Button("飞行动画 (F)"))
+            {
+                DemoFlyAnimation();
             }
 
             if (GUILayout.Button("收集动画 (C)"))
