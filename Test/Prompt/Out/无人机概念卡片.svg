@@ -1,0 +1,82 @@
+<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 - 宋朝审美风格 -->
+  <rect width="800" height="600" fill="#f8f6f0"/>
+
+  <!-- 禅意圆形装饰 -->
+  <circle cx="400" cy="300" r="120" fill="none" stroke="#d4c5b0" stroke-width="2" opacity="0.3"/>
+  <circle cx="400" cy="300" r="100" fill="none" stroke="#d4c5b0" stroke-width="1" opacity="0.2"/>
+
+  <!-- 标题 -->
+  <text x="400" y="60" font-family="serif" font-size="32" font-weight="bold" text-anchor="middle" fill="#3a3a3a">
+    无人机概念解析
+  </text>
+
+  <!-- 本质区域 -->
+  <text x="100" y="120" font-family="serif" font-size="18" font-weight="600" fill="#5a5a5a">
+    本质
+  </text>
+  <text x="100" y="150" font-family="serif" font-size="16" fill="#666">
+    无人驾驶空中飞行器
+  </text>
+  <text x="100" y="175" font-family="serif" font-size="14" fill="#888">
+    遥控或自主程序控制
+  </text>
+
+  <!-- 中心图形 - 简化无人机 -->
+  <g transform="translate(400, 300)">
+    <!-- 机身 -->
+    <rect x="-15" y="-30" width="30" height="60" fill="#8b7355" rx="5"/>
+    <!-- 螺旋桨臂 -->
+    <line x1="-15" y1="-20" x2="-60" y2="-60" stroke="#8b7355" stroke-width="3"/>
+    <line x1="15" y1="-20" x2="60" y2="-60" stroke="#8b7355" stroke-width="3"/>
+    <line x1="-15" y1="20" x2="-60" y2="60" stroke="#8b7355" stroke-width="3"/>
+    <line x1="15" y1="20" x2="60" y2="60" stroke="#8b7355" stroke-width="3"/>
+    <!-- 螺旋桨 -->
+    <circle cx="-60" cy="-60" r="20" fill="none" stroke="#a08060" stroke-width="2" opacity="0.6"/>
+    <circle cx="60" cy="-60" r="20" fill="none" stroke="#a08060" stroke-width="2" opacity="0.6"/>
+    <circle cx="-60" cy="60" r="20" fill="none" stroke="#a08060" stroke-width="2" opacity="0.6"/>
+    <circle cx="60" cy="60" r="20" fill="none" stroke="#a08060" stroke-width="2" opacity="0.6"/>
+    <!-- 摄像头 -->
+    <circle cx="0" cy="0" r="8" fill="#4a5568"/>
+  </g>
+
+  <!-- 应用场景 -->
+  <text x="100" y="420" font-family="serif" font-size="18" font-weight="600" fill="#5a5a5a">
+    生活应用
+  </text>
+
+  <!-- 四个场景图标 -->
+  <g transform="translate(100, 450)">
+    <!-- 快递 -->
+    <rect x="0" y="0" width="30" height="20" fill="#d4a574" rx="2"/>
+    <text x="40" y="15" font-family="serif" font-size="14" fill="#666">空中快递</text>
+  </g>
+
+  <g transform="translate(300, 450)">
+    <!-- 农业 -->
+    <circle cx="15" cy="10" r="12" fill="#90b090" opacity="0.6"/>
+    <text x="35" y="15" font-family="serif" font-size="14" fill="#666">农田植保</text>
+  </g>
+
+  <g transform="translate(500, 450)">
+    <!-- 摄影 -->
+    <rect x="0" y="5" width="25" height="18" fill="#7a8ca0" rx="2"/>
+    <circle cx="12" cy="14" r="6" fill="#4a5568"/>
+    <text x="30" y="15" font-family="serif" font-size="14" fill="#666">航拍摄影</text>
+  </g>
+
+  <g transform="translate(650, 450)">
+    <!-- 救援 -->
+    <path d="M10,5 L20,5 L15,15 Z" fill="#b08080" opacity="0.7"/>
+    <text x="25" y="15" font-family="serif" font-size="14" fill="#666">灾难救援</text>
+  </g>
+
+  <!-- 底部解释 -->
+  <text x="400" y="540" font-family="serif" font-size="14" text-anchor="middle" fill="#888" font-style="italic">
+    "会飞的遥控机器人，给人类装上了天眼"
+  </text>
+
+  <!-- 装饰性线条 -->
+  <path d="M50,250 Q150,230 250,250" fill="none" stroke="#d4c5b0" stroke-width="1" opacity="0.4"/>
+  <path d="M550,250 Q650,270 750,250" fill="none" stroke="#d4c5b0" stroke-width="1" opacity="0.4"/>
+</svg>
