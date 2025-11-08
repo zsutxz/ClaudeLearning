@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大象牙膏化学实验 3D 演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        #controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(15px);
+            z-index: 1000;
+            min-width: 350px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        #controls h2 {
+            margin: 0 0 20px 0;
+            color: #2c3e50;
+            font-size: 20px;
+            font-weight: 600;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 12px;
+            text-align: center;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .control-group button {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .control-group button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .control-group button:active:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .control-group button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .control-group button.danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.3);
+        }
+
+        .control-group button.danger:hover:not(:disabled) {
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+            height: 8px;
+            border-radius: 4px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .control-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .control-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        #info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            max-width: 400px;
+            z-index: 1000;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        #info h3 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            font-size: 18px;
+            font-weight: 600;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        #info p {
+            margin: 10px 0;
+            color: #34495e;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        #info .formula {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        #status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(44, 62, 80, 0.9);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        #status.active {
+            background: rgba(39, 174, 96, 0.9);
+        }
+
+        #status.warning {
+            background: rgba(230, 126, 34, 0.9);
+        }
+
+        #status.error {
+            background: rgba(231, 76, 60, 0.9);
+        }
+
+        #startButton {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 18px 45px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(231, 76, 60, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #startButton:hover:not(:disabled) {
+            transform: translateX(-50%) translateY(-4px);
+            box-shadow: 0 15px 40px rgba(231, 76, 60, 0.4);
+        }
+
+        #startButton:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: translateX(-50%);
+            box-shadow: none;
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 22px;
+            z-index: 2000;
+            text-align: center;
+            background: rgba(44, 62, 80, 0.9);
+            padding: 40px 60px;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .loading-spinner {
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 25px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stats {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(44, 62, 80, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            min-width: 200px;
+        }
+
+        .stats div {
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .stats span {
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            #controls {
+                transform: scale(0.85);
+                transform-origin: top left;
+            }
+
+            #info {
+                transform: scale(0.85);
+                transform-origin: bottom left;
+            }
+
+            .stats {
+                transform: scale(0.85);
+                transform-origin: top right;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="loading">
+            <div class="loading-spinner"></div>
+            <h2>正在加载 3D 场景...</h2>
+            <p>请稍候，正在准备大象牙膏实验</p>
+        </div>
+
+        <div id="controls">
+            <h2>🧪 实验控制面板</h2>
+
+            <div class="control-group">
+                <button id="resetExperiment">🔄 重置实验</button>
+                <button id="toggleParticles">✨ 切换粒子效果</button>
+                <button id="toggleShadows">🌑 切换阴影效果</button>
+            </div>
+
+            <div class="control-group">
+                <label for="reactionSpeed">⚡ 反应速度: <span id="speedValue">1.0</span>x</label>
+                <input type="range" id="reactionSpeed" min="0.5" max="3.0" step="0.1" value="1.0">
+            </div>
+
+            <div class="control-group">
+                <label for="foamIntensity">💨 泡沫强度: <span id="intensityValue">100</span>%</label>
+                <input type="range" id="foamIntensity" min="50" max="200" step="10" value="100">
+            </div>
+
+            <div class="control-group">
+                <label for="foamColor">🎨 泡沫颜色:</label>
+                <select id="foamColor">
+                    <option value="fluorescentPink">荧光粉</option>
+                    <option value="yellow">柠檬黄</option>
+                    <option value="orange">橘子橙</option>
+                    <option value="green">薄荷绿</option>
+                    <option value="blue">天空蓝</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <button id="toggleCamera">📷 切换相机角度</button>
+                <button id="autoRotate">🔄 自动旋转</button>
+            </div>
+        </div>
+
+        <div id="info">
+            <h3>🐘 大象牙膏实验</h3>
+            <p><strong>化学反应:</strong></p>
+            <div class="formula">2H₂O₂ → 2H₂O + O₂↑</div>
+            <p><strong>催化剂:</strong> 碘化钾 (KI) 溶液</p>
+            <p><strong>现象:</strong> 过氧化氢快速分解产生大量氧气泡沫，如同大象牙膏挤出</p>
+            <p><strong>原理:</strong> 催化剂加速反应，产生密集泡沫柱</p>
+        </div>
+
+        <div id="status">准备就绪</div>
+        <button id="startButton">🚀 开始喷发</button>
+
+        <div class="stats" id="stats" style="display: none;">
+            <div>FPS: <span id="fps">60</span></div>
+            <div>粒子数: <span id="particleCount">0</span></div>
+            <div>模拟时间: <span id="simTime">0.0</span>s</div>
+            <div>液位高度: <span id="liquidLevel">33</span>%</div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // 全局变量
+        let scene, camera, renderer;
+        let erlenmeyerFlask, liquid, foamSystem;
+        let experimentRunning = false;
+        let simulationTime = 0;
+        let liquidLevel = 0.33;
+        let autoRotate = false;
+        let shadowsEnabled = true;
+        let particlesEnabled = true;
+
+        // 实验参数
+        let config = {
+            reactionSpeed: 1.0,
+            foamIntensity: 1.0,
+            foamColor: 'fluorescentPink',
+            cameraAngle: 'diagonal'
+        };
+
+        // 颜色配置
+        const colorSchemes = {
+            fluorescentPink: {
+                liquid: 0xff1493,
+                foam: 0xff69b4,
+                foamVariation: [0xff1493, 0xff69b4, 0xffb6c1, 0xff69b4]
+            },
+            yellow: {
+                liquid: 0xffd700,
+                foam: 0xffeb3b,
+                foamVariation: [0xffd700, 0xffeb3b, 0xfff59d, 0xffff00]
+            },
+            orange: {
+                liquid: 0xff8c00,
+                foam: 0xff9800,
+                foamVariation: [0xff8c00, 0xff9800, 0xffb74d, 0xffa500]
+            },
+            green: {
+                liquid: 0x32cd32,
+                foam: 0x90ee90,
+                foamVariation: [0x32cd32, 0x90ee90, 0x98fb98, 0x00ff00]
+            },
+            blue: {
+                liquid: 0x1e90ff,
+                foam: 0x87ceeb,
+                foamVariation: [0x1e90ff, 0x87ceeb, 0x87cefa, 0x00bfff]
+            }
+        };
+
+        // 泡沫粒子类
+        class FoamParticle {
+            constructor(position, velocity) {
+                this.position = position.clone();
+                this.velocity = velocity.clone();
+                this.acceleration = new THREE.Vector3();
+                this.size = Math.random() * 0.8 + 0.4;
+                this.mass = this.size * 0.1;
+                this.life = 1.0;
+                this.maxLife = 1.0;
+                this.isSettled = false;
+                this.settleTime = 0;
+                this.color = this.getRandomColor();
+                this.originalSize = this.size;
+                this.rotation = new THREE.Vector3(
+                    Math.random() * Math.PI * 2,
+                    Math.random() * Math.PI * 2,
+                    Math.random() * Math.PI * 2
+                );
+                this.rotationSpeed = new THREE.Vector3(
+                    (Math.random() - 0.5) * 0.1,
+                    (Math.random() - 0.5) * 0.1,
+                    (Math.random() - 0.5) * 0.1
+                );
+
+                // 变形参数
+                this.deformation = {
+                    x: 1, y: 1, z: 1
+                };
+
+                // 噪声纹理参数
+                this.noiseOffset = Math.random() * Math.PI * 2;
+            }
+
+            getRandomColor() {
+                const colors = colorSchemes[config.foamColor].foamVariation;
+                const baseColor = colors[Math.floor(Math.random() * colors.length)];
+                const color = new THREE.Color(baseColor);
+
+                // 添加亮度变化
+                const brightness = 0.7 + Math.random() * 0.3;
+                color.r *= brightness;
+                color.g *= brightness;
+                color.b *= brightness;
+
+                return color;
+            }
+
+            update(deltaTime, particles, groundLevel = 0) {
+                if (this.isSettled) {
+                    this.settleTime += deltaTime;
+                    // 沉降后的扩散效果
+                    if (this.settleTime < 0.8) {
+                        const settleProgress = this.settleTime / 0.8;
+                        this.deformation.x = 1 + settleProgress * 0.6;
+                        this.deformation.z = 1 + settleProgress * 0.6;
+                        this.deformation.y = Math.max(0.2, 1 - settleProgress * 0.8);
+                    }
+
+                    // 旋转减缓
+                    this.rotationSpeed.multiplyScalar(0.95);
+                    return;
+                }
+
+                // 应用重力
+                this.acceleration.y = -9.8 * this.mass * 0.1;
+
+                // 泡沫间的排斥力（流体动力学效果）
+                particles.forEach(other => {
+                    if (other !== this && !other.isSettled) {
+                        const distance = this.position.distanceTo(other.position);
+                        const minDistance = (this.size + other.size) * 1.5;
+
+                        if (distance < minDistance && distance > 0) {
+                            const force = new THREE.Vector3()
+                                .subVectors(this.position, other.position)
+                                .normalize()
+                                .multiplyScalar((minDistance - distance) * 0.8);
+                            this.acceleration.add(force.divideByScalar(this.mass));
+                        }
+                    }
+                });
+
+                // 湍流效果
+                const time = simulationTime + this.noiseOffset;
+                const turbulence = new THREE.Vector3(
+                    Math.sin(time * 2) * 0.15,
+                    Math.cos(time * 1.5) * 0.08,
+                    Math.sin(time * 2.5) * 0.15
+                );
+                this.acceleration.add(turbulence);
+
+                // 更新速度和位置
+                this.velocity.add(this.acceleration.multiplyScalar(deltaTime));
+
+                // 空气阻力
+                this.velocity.multiplyScalar(0.98);
+
+                const oldPosition = this.position.clone();
+                this.position.add(this.velocity.clone().multiplyScalar(deltaTime));
+
+                // 地面碰撞检测
+                if (this.position.y <= groundLevel + this.size) {
+                    this.position.y = groundLevel + this.size;
+
+                    // 冲击变形
+                    const impactForce = Math.abs(this.velocity.y);
+                    this.deformation.y = Math.max(0.3, 1 - impactForce * 0.15);
+                    this.deformation.x = Math.min(1.8, 1 + impactForce * 0.08);
+                    this.deformation.z = Math.min(1.8, 1 + impactForce * 0.08);
+
+                    // 反弹和摩擦
+                    this.velocity.y *= -0.15;
+                    this.velocity.x *= 0.4;
+                    this.velocity.z *= 0.4;
+
+                    // 停止条件
+                    if (Math.abs(this.velocity.y) < 0.8) {
+                        this.isSettled = true;
+                        this.velocity.set(0, 0, 0);
+                    }
+                }
+
+                // 锥形瓶碰撞检测
+                const flaskCenter = new THREE.Vector3(0, 10, 0);
+                const flaskRadius = 8;
+                const distanceToFlask = this.position.distanceTo(flaskCenter);
+
+                if (distanceToFlask < flaskRadius + this.size &&
+                    this.position.y > 0 && this.position.y < 20) {
+                    const pushDirection = new THREE.Vector3()
+                        .subVectors(this.position, flaskCenter)
+                        .normalize();
+                    this.position = flaskCenter.clone().add(
+                        pushDirection.multiplyScalar(flaskRadius + this.size)
+                    );
+
+                    // 反弹
+                    const normal = pushDirection;
+                    const dotProduct = this.velocity.dot(normal);
+                    this.velocity.sub(normal.multiplyScalar(2 * dotProduct));
+                    this.velocity.multiplyScalar(0.7);
+                }
+
+                // 更新旋转
+                this.rotation.x += this.rotationSpeed.x * deltaTime;
+                this.rotation.y += this.rotationSpeed.y * deltaTime;
+                this.rotation.z += this.rotationSpeed.z * deltaTime;
+
+                // 重置加速度
+                this.acceleration.set(0, 0, 0);
+
+                // 更新生命值
+                this.life -= deltaTime * 0.05;
+                this.size = this.originalSize * Math.min(1, this.life);
+            }
+        }
+
+        // 初始化场景
+        function init() {
+            createScene();
+            createLights();
+            createGround();
+            createErlenmeyerFlask();
+            createFoamSystem();
+            setupEventListeners();
+            animate();
+
+            // 隐藏加载界面
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+            }, 2000);
+        }
+
+        function createScene() {
+            // 场景设置
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xf0f0f0);
+            scene.fog = new THREE.Fog(0xf0f0f0, 100, 1000);
+
+            // 相机设置 - 45度对角俯视角度
+            const aspect = window.innerWidth / window.innerHeight;
+            camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 2000);
+
+            // 设置相机位置
+            updateCameraPosition();
+
+            // 渲染器设置
+            renderer = new THREE.WebGLRenderer({
+                antialias: true,
+                alpha: true
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.2;
+            renderer.physicallyCorrectLights = true;
+            document.getElementById('container').appendChild(renderer.domElement);
+        }
+
+        function updateCameraPosition() {
+            const distance = 60;
+
+            switch (config.cameraAngle) {
+                case 'diagonal':
+                    // 45度对角俯视
+                    camera.position.set(
+                        distance * Math.cos(Math.PI / 4) * 0.7,
+                        distance * Math.sin(Math.PI / 4),
+                        distance * Math.cos(Math.PI / 4) * 0.7
+                    );
+                    break;
+                case 'side':
+                    camera.position.set(distance, 25, 0);
+                    break;
+                case 'top':
+                    camera.position.set(0, distance * 1.5, distance * 0.5);
+                    break;
+                case 'close':
+                    camera.position.set(30, 20, 30);
+                    break;
+            }
+
+            camera.lookAt(0, 10, 0);
+        }
+
+        function createLights() {
+            // 主定向光
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
+            directionalLight.position.set(50, 80, 50);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            directionalLight.shadow.camera.near = 0.5;
+            directionalLight.shadow.camera.far = 200;
+            directionalLight.shadow.camera.left = -50;
+            directionalLight.shadow.camera.right = 50;
+            directionalLight.shadow.camera.top = 50;
+            directionalLight.shadow.camera.bottom = -50;
+            directionalLight.shadow.bias = -0.0001;
+            directionalLight.shadow.normalBias = 0.02;
+            scene.add(directionalLight);
+
+            // 环境光
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+            scene.add(ambientLight);
+
+            // 额外的点光源
+            const pointLight1 = new THREE.PointLight(0xffffff, 0.8, 100);
+            pointLight1.position.set(-30, 40, -30);
+            scene.add(pointLight1);
+
+            const pointLight2 = new THREE.PointLight(0xffffff, 0.8, 100);
+            pointLight2.position.set(30, 40, 30);
+            scene.add(pointLight2);
+        }
+
+        function createGround() {
+            // 主地面
+            const groundGeometry = new THREE.PlaneGeometry(1000, 1000);
+            const groundMaterial = new THREE.MeshStandardMaterial({
+                color: 0xcccccc,
+                roughness: 0.8,
+                metalness: 0.1
+            });
+
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+
+            // 网格辅助
+            const gridHelper = new THREE.GridHelper(1000, 100, 0x888888, 0xdddddd);
+            scene.add(gridHelper);
+        }
+
+        function createErlenmeyerFlask() {
+            const flaskGroup = new THREE.Group();
+
+            // 玻璃材质 - 按需求文档精确设置
+            const glassMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.9,
+                roughness: 0.05,
+                metalness: 0.35,
+                clearcoat: 1.0,
+                clearcoatRoughness: 0.03,
+                transmission: 0.95,
+                ior: 1.5,
+                side: THREE.DoubleSide,
+                envMapIntensity: 1.5,
+                reflectivity: 0.9
+            });
+
+            // 创建锥形瓶形状
+            const flaskGeometry = createErlenmeyerGeometry();
+            const flask = new THREE.Mesh(flaskGeometry, glassMaterial);
+            flask.castShadow = true;
+            flask.receiveShadow = true;
+            flaskGroup.add(flask);
+
+            // 创建液体
+            createLiquid(flaskGroup);
+
+            // 定位锥形瓶
+            flaskGroup.position.set(0, 0, 0);
+            erlenmeyerFlask = flaskGroup;
+            scene.add(erlenmeyerFlask);
+        }
+
+        function createErlenmeyerGeometry() {
+            const shape = new THREE.Shape();
+            const height = 20;
+            const bottomRadius = 8;
+            const topRadius = 2;
+            const neckHeight = 4;
+
+            // 绘制锥形瓶轮廓
+            shape.moveTo(0, 0);
+
+            // 底部曲线
+            shape.quadraticCurveTo(bottomRadius * 0.5, 0, bottomRadius, 0.5);
+
+            // 锥形主体
+            shape.lineTo(bottomRadius, height - neckHeight);
+
+            // 过渡到瓶颈
+            shape.quadraticCurveTo(
+                (bottomRadius + topRadius) / 2, height - neckHeight,
+                topRadius, height - neckHeight
+            );
+
+            // 瓶颈
+            shape.lineTo(topRadius, height);
+
+            // 创建旋转几何体
+            const geometry = new THREE.LatheGeometry(shape.getPoints(), 64);
+            return geometry;
+        }
+
+        function createLiquid(flaskGroup) {
+            const liquidHeight = 20 * liquidLevel;
+            const bottomRadius = 7.5;
+            const topRadius = bottomRadius - (bottomRadius - 1.5) * liquidLevel;
+
+            const shape = new THREE.Shape();
+            shape.moveTo(0, 0);
+            shape.quadraticCurveTo(bottomRadius * 0.5, 0, bottomRadius, 0.2);
+            shape.lineTo(topRadius, liquidHeight);
+            shape.lineTo(0, liquidHeight);
+            shape.lineTo(0, 0);
+
+            const liquidGeometry = new THREE.LatheGeometry(shape.getPoints(), 64);
+            const liquidMaterial = new THREE.MeshPhysicalMaterial({
+                color: colorSchemes[config.foamColor].liquid,
+                transparent: true,
+                opacity: 0.8,
+                transmission: 0.2,
+                roughness: 0.1,
+                metalness: 0,
+                clearcoat: 0.8,
+                clearcoatRoughness: 0.2,
+                ior: 1.33
+            });
+
+            liquid = new THREE.Mesh(liquidGeometry, liquidMaterial);
+            liquid.position.y = 0;
+            flaskGroup.add(liquid);
+        }
+
+        function createFoamSystem() {
+            foamSystem = {
+                particles: [],
+                particleGeometry: new THREE.SphereGeometry(0.5, 8, 6),
+                particleMaterial: new THREE.MeshStandardMaterial({
+                    transparent: true,
+                    opacity: 0.7,
+                    roughness: 0.9,
+                    metalness: 0
+                }),
+                group: new THREE.Group()
+            };
+
+            scene.add(foamSystem.group);
+        }
+
+        function startEruption() {
+            if (experimentRunning) return;
+
+            experimentRunning = true;
+            simulationTime = 0;
+            updateStatus('喷发进行中...', 'active');
+            document.getElementById('startButton').disabled = true;
+
+            // 创建初始泡沫爆发
+            createFoamBurst();
+
+            // 液位逐渐下降
+            const liquidReductionInterval = setInterval(() => {
+                if (liquidLevel > 0.05) {
+                    liquidLevel -= 0.008 * config.reactionSpeed;
+                    updateLiquidLevel();
+                    updateLiquidLevelDisplay();
+                } else {
+                    clearInterval(liquidReductionInterval);
+                }
+            }, 100);
+
+            // 停止喷发
+            setTimeout(() => {
+                stopEruption();
+            }, 10000 / config.reactionSpeed);
+        }
+
+        function createFoamBurst() {
+            const burstCount = 80 * config.foamIntensity;
+            const flaskMouth = new THREE.Vector3(0, 20, 0);
+
+            for (let i = 0; i < burstCount; i++) {
+                // 初始位置在瓶口附近
+                const position = flaskMouth.clone();
+                position.x += (Math.random() - 0.5) * 3;
+                position.z += (Math.random() - 0.5) * 3;
+
+                // 初始速度 - 强烈向上喷射
+                const velocity = new THREE.Vector3(
+                    (Math.random() - 0.5) * 12,
+                    25 + Math.random() * 15, // 强大的向上力
+                    (Math.random() - 0.5) * 12
+                );
+
+                const particle = new FoamParticle(position, velocity);
+                foamSystem.particles.push(particle);
+
+                // 创建视觉表现
+                const mesh = new THREE.Mesh(
+                    foamSystem.particleGeometry,
+                    foamSystem.particleMaterial.clone()
+                );
+                mesh.material.color = particle.color;
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
+                mesh.userData = { particle: particle };
+
+                foamSystem.group.add(mesh);
+            }
+
+            updateParticleCount();
+        }
+
+        function updateLiquidLevel() {
+            if (!liquid) return;
+
+            // 移除旧液体
+            erlenmeyerFlask.remove(liquid);
+
+            // 创建新液体几何体
+            const liquidHeight = 20 * liquidLevel;
+            const bottomRadius = 7.5;
+            const topRadius = bottomRadius - (bottomRadius - 1.5) * liquidLevel;
+
+            const shape = new THREE.Shape();
+            shape.moveTo(0, 0);
+            shape.quadraticCurveTo(bottomRadius * 0.5, 0, bottomRadius, 0.2);
+            shape.lineTo(topRadius, liquidHeight);
+            shape.lineTo(0, liquidHeight);
+            shape.lineTo(0, 0);
+
+            const liquidGeometry = new THREE.LatheGeometry(shape.getPoints(), 64);
+            const liquidMaterial = new THREE.MeshPhysicalMaterial({
+                color: colorSchemes[config.foamColor].liquid,
+                transparent: true,
+                opacity: 0.8,
+                transmission: 0.2,
+                roughness: 0.1,
+                metalness: 0,
+                clearcoat: 0.8,
+                clearcoatRoughness: 0.2,
+                ior: 1.33
+            });
+
+            liquid = new THREE.Mesh(liquidGeometry, liquidMaterial);
+            liquid.position.y = 0;
+            erlenmeyerFlask.add(liquid);
+        }
+
+        function updateLiquidLevelDisplay() {
+            const percentage = Math.round(liquidLevel * 100);
+            document.getElementById('liquidLevel').textContent = percentage;
+        }
+
+        function updateFoamParticles(deltaTime) {
+            const toRemove = [];
+
+            foamSystem.particles.forEach((particle, index) => {
+                particle.update(deltaTime, foamSystem.particles, 0);
+
+                // 更新视觉表现
+                const mesh = foamSystem.group.children.find(child =>
+                    child.userData.particle === particle
+                );
+
+                if (mesh) {
+                    mesh.position.copy(particle.position);
+                    mesh.rotation.set(particle.rotation.x, particle.rotation.y, particle.rotation.z);
+                    mesh.scale.set(
+                        particle.size * particle.deformation.x,
+                        particle.size * particle.deformation.y,
+                        particle.size * particle.deformation.z
+                    );
+                    mesh.material.opacity = 0.7 * particle.life;
+                }
+
+                // 移除死亡的粒子
+                if (particle.life <= 0) {
+                    toRemove.push(index);
+                    if (mesh) {
+                        foamSystem.group.remove(mesh);
+                    }
+                }
+            });
+
+            // 移除死亡粒子
+            toRemove.reverse().forEach(index => {
+                foamSystem.particles.splice(index, 1);
+            });
+
+            // 持续添加新泡沫
+            if (experimentRunning && Math.random() < 0.4 * config.foamIntensity) {
+                const flaskMouth = new THREE.Vector3(0, 20, 0);
+                const position = flaskMouth.clone();
+                position.x += (Math.random() - 0.5) * 4;
+                position.z += (Math.random() - 0.5) * 4;
+
+                const velocity = new THREE.Vector3(
+                    (Math.random() - 0.5) * 10,
+                    18 + Math.random() * 12,
+                    (Math.random() - 0.5) * 10
+                );
+
+                const particle = new FoamParticle(position, velocity);
+                foamSystem.particles.push(particle);
+
+                const mesh = new THREE.Mesh(
+                    foamSystem.particleGeometry,
+                    foamSystem.particleMaterial.clone()
+                );
+                mesh.material.color = particle.color;
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
+                mesh.userData = { particle: particle };
+
+                foamSystem.group.add(mesh);
+            }
+
+            updateParticleCount();
+        }
+
+        function stopEruption() {
+            experimentRunning = false;
+            updateStatus('喷发完成', 'warning');
+            document.getElementById('startButton').disabled = false;
+
+            setTimeout(() => {
+                updateStatus('准备就绪');
+            }, 3000);
+        }
+
+        function resetExperiment() {
+            experimentRunning = false;
+            simulationTime = 0;
+            liquidLevel = 0.33;
+
+            // 清除所有泡沫粒子
+            foamSystem.particles = [];
+            while (foamSystem.group.children.length > 0) {
+                foamSystem.group.remove(foamSystem.group.children[0]);
+            }
+
+            // 重置液位
+            updateLiquidLevel();
+            updateLiquidLevelDisplay();
+
+            updateStatus('实验已重置');
+            document.getElementById('startButton').disabled = false;
+            updateParticleCount();
+        }
+
+        function setupEventListeners() {
+            document.getElementById('startButton').addEventListener('click', startEruption);
+            document.getElementById('resetExperiment').addEventListener('click', resetExperiment);
+
+            document.getElementById('reactionSpeed').addEventListener('input', (e) => {
+                config.reactionSpeed = parseFloat(e.target.value);
+                document.getElementById('speedValue').textContent = e.target.value;
+            });
+
+            document.getElementById('foamIntensity').addEventListener('input', (e) => {
+                config.foamIntensity = parseInt(e.target.value) / 100;
+                document.getElementById('intensityValue').textContent = e.target.value;
+            });
+
+            document.getElementById('foamColor').addEventListener('change', (e) => {
+                config.foamColor = e.target.value;
+                updateColors();
+            });
+
+            document.getElementById('toggleParticles').addEventListener('click', () => {
+                particlesEnabled = !particlesEnabled;
+                foamSystem.group.visible = particlesEnabled;
+            });
+
+            document.getElementById('toggleShadows').addEventListener('click', () => {
+                shadowsEnabled = !shadowsEnabled;
+                renderer.shadowMap.enabled = shadowsEnabled;
+                scene.traverse((child) => {
+                    if (child instanceof THREE.Mesh) {
+                        child.castShadow = shadowsEnabled;
+                        child.receiveShadow = shadowsEnabled;
+                    }
+                });
+            });
+
+            document.getElementById('toggleCamera').addEventListener('click', () => {
+                const angles = ['diagonal', 'side', 'top', 'close'];
+                const currentIndex = angles.indexOf(config.cameraAngle);
+                config.cameraAngle = angles[(currentIndex + 1) % angles.length];
+                updateCameraPosition();
+            });
+
+            document.getElementById('autoRotate').addEventListener('click', () => {
+                autoRotate = !autoRotate;
+                document.getElementById('autoRotate').textContent =
+                    autoRotate ? '停止旋转' : '自动旋转';
+            });
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function updateColors() {
+            // 更新液体颜色
+            if (liquid && liquid.material) {
+                liquid.material.color.setHex(colorSchemes[config.foamColor].liquid);
+            }
+
+            // 更新现有泡沫粒子颜色
+            foamSystem.particles.forEach(particle => {
+                particle.color = particle.getRandomColor();
+                const mesh = foamSystem.group.children.find(child =>
+                    child.userData.particle === particle
+                );
+                if (mesh) {
+                    mesh.material.color = particle.color;
+                }
+            });
+        }
+
+        function updateStatus(message, type = '') {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.className = 'status ' + type;
+        }
+
+        function updateParticleCount() {
+            document.getElementById('particleCount').textContent = foamSystem.particles.length;
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // 性能监控
+        let lastTime = performance.now();
+        let frameCount = 0;
+        let fps = 60;
+
+        function updateStats() {
+            frameCount++;
+            const currentTime = performance.now();
+
+            if (currentTime >= lastTime + 1000) {
+                fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                frameCount = 0;
+                lastTime = currentTime;
+
+                document.getElementById('fps').textContent = fps;
+                document.getElementById('simTime').textContent = simulationTime.toFixed(1);
+            }
+        }
+
+        // 动画循环
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const deltaTime = 0.016;
+
+            // 更新模拟时间
+            if (experimentRunning) {
+                simulationTime += deltaTime * config.reactionSpeed;
+            }
+
+            // 更新泡沫粒子
+            if (particlesEnabled) {
+                updateFoamParticles(deltaTime);
+            }
+
+            // 自动旋转
+            if (autoRotate && !experimentRunning) {
+                const rotationSpeed = 0.005;
+                erlenmeyerFlask.rotation.y += rotationSpeed;
+            }
+
+            // 更新统计
+            updateStats();
+
+            // 渲染
+            renderer.render(scene, camera);
+        }
+
+        // 初始化应用
+        init();
+
+        // 显示统计信息
+        setTimeout(() => {
+            document.getElementById('stats').style.display = 'block';
+        }, 2500);
+    </script>
+</body>
+</html>

@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鞭炮连锁爆炸 3D 演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            overflow: hidden;
+        }
+
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        #controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(15px);
+            z-index: 1000;
+            min-width: 380px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        #controls h2 {
+            margin: 0 0 20px 0;
+            color: #2c3e50;
+            font-size: 20px;
+            font-weight: 600;
+            border-bottom: 3px solid #e74c3c;
+            padding-bottom: 12px;
+            text-align: center;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .control-group button {
+            width: 100%;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.3);
+        }
+
+        .control-group button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+        }
+
+        .control-group button:active:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .control-group button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .control-group button.secondary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
+        }
+
+        .control-group button.secondary:hover:not(:disabled) {
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+        }
+
+        .control-group button.danger {
+            background: linear-gradient(135deg, #e67e22, #d35400);
+            box-shadow: 0 6px 20px rgba(230, 126, 34, 0.3);
+        }
+
+        .control-group button.danger:hover:not(:disabled) {
+            box-shadow: 0 8px 25px rgba(230, 126, 34, 0.4);
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+            height: 8px;
+            border-radius: 4px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #e74c3c;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(231, 76, 60, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .control-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .control-group select:focus {
+            outline: none;
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+
+        #info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            max-width: 400px;
+            z-index: 1000;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        #info h3 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            font-size: 18px;
+            font-weight: 600;
+            border-bottom: 2px solid #e74c3c;
+            padding-bottom: 10px;
+        }
+
+        #info p {
+            margin: 10px 0;
+            color: #34495e;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        #info .warning {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #ffc107;
+            margin: 10px 0;
+            font-size: 12px;
+            color: #856404;
+        }
+
+        #status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(44, 62, 80, 0.9);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        #status.active {
+            background: rgba(231, 76, 60, 0.9);
+        }
+
+        #status.warning {
+            background: rgba(243, 156, 18, 0.9);
+        }
+
+        #status.success {
+            background: rgba(39, 174, 96, 0.9);
+        }
+
+        #startButton {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 18px 45px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(231, 76, 60, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #startButton:hover:not(:disabled) {
+            transform: translateX(-50%) translateY(-4px);
+            box-shadow: 0 15px 40px rgba(231, 76, 60, 0.4);
+        }
+
+        #startButton:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: translateX(-50%);
+            box-shadow: none;
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 22px;
+            z-index: 2000;
+            text-align: center;
+            background: rgba(44, 62, 80, 0.9);
+            padding: 40px 60px;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .loading-spinner {
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 25px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stats {
+            position: absolute;
+            top: 80px;
+            right: 20px;
+            background: rgba(44, 62, 80, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            min-width: 200px;
+        }
+
+        .stats div {
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stats span {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .stats .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+
+        .stats .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e74c3c, #c0392b);
+            transition: width 0.3s ease;
+        }
+
+        .mode-indicator {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 1000;
+            display: none;
+        }
+
+        .mode-indicator.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            #controls {
+                transform: scale(0.85);
+                transform-origin: top left;
+            }
+
+            #info {
+                transform: scale(0.85);
+                transform-origin: bottom left;
+            }
+
+            .stats {
+                transform: scale(0.85);
+                transform-origin: top right;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="loading">
+            <div class="loading-spinner"></div>
+            <h2>正在加载 3D 场景...</h2>
+            <p>请稍候，正在准备鞭炮连锁爆炸演示</p>
+        </div>
+
+        <div id="controls">
+            <h2>🎆 鞭炮控制面板</h2>
+
+            <div class="control-group">
+                <button id="startFireworks">🚀 开始燃放</button>
+                <button id="resetScene" class="secondary">🔄 重置场景</button>
+                <button id="singleDetonation" class="danger">💥 单个引爆模式</button>
+            </div>
+
+            <div class="control-group">
+                <label for="explosionPower">💥 爆炸威力: <span id="powerValue">100</span>%</label>
+                <input type="range" id="explosionPower" min="50" max="150" step="10" value="100">
+            </div>
+
+            <div class="control-group">
+                <label for="chainDelay">⏱️ 连锁延迟: <span id="delayValue">200</span>ms</label>
+                <input type="range" id="chainDelay" min="100" max="500" step="50" value="200">
+            </div>
+
+            <div class="control-group">
+                <label for="particleCount">✨ 粒子数量: <span id="particleValue">65</span></label>
+                <input type="range" id="particleCount" min="30" max="100" step="5" value="65">
+            </div>
+
+            <div class="control-group">
+                <button id="toggleEffects" class="secondary">🎨 切换特效</button>
+                <button id="toggleSound" class="secondary">🔊 音效开关</button>
+                <button id="toggleCamera" class="secondary">📷 切换视角</button>
+            </div>
+        </div>
+
+        <div id="info">
+            <h3>🎯 鞭炮连锁爆炸</h3>
+            <p><strong>演示说明:</strong> 观逼真的鞭炮连锁爆炸效果，包含完整的物理模拟和视觉特效。</p>
+            <p><strong>主要特性:</strong></p>
+            <ul style="margin-left: 20px; color: #34495e; font-size: 13px;">
+                <li>真实的连锁反应机制</li>
+                <li>爆炸冲击波和弹射效果</li>
+                <li>火花、烟雾等粒子特效</li>
+                <li>动态光照和阴影效果</li>
+            </ul>
+            <div class="warning">
+                <strong>⚠️ 安全提示:</strong> 这是计算机模拟演示，请勿模仿真实鞭炮操作！
+            </div>
+        </div>
+
+        <div class="mode-indicator" id="modeIndicator">
+            🎯 单个引爆模式 - 点击鞭炮进行引爆
+        </div>
+
+        <div id="status">准备就绪</div>
+        <button id="startButton">🎆 开始燃放</button>
+
+        <div class="stats" id="stats" style="display: none;">
+            <div>剩余鞭炮: <span id="remainingFirecrackers">0</span></div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <div>已爆炸: <span id="explodedCount">0</span></div>
+            <div>连锁反应: <span id="chainActive">否</span></div>
+            <div>活跃粒子: <span id="activeParticles">0</span></div>
+            <div>FPS: <span id="fps">60</span></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // 全局变量
+        let scene, camera, renderer;
+        let ground, glassBox;
+        let firecrackers = [];
+        let explosionSystem, chainReactionManager;
+        let raycaster, mouse;
+        let isAnimating = false;
+        let singleDetonationMode = false;
+        let effectsEnabled = true;
+        let soundEnabled = false;
+
+        // 实验参数
+        let config = {
+            explosionPower: 1.0,
+            chainDelay: 200,
+            particleCount: 65,
+            cameraAngle: 'default'
+        };
+
+        // 统计数据
+        let stats = {
+            totalFirecrackers: 0,
+            explodedCount: 0,
+            remainingCount: 0,
+            activeParticles: 0,
+            chainActive: false
+        };
+
+        // 鞭炮类
+        class Firecracker {
+            constructor(position, id) {
+                this.id = id;
+                this.position = position.clone();
+                this.velocity = new THREE.Vector3();
+                this.acceleration = new THREE.Vector3();
+                this.rotation = new THREE.Vector3();
+                this.rotationVelocity = new THREE.Vector3();
+
+                this.isLit = false;
+                this.isExploded = false;
+                this.burningTime = 0;
+                this.burnDuration = 2000; // 2秒燃烧时间
+                this.igniteTime = 0;
+
+                this.isEjected = false;
+                this.hasCollided = false;
+
+                this.group = new THREE.Group();
+                this.createModel();
+                this.updatePosition();
+            }
+
+            createModel() {
+                // 主体 - 红色圆柱体
+                const bodyGeometry = new THREE.CylinderGeometry(0.1, 0.1, 1, 16);
+                const bodyMaterial = new THREE.MeshStandardMaterial({
+                    color: 0xff0000,
+                    roughness: 0.6,
+                    metalness: 0.2
+                });
+                const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+                body.castShadow = true;
+                body.receiveShadow = true;
+
+                // 顶部封盖 - 土黄色圆柱体
+                const topCapGeometry = new THREE.CylinderGeometry(0.12, 0.1, 0.05, 16);
+                const capMaterial = new THREE.MeshStandardMaterial({
+                    color: 0xdaa520,
+                    roughness: 0.8
+                });
+                const topCap = new THREE.Mesh(topCapGeometry, capMaterial);
+                topCap.position.y = 0.525;
+                topCap.castShadow = true;
+                topCap.receiveShadow = true;
+
+                // 底部封盖
+                const bottomCap = new THREE.Mesh(topCapGeometry, capMaterial);
+                bottomCap.position.y = -0.525;
+                bottomCap.castShadow = true;
+                bottomCap.receiveShadow = true;
+
+                // 引线 - 蓝绿色细圆柱
+                const fuseGeometry = new THREE.CylinderGeometry(0.025, 0.025, 0.5, 8);
+                const fuseMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x20b2aa,
+                    roughness: 0.4
+                });
+                const fuse = new THREE.Mesh(fuseGeometry, fuseMaterial);
+                fuse.position.y = 0.775;
+                fuse.castShadow = true;
+
+                // 引线顶端火星 - 橙红色发光球体
+                const sparkGeometry = new THREE.SphereGeometry(0.03, 8, 8);
+                const sparkMaterial = new THREE.MeshStandardMaterial({
+                    color: 0xff4500,
+                    emissive: 0xff4500,
+                    emissiveIntensity: 0
+                });
+                this.spark = new THREE.Mesh(sparkGeometry, sparkMaterial);
+                this.spark.position.y = 1.05;
+
+                this.group.add(body);
+                this.group.add(topCap);
+                this.group.add(bottomCap);
+                this.group.add(fuse);
+                this.group.add(this.spark);
+
+                scene.add(this.group);
+            }
+
+            ignite() {
+                if (this.isLit || this.isExploded) return;
+
+                this.isLit = true;
+                this.igniteTime = Date.now();
+                this.spark.material.emissiveIntensity = 1;
+
+                // 创建引燃火花效果
+                explosionSystem.createIgnitionSparks(this.position.clone().add(new THREE.Vector3(0, 1.05, 0)));
+            }
+
+            update(deltaTime) {
+                if (this.isExploded) return;
+
+                // 燃烧逻辑
+                if (this.isLit) {
+                    this.burningTime += deltaTime;
+
+                    // 更新火星效果
+                    const burnProgress = this.burningTime / this.burnDuration;
+                    this.spark.material.emissiveIntensity = 1 - burnProgress * 0.3;
+
+                    // 引线缩短动画
+                    if (this.burningTime < this.burnDuration) {
+                        const fuse = this.group.children[3];
+                        const remainingHeight = 0.5 * (1 - burnProgress);
+                        fuse.scale.y = remainingHeight / 0.5;
+                        fuse.position.y = 0.525 + remainingHeight / 2;
+                        this.spark.position.y = fuse.position.y + remainingHeight / 2 + 0.275;
+                    }
+
+                    // 检查是否该爆炸
+                    if (this.burningTime >= this.burnDuration) {
+                        this.explode();
+                        return;
+                    }
+                }
+
+                // 物理更新（仅在弹射时）
+                if (this.isEjected) {
+                    // 应用重力
+                    this.acceleration.y = -9.8;
+
+                    // 更新速度和位置
+                    this.velocity.add(this.acceleration.clone().multiplyScalar(deltaTime));
+                    this.position.add(this.velocity.clone().multiplyScalar(deltaTime));
+
+                    // 更新旋转
+                    this.rotation.add(this.rotationVelocity.clone().multiplyScalar(deltaTime));
+
+                    // 碰撞检测
+                    this.checkCollisions();
+
+                    // 重置加速度
+                    this.acceleration.set(0, 0, 0);
+
+                    this.updatePosition();
+                }
+            }
+
+            checkCollisions() {
+                // 地面碰撞
+                if (this.position.y <= 0.5) {
+                    this.position.y = 0.5;
+                    this.velocity.y *= -0.3; // 反弹
+                    this.velocity.x *= 0.7; // 摩擦
+                    this.velocity.z *= 0.7;
+                    this.rotationVelocity.multiplyScalar(0.8);
+
+                    if (!this.hasCollided) {
+                        this.hasCollided = true;
+                        explosionSystem.createImpactEffect(this.position);
+                    }
+                }
+
+                // 箱子碰撞检测
+                const boxBounds = {
+                    minX: -5, maxX: 5,
+                    minZ: -5, maxZ: 5,
+                    maxY: 8
+                };
+
+                // 简单的边界碰撞
+                if (Math.abs(this.position.x) > boxBounds.maxX) {
+                    this.position.x = Math.sign(this.position.x) * boxBounds.maxX;
+                    this.velocity.x *= -0.5;
+                }
+                if (Math.abs(this.position.z) > boxBounds.maxZ) {
+                    this.position.z = Math.sign(this.position.z) * boxBounds.maxZ;
+                    this.velocity.z *= -0.5;
+                }
+            }
+
+            explode() {
+                this.isExploded = true;
+                stats.explodedCount++;
+                stats.remainingCount--;
+                updateStats();
+
+                // 创建爆炸效果
+                explosionSystem.createExplosion(this.position);
+
+                // 移除鞭炮模型
+                scene.remove(this.group);
+
+                // 触发连锁反应
+                chainReactionManager.triggerChainReaction(this.position, this.id);
+
+                // 屏幕闪白效果
+                if (effectsEnabled) {
+                    explosionSystem.createScreenFlash();
+                }
+            }
+
+            eject(force, direction) {
+                this.isEjected = true;
+                this.velocity = direction.clone().multiplyScalar(force);
+                this.rotationVelocity = new THREE.Vector3(
+                    (Math.random() - 0.5) * 10,
+                    (Math.random() - 0.5) * 10,
+                    (Math.random() - 0.5) * 10
+                );
+            }
+
+            updatePosition() {
+                this.group.position.copy(this.position);
+                this.group.rotation.x = this.rotation.x;
+                this.group.rotation.y = this.rotation.y;
+                this.group.rotation.z = this.rotation.z;
+            }
+
+            dispose() {
+                if (this.group.parent) {
+                    scene.remove(this.group);
+                }
+            }
+        }
+
+        // 爆炸系统类
+        class ExplosionSystem {
+            constructor() {
+                this.particles = [];
+                this.shockwaves = [];
+                this.lights = [];
+                this.sparks = [];
+                this.smoke = [];
+            }
+
+            createExplosion(position) {
+                // 创建纸屑碎片
+                const fragmentCount = config.particleCount;
+                for (let i = 0; i < fragmentCount; i++) {
+                    this.createFragment(position);
+                }
+
+                // 创建冲击波
+                this.createShockwave(position);
+
+                // 创建动态光源
+                this.createExplosionLight(position);
+
+                // 创建火花
+                this.createSparks(position);
+
+                // 创建烟雾
+                this.createSmoke(position);
+
+                stats.activeParticles += fragmentCount + 20 + 30; // 碎片 + 火花 + 烟雾
+            }
+
+            createFragment(position) {
+                const geometry = new THREE.BoxGeometry(
+                    Math.random() * 0.1 + 0.05,
+                    Math.random() * 0.05 + 0.02,
+                    Math.random() * 0.1 + 0.05
+                );
+
+                const material = new THREE.MeshStandardMaterial({
+                    color: new THREE.Color().setHSL(0, 0.8, 0.5 + Math.random() * 0.3),
+                    roughness: 0.8,
+                    metalness: 0.1
+                });
+
+                const fragment = new THREE.Mesh(geometry, material);
+                fragment.position.copy(position);
+                fragment.castShadow = true;
+                fragment.receiveShadow = true;
+
+                // 随机初速度
+                const speed = Math.random() * 15 + 5;
+                const direction = new THREE.Vector3(
+                    (Math.random() - 0.5) * 2,
+                    Math.random() * 1.5,
+                    (Math.random() - 0.5) * 2
+                ).normalize();
+
+                fragment.userData = {
+                    velocity: direction.multiplyScalar(speed * config.explosionPower),
+                    rotationSpeed: new THREE.Vector3(
+                        (Math.random() - 0.5) * 20,
+                        (Math.random() - 0.5) * 20,
+                        (Math.random() - 0.5) * 20
+                    ),
+                    life: 1.0,
+                    gravity: -9.8
+                };
+
+                this.particles.push(fragment);
+                scene.add(fragment);
+            }
+
+            createShockwave(position) {
+                const geometry = new THREE.SphereGeometry(0.1, 16, 16);
+                const material = new THREE.MeshBasicMaterial({
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.6,
+                    side: THREE.DoubleSide
+                });
+
+                const shockwave = new THREE.Mesh(geometry, material);
+                shockwave.position.copy(position);
+                shockwave.userData = {
+                    scale: 0.1,
+                    maxScale: 6,
+                    growthSpeed: 15,
+                    opacity: 0.6
+                };
+
+                this.shockwaves.push(shockwave);
+                scene.add(shockwave);
+            }
+
+            createExplosionLight(position) {
+                const light = new THREE.PointLight(0xffaa00, 2, 20);
+                light.position.copy(position);
+                light.userData = {
+                    intensity: 2,
+                    decaySpeed: 5,
+                    life: 0.5
+                };
+
+                this.lights.push(light);
+                scene.add(light);
+            }
+
+            createSparks(position) {
+                const sparkCount = 20;
+                for (let i = 0; i < sparkCount; i++) {
+                    const geometry = new THREE.SphereGeometry(0.02, 4, 4);
+                    const material = new THREE.MeshBasicMaterial({
+                        color: 0xffaa00,
+                        emissive: 0xffaa00,
+                        emissiveIntensity: 1
+                    });
+
+                    const spark = new THREE.Mesh(geometry, material);
+                    spark.position.copy(position);
+
+                    const speed = Math.random() * 20 + 10;
+                    const direction = new THREE.Vector3(
+                        (Math.random() - 0.5) * 2,
+                        Math.random() * 2,
+                        (Math.random() - 0.5) * 2
+                    ).normalize();
+
+                    spark.userData = {
+                        velocity: direction.multiplyScalar(speed),
+                        life: 1.0,
+                        trail: []
+                    };
+
+                    this.sparks.push(spark);
+                    scene.add(spark);
+                }
+            }
+
+            createSmoke(position) {
+                const smokeCount = 30;
+                for (let i = 0; i < smokeCount; i++) {
+                    const geometry = new THREE.SphereGeometry(0.2, 6, 6);
+                    const material = new THREE.MeshBasicMaterial({
+                        color: 0x888888,
+                        transparent: true,
+                        opacity: 0.3
+                    });
+
+                    const smoke = new THREE.Mesh(geometry, material);
+                    smoke.position.copy(position);
+                    smoke.position.add(new THREE.Vector3(
+                        (Math.random() - 0.5) * 0.5,
+                        Math.random() * 0.5,
+                        (Math.random() - 0.5) * 0.5
+                    ));
+
+                    smoke.userData = {
+                        velocity: new THREE.Vector3(
+                            (Math.random() - 0.5) * 2,
+                            Math.random() * 3 + 1,
+                            (Math.random() - 0.5) * 2
+                        ),
+                        life: 1.0,
+                        maxScale: Math.random() * 2 + 1
+                    };
+
+                    this.smoke.push(smoke);
+                    scene.add(smoke);
+                }
+            }
+
+            createIgnitionSparks(position) {
+                if (!effectsEnabled) return;
+
+                const sparkCount = 10;
+                for (let i = 0; i < sparkCount; i++) {
+                    const geometry = new THREE.SphereGeometry(0.01, 4, 4);
+                    const material = new THREE.MeshBasicMaterial({
+                        color: 0xff4500,
+                        emissive: 0xff4500
+                    });
+
+                    const spark = new THREE.Mesh(geometry, material);
+                    spark.position.copy(position);
+
+                    const speed = Math.random() * 5 + 2;
+                    const direction = new THREE.Vector3(
+                        (Math.random() - 0.5) * 2,
+                        Math.random() * 2,
+                        (Math.random() - 0.5) * 2
+                    ).normalize();
+
+                    spark.userData = {
+                        velocity: direction.multiplyScalar(speed),
+                        life: 0.5
+                    };
+
+                    this.sparks.push(spark);
+                    scene.add(spark);
+                }
+            }
+
+            createImpactEffect(position) {
+                // 地面冲击效果
+                const geometry = new THREE.RingGeometry(0.1, 0.5, 16);
+                const material = new THREE.MeshBasicMaterial({
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.8,
+                    side: THREE.DoubleSide
+                });
+
+                const impact = new THREE.Mesh(geometry, material);
+                impact.position.copy(position);
+                impact.position.y = 0.01;
+                impact.rotation.x = -Math.PI / 2;
+
+                impact.userData = {
+                    scale: 0.1,
+                    maxScale: 2,
+                    growthSpeed: 8,
+                    opacity: 0.8
+                };
+
+                this.shockwaves.push(impact);
+                scene.add(impact);
+            }
+
+            createScreenFlash() {
+                // 简单的屏幕闪白效果
+                const flash = document.createElement('div');
+                flash.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: white;
+                    opacity: 0.8;
+                    z-index: 9999;
+                    pointer-events: none;
+                `;
+                document.body.appendChild(flash);
+
+                setTimeout(() => {
+                    flash.style.transition = 'opacity 0.3s';
+                    flash.style.opacity = '0';
+                    setTimeout(() => document.body.removeChild(flash), 300);
+                }, 50);
+            }
+
+            update(deltaTime) {
+                // 更新碎片
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    const particle = this.particles[i];
+                    const data = particle.userData;
+
+                    // 应用重力
+                    data.velocity.y += data.gravity * deltaTime;
+
+                    // 更新位置
+                    particle.position.add(data.velocity.clone().multiplyScalar(deltaTime));
+
+                    // 更新旋转
+                    particle.rotation.x += data.rotationSpeed.x * deltaTime;
+                    particle.rotation.y += data.rotationSpeed.y * deltaTime;
+                    particle.rotation.z += data.rotationSpeed.z * deltaTime;
+
+                    // 地面碰撞
+                    if (particle.position.y <= 0.05) {
+                        particle.position.y = 0.05;
+                        data.velocity.y *= -0.3;
+                        data.velocity.x *= 0.8;
+                        data.velocity.z *= 0.8;
+                        data.rotationSpeed.multiplyScalar(0.7);
+                    }
+
+                    // 生命值递减
+                    data.life -= deltaTime * 0.3;
+
+                    if (data.life <= 0 || particle.position.y < -10) {
+                        scene.remove(particle);
+                        this.particles.splice(i, 1);
+                        stats.activeParticles--;
+                    }
+                }
+
+                // 更新冲击波
+                for (let i = this.shockwaves.length - 1; i >= 0; i--) {
+                    const shockwave = this.shockwaves[i];
+                    const data = shockwave.userData;
+
+                    data.scale += data.growthSpeed * deltaTime;
+                    shockwave.scale.setScalar(data.scale);
+
+                    data.opacity -= deltaTime * 1.5;
+                    shockwave.material.opacity = data.opacity;
+
+                    if (data.opacity <= 0 || data.scale >= data.maxScale) {
+                        scene.remove(shockwave);
+                        this.shockwaves.splice(i, 1);
+                    }
+                }
+
+                // 更新光源
+                for (let i = this.lights.length - 1; i >= 0; i--) {
+                    const light = this.lights[i];
+                    const data = light.userData;
+
+                    data.intensity -= data.decaySpeed * deltaTime;
+                    light.intensity = Math.max(0, data.intensity);
+
+                    data.life -= deltaTime;
+
+                    if (data.life <= 0 || data.intensity <= 0) {
+                        scene.remove(light);
+                        this.lights.splice(i, 1);
+                    }
+                }
+
+                // 更新火花
+                for (let i = this.sparks.length - 1; i >= 0; i--) {
+                    const spark = this.sparks[i];
+                    const data = spark.userData;
+
+                    // 应用重力
+                    data.velocity.y -= 9.8 * deltaTime;
+
+                    // 更新位置
+                    spark.position.add(data.velocity.clone().multiplyScalar(deltaTime));
+
+                    data.life -= deltaTime * 2;
+                    spark.material.opacity = data.life;
+
+                    if (data.life <= 0 || spark.position.y < 0) {
+                        scene.remove(spark);
+                        this.sparks.splice(i, 1);
+                        stats.activeParticles--;
+                    }
+                }
+
+                // 更新烟雾
+                for (let i = this.smoke.length - 1; i >= 0; i--) {
+                    const smoke = this.smoke[i];
+                    const data = smoke.userData;
+
+                    // 更新位置
+                    smoke.position.add(data.velocity.clone().multiplyScalar(deltaTime));
+
+                    // 缓慢上升和扩散
+                    data.velocity.y += 0.5 * deltaTime;
+                    data.velocity.multiplyScalar(0.98);
+
+                    // 增大尺寸
+                    const scale = 1 + (1 - data.life) * 0.5;
+                    smoke.scale.setScalar(scale * data.maxScale);
+
+                    data.life -= deltaTime * 0.2;
+                    smoke.material.opacity = data.life * 0.3;
+
+                    if (data.life <= 0) {
+                        scene.remove(smoke);
+                        this.smoke.splice(i, 1);
+                        stats.activeParticles--;
+                    }
+                }
+            }
+
+            dispose() {
+                // 清理所有粒子
+                [...this.particles, ...this.shockwaves, ...this.lights, ...this.sparks, ...this.smoke].forEach(obj => {
+                    if (obj.parent) {
+                        scene.remove(obj);
+                    }
+                });
+
+                this.particles = [];
+                this.shockwaves = [];
+                this.lights = [];
+                this.sparks = [];
+                this.smoke = [];
+            }
+        }
+
+        // 连锁反应管理器类
+        class ChainReactionManager {
+            constructor() {
+                this.pendingIgnitions = [];
+                this.isChainActive = false;
+            }
+
+            triggerChainReaction(explosionPosition, sourceId) {
+                const fireRange = 3; // 火光范围半径
+
+                // 查找范围内的未爆炸鞭炮
+                firecrackers.forEach(firecracker => {
+                    if (firecracker.id === sourceId || firecracker.isExploded || firecracker.isLit) {
+                        return;
+                    }
+
+                    const distance = firecracker.position.distanceTo(explosionPosition);
+                    if (distance <= fireRange) {
+                        // 计算延迟时间（0.1-0.3秒随机延迟）
+                        const delay = 100 + Math.random() * (config.chainDelay - 100);
+
+                        this.scheduleIgnition(firecracker, delay);
+                    }
+                });
+
+                if (this.pendingIgnitions.length > 0) {
+                    this.isChainActive = true;
+                    stats.chainActive = true;
+                    updateStats();
+                }
+            }
+
+            scheduleIgnition(firecracker, delay) {
+                const ignition = {
+                    firecracker: firecracker,
+                    time: Date.now() + delay
+                };
+
+                this.pendingIgnitions.push(ignition);
+            }
+
+            update() {
+                const currentTime = Date.now();
+
+                for (let i = this.pendingIgnitions.length - 1; i >= 0; i--) {
+                    const ignition = this.pendingIgnitions[i];
+
+                    if (currentTime >= ignition.time) {
+                        ignition.firecracker.ignite();
+                        this.pendingIgnitions.splice(i, 1);
+                    }
+                }
+
+                // 检查连锁反应是否结束
+                if (this.isChainActive && this.pendingIgnitions.length === 0) {
+                    // 延迟一点时间再标记为结束，确保所有爆炸都完成
+                    setTimeout(() => {
+                        if (this.pendingIgnitions.length === 0) {
+                            this.isChainActive = false;
+                            stats.chainActive = false;
+                            updateStats();
+
+                            // 检查是否所有鞭炮都已爆炸
+                            if (stats.remainingCount === 0) {
+                                onAllFirecrackersExploded();
+                            }
+                        }
+                    }, 1000);
+                }
+            }
+
+            reset() {
+                this.pendingIgnitions = [];
+                this.isChainActive = false;
+                stats.chainActive = false;
+            }
+        }
+
+        // 初始化场景
+        function init() {
+            createScene();
+            createLights();
+            createGround();
+            createGlassBox();
+            createFirecrackers();
+            setupEventListeners();
+
+            // 初始化系统
+            explosionSystem = new ExplosionSystem();
+            chainReactionManager = new ChainReactionManager();
+
+            // 开始渲染循环
+            animate();
+
+            // 隐藏加载界面
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('stats').style.display = 'block';
+                updateStats();
+            }, 2000);
+        }
+
+        function createScene() {
+            // 场景设置
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87ceeb);
+            scene.fog = new THREE.Fog(0x87ceeb, 100, 500);
+
+            // 相机设置 - 45度斜角俯视，距离箱子约15单位
+            const aspect = window.innerWidth / window.innerHeight;
+            camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000);
+
+            updateCameraPosition();
+
+            // 渲染器设置
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.2;
+            document.getElementById('container').appendChild(renderer.domElement);
+
+            // 鼠标控制
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+        }
+
+        function updateCameraPosition() {
+            switch (config.cameraAngle) {
+                case 'default':
+                    // 斜45度角俯视，距离箱子约15单位
+                    camera.position.set(15, 20, 15);
+                    camera.lookAt(0, 4, 0);
+                    break;
+                case 'close':
+                    camera.position.set(8, 12, 8);
+                    camera.lookAt(0, 4, 0);
+                    break;
+                case 'side':
+                    camera.position.set(20, 10, 0);
+                    camera.lookAt(0, 4, 0);
+                    break;
+                case 'top':
+                    camera.position.set(0, 30, 10);
+                    camera.lookAt(0, 4, 0);
+                    break;
+            }
+        }
+
+        function createLights() {
+            // 主光源 - 45度角的定向光
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
+            directionalLight.position.set(50, 80, 50);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            directionalLight.shadow.camera.near = 0.5;
+            directionalLight.shadow.camera.far = 200;
+            directionalLight.shadow.camera.left = -50;
+            directionalLight.shadow.camera.right = 50;
+            directionalLight.shadow.camera.top = 50;
+            directionalLight.shadow.camera.bottom = -50;
+            scene.add(directionalLight);
+
+            // 环境光 - 强度0.4
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+            scene.add(ambientLight);
+        }
+
+        function createGround() {
+            const geometry = new THREE.PlaneGeometry(1000, 1000);
+            const material = new THREE.MeshStandardMaterial({
+                color: 0x808080,
+                roughness: 0.8,
+                metalness: 0.1
+            });
+
+            ground = new THREE.Mesh(geometry, material);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+
+            // 添加网格辅助
+            const gridHelper = new THREE.GridHelper(1000, 100, 0x666666, 0x999999);
+            scene.add(gridHelper);
+        }
+
+        function createGlassBox() {
+            const boxGroup = new THREE.Group();
+
+            // 玻璃材质
+            const glassMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.15,
+                roughness: 0.1,
+                metalness: 0,
+                clearcoat: 1.0,
+                clearcoatRoughness: 0.0
+            });
+
+            // 箱子尺寸：10×10×8
+            const thickness = 0.1;
+
+            // 底面
+            const bottomGeometry = new THREE.BoxGeometry(10, thickness, 10);
+            const bottom = new THREE.Mesh(bottomGeometry, glassMaterial);
+            bottom.position.y = 0;
+            bottom.receiveShadow = true;
+            boxGroup.add(bottom);
+
+            // 四个侧面
+            const sideGeometry = new THREE.BoxGeometry(thickness, 8, 10);
+
+            // 前面
+            const front = new THREE.Mesh(sideGeometry, glassMaterial);
+            front.position.set(5, 4, 0);
+            front.receiveShadow = true;
+            boxGroup.add(front);
+
+            // 后面
+            const back = new THREE.Mesh(sideGeometry, glassMaterial);
+            back.position.set(-5, 4, 0);
+            back.receiveShadow = true;
+            boxGroup.add(back);
+
+            // 左面
+            const left = new THREE.Mesh(sideGeometry, glassMaterial);
+            left.position.set(0, 4, -5);
+            left.rotation.y = Math.PI / 2;
+            left.receiveShadow = true;
+            boxGroup.add(left);
+
+            // 右面
+            const right = new THREE.Mesh(sideGeometry, glassMaterial);
+            right.position.set(0, 4, 5);
+            right.rotation.y = Math.PI / 2;
+            right.receiveShadow = true;
+            boxGroup.add(right);
+
+            // 位置：放置在平面中心偏后的位置
+            boxGroup.position.set(0, 0, -5);
+
+            glassBox = boxGroup;
+            scene.add(glassBox);
+        }
+
+        function createFirecrackers() {
+            firecrackers = [];
+            let firecrackerId = 0;
+
+            // 从箱子上方5个单位高度处生成鞭炮
+            const spawnHeight = 13; // 箱子顶部高度8 + 5
+            const groupSize = 10;
+            const totalGroups = 10;
+
+            for (let group = 0; group < totalGroups; group++) {
+                for (let i = 0; i < groupSize; i++) {
+                    // 随机位置
+                    const x = (Math.random() - 0.5) * 8; // 箱子内部范围
+                    const z = (Math.random() - 0.5) * 8;
+                    const y = spawnHeight + Math.random() * 2;
+
+                    const position = new THREE.Vector3(x, y, z - 5); // 箱子位置偏移-5
+
+                    const firecracker = new Firecracker(position, firecrackerId++);
+                    firecrackers.push(firecracker);
+                }
+            }
+
+            stats.totalFirecrackers = firecrackers.length;
+            stats.remainingCount = firecrackers.length;
+        }
+
+        function startFireworks() {
+            if (isAnimating) return;
+
+            isAnimating = true;
+            updateStatus('燃放进行中...', 'active');
+            document.getElementById('startButton').disabled = true;
+            document.getElementById('startFireworks').disabled = true;
+
+            // 投掷一个已点燃的鞭炮
+            const litFirecracker = new Firecracker(new THREE.Vector3(0, 25, 0), -1);
+            litFirecracker.ignite();
+            firecrackers.push(litFirecracker);
+
+            // 抛物线轨迹落入箱子
+            litFirecracker.eject(8, new THREE.Vector3(0, -1, 0.5));
+        }
+
+        function resetScene() {
+            isAnimating = false;
+            singleDetonationMode = false;
+
+            // 清理所有鞭炮
+            firecrackers.forEach(firecracker => firecracker.dispose());
+            firecrackers = [];
+
+            // 清理爆炸系统
+            explosionSystem.dispose();
+
+            // 重置连锁反应管理器
+            chainReactionManager.reset();
+
+            // 重新创建鞭炮
+            createFirecrackers();
+
+            // 重置统计
+            stats.explodedCount = 0;
+            stats.remainingCount = stats.totalFirecrackers;
+            stats.activeParticles = 0;
+            stats.chainActive = false;
+
+            updateStatus('场景已重置');
+            document.getElementById('startButton').disabled = false;
+            document.getElementById('startFireworks').disabled = false;
+            document.getElementById('modeIndicator').classList.remove('active');
+
+            updateStats();
+        }
+
+        function toggleSingleDetonation() {
+            singleDetonationMode = !singleDetonationMode;
+            document.getElementById('modeIndicator').classList.toggle('active', singleDetonationMode);
+            document.getElementById('singleDetonation').textContent =
+                singleDetonationMode ? '退出单个引爆' : '💥 单个引爆模式';
+
+            updateStatus(singleDetonationMode ? '单个引爆模式已激活' : '单个引爆模式已关闭');
+        }
+
+        function onAllFirecrackersExploded() {
+            isAnimating = false;
+            updateStatus('燃放完成！', 'success');
+
+            setTimeout(() => {
+                document.getElementById('startButton').disabled = false;
+                document.getElementById('startFireworks').disabled = false;
+                updateStatus('准备就绪');
+            }, 3000);
+        }
+
+        function setupEventListeners() {
+            document.getElementById('startButton').addEventListener('click', startFireworks);
+            document.getElementById('startFireworks').addEventListener('click', startFireworks);
+            document.getElementById('resetScene').addEventListener('click', resetScene);
+            document.getElementById('singleDetonation').addEventListener('click', toggleSingleDetonation);
+
+            // 参数控制
+            document.getElementById('explosionPower').addEventListener('input', (e) => {
+                config.explosionPower = parseInt(e.target.value) / 100;
+                document.getElementById('powerValue').textContent = e.target.value;
+            });
+
+            document.getElementById('chainDelay').addEventListener('input', (e) => {
+                config.chainDelay = parseInt(e.target.value);
+                document.getElementById('delayValue').textContent = e.target.value;
+            });
+
+            document.getElementById('particleCount').addEventListener('input', (e) => {
+                config.particleCount = parseInt(e.target.value);
+                document.getElementById('particleValue').textContent = e.target.value;
+            });
+
+            document.getElementById('toggleEffects').addEventListener('click', () => {
+                effectsEnabled = !effectsEnabled;
+                updateStatus(effectsEnabled ? '特效已启用' : '特效已禁用');
+            });
+
+            document.getElementById('toggleSound').addEventListener('click', () => {
+                soundEnabled = !soundEnabled;
+                updateStatus(soundEnabled ? '音效已启用' : '音效已禁用');
+            });
+
+            document.getElementById('toggleCamera').addEventListener('click', () => {
+                const angles = ['default', 'close', 'side', 'top'];
+                const currentIndex = angles.indexOf(config.cameraAngle);
+                config.cameraAngle = angles[(currentIndex + 1) % angles.length];
+                updateCameraPosition();
+                updateStatus(`视角: ${config.cameraAngle}`);
+            });
+
+            // 鼠标点击事件（单个引爆模式）
+            renderer.domElement.addEventListener('click', (event) => {
+                if (!singleDetonationMode) return;
+
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                raycaster.setFromCamera(mouse, camera);
+
+                // 检测点击的鞭炮
+                const intersects = [];
+                firecrackers.forEach(firecracker => {
+                    if (!firecracker.isExploded && !firecracker.isLit) {
+                        const distance = raycaster.ray.distanceToPoint(firecracker.position);
+                        if (distance < 1) {
+                            intersects.push({ distance, object: firecracker.group });
+                        }
+                    }
+                });
+
+                if (intersects.length > 0) {
+                    intersects.sort((a, b) => a.distance - b.distance);
+                    const clickedFirecracker = firecrackers.find(f => f.group === intersects[0].object);
+                    if (clickedFirecracker) {
+                        clickedFirecracker.ignite();
+                        updateStatus('已点燃选中的鞭炮');
+                    }
+                }
+            });
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function updateStatus(message, type = '') {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.className = 'status ' + type;
+        }
+
+        function updateStats() {
+            document.getElementById('remainingFirecrackers').textContent = stats.remainingCount;
+            document.getElementById('explodedCount').textContent = stats.explodedCount;
+            document.getElementById('chainActive').textContent = stats.chainActive ? '是' : '否';
+            document.getElementById('activeParticles').textContent = stats.activeParticles;
+
+            const progress = stats.totalFirecrackers > 0 ?
+                ((stats.explodedCount / stats.totalFirecrackers) * 100) : 0;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // 性能监控
+        let lastTime = performance.now();
+        let frameCount = 0;
+        let fps = 60;
+
+        function updateFPS() {
+            frameCount++;
+            const currentTime = performance.now();
+
+            if (currentTime >= lastTime + 1000) {
+                fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                frameCount = 0;
+                lastTime = currentTime;
+                document.getElementById('fps').textContent = fps;
+            }
+        }
+
+        // 动画循环
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const deltaTime = 0.016;
+
+            // 更新鞭炮
+            firecrackers.forEach(firecracker => firecracker.update(deltaTime));
+
+            // 更新爆炸系统
+            if (explosionSystem) {
+                explosionSystem.update(deltaTime);
+            }
+
+            // 更新连锁反应
+            if (chainReactionManager) {
+                chainReactionManager.update();
+            }
+
+            // 更新FPS
+            updateFPS();
+
+            // 渲染
+            renderer.render(scene, camera);
+        }
+
+        // 初始化应用
+        init();
+    </script>
+</body>
+</html>
