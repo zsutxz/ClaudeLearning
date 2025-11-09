@@ -19,7 +19,7 @@ The Build Workflow is an interactive workflow builder that guides you through cr
 ### Basic Invocation
 
 ```bash
-workflow build-workflow
+workflow create-workflow
 ```
 
 ### Through BMad Builder Agent
@@ -42,7 +42,7 @@ workflow build-workflow
 ### Files Included
 
 ```
-build-workflow/
+create-workflow/
 ├── workflow.yaml                  # Configuration and metadata
 ├── instructions.md                # Step-by-step execution guide
 ├── checklist.md                   # Validation criteria
@@ -55,6 +55,67 @@ build-workflow/
     ├── checklist.md
     └── README.md
 ```
+
+## Understanding Instruction Styles
+
+One of the most important decisions when creating a workflow is choosing the **instruction style** - how the workflow guides the AI's interaction with users.
+
+### Intent-Based vs Prescriptive Instructions
+
+**Intent-Based (Recommended for most workflows)**
+
+Guides the LLM with goals and principles, allowing natural conversation adaptation.
+
+- **More flexible and conversational** - AI adapts questions to context
+- **Better for complex discovery** - Requirements gathering, creative exploration
+- **Quality over consistency** - Focus on deep understanding
+- **Example**: `<action>Guide user to define their target audience with specific demographics and needs</action>`
+
+**Best for:**
+
+- Complex discovery processes (user research, requirements)
+- Creative brainstorming and ideation
+- Iterative refinement workflows
+- When adaptation to context matters
+- Workflows requiring nuanced understanding
+
+**Prescriptive**
+
+Provides exact wording for questions and structured options.
+
+- **More controlled and predictable** - Same questions every time
+- **Better for simple data collection** - Platform choices, yes/no decisions
+- **Consistency over quality** - Standardized execution
+- **Example**: `<ask>What is your target platform? Choose: PC, Console, Mobile, Web</ask>`
+
+**Best for:**
+
+- Simple data collection (platform, format, binary choices)
+- Compliance verification and standards
+- Configuration with finite options
+- Quick setup wizards
+- When consistency is critical
+
+### Best Practice: Mix Both Styles
+
+The most effective workflows use **both styles strategically**:
+
+```xml
+<!-- Intent-based workflow with prescriptive moments -->
+<step n="1" goal="Understand user vision">
+  <action>Explore the user's vision, uncovering creative intent and target experience</action>
+</step>
+
+<step n="2" goal="Capture basic metadata">
+  <ask>What is your target platform? Choose: PC, Console, Mobile, Web</ask>
+</step>
+
+<step n="3" goal="Deep dive into details">
+  <action>Guide user to articulate their core approach and unique aspects</action>
+</step>
+```
+
+**During workflow creation**, you'll be asked to choose a **primary style preference** - this sets the default approach, but you can (and should) use the other style when it makes more sense for specific steps.
 
 ## Workflow Process
 
@@ -87,7 +148,7 @@ The brainstorming phase invokes the CIS brainstorming workflow to:
 - Generate validation checklist
 - Create supporting data files (optional)
 
-### Phase 3: Documentation & Validation (Steps 9-11)
+### Phase 3: Documentation and Validation (Steps 9-11)
 
 - Create comprehensive README.md (MANDATORY)
 - Test and validate workflow structure
@@ -142,7 +203,7 @@ For document workflows, the README documents:
 
 ### Creative Workflow Design
 
-The build-workflow now supports a **seamless transition from creative ideation to structured implementation**:
+The create-workflow now supports a **seamless transition from creative ideation to structured implementation**:
 
 - **"I need a workflow for something..."** → Start with brainstorming to explore possibilities
 - **Brainstorm** → Generate multiple approaches and clarify requirements
@@ -197,7 +258,7 @@ To modify this workflow:
   - Enhanced validation for documentation
   - Improved Step 10 with detailed README requirements
 
-- **v5.0.0** - Initial BMAD Core v6 compatible version
+- **v6.0.0** - Initial BMAD Core v6 compatible version
   - Template-based workflow generation
   - Convention enforcement
   - Validation checklist support
@@ -206,9 +267,9 @@ To modify this workflow:
 
 For issues or questions:
 
-- Review `/bmad/bmb/workflows/build-workflow/workflow-creation-guide.md`
+- Review `/bmad/bmb/workflows/create-workflow/workflow-creation-guide.md`
 - Check existing workflows in `/bmad/bmm/workflows/` for examples
-- Validate against `/bmad/bmb/workflows/build-workflow/checklist.md`
+- Validate against `/bmad/bmb/workflows/create-workflow/checklist.md`
 - Consult BMAD Method v6 documentation
 
 ---

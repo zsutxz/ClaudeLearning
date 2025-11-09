@@ -9,26 +9,30 @@ A BMAD module is a self-contained package of agents, workflows, tasks, and resou
 ### Core Structure
 
 ```
-project-root/
-├── bmad/{module-code}/     # Source code
-│   ├── agents/                    # Agent definitions
-│   ├── workflows/                 # Workflow folders
-│   ├── tasks/                     # Task files
-│   ├── templates/                 # Shared templates
-│   ├── data/                      # Static data
-│   ├── config.yaml                # Module config
-│   └── README.md                  # Documentation
-│
-└── bmad/{module-code}/            # Runtime instance
-    ├── _module-installer/         # Installation files
-    │   ├── install-module-config.yaml
-    │   ├── installer.js          # Optional
-    │   └── assets/               # Install assets
-    ├── config.yaml               # User config
-    ├── agents/                   # Agent overrides
-    ├── workflows/                # Workflow instances
-    └── data/                     # User data
+# SOURCE MODULE (in BMAD-METHOD project)
+src/modules/{module-code}/
+├── agents/                        # Agent definitions (.agent.yaml)
+├── workflows/                     # Workflow folders
+├── tasks/                         # Task files
+├── tools/                         # Tool files
+├── templates/                     # Shared templates
+├── data/                          # Static data
+├── _module-installer/             # Installation configuration
+│   ├── install-config.yaml  # Installation questions & config
+│   ├── installer.js              # Optional custom install logic
+│   └── assets/                   # Files to copy during install
+└── README.md                      # Module documentation
 
+# INSTALLED MODULE (in target project)
+{project-root}/bmad/{module-code}/
+├── agents/                        # Compiled agent files (.md)
+├── workflows/                     # Workflow instances
+├── tasks/                         # Task files
+├── tools/                         # Tool files
+├── templates/                     # Templates
+├── data/                          # Module data
+├── config.yaml                    # Generated from install-config.yaml
+└── README.md                      # Module documentation
 ```
 
 ## Module Types by Complexity
@@ -132,43 +136,129 @@ Tasks should be used for:
 - Declare dependencies in config.yaml
 - Version compatibility notes
 
-## Installation Infrastructure
+### Workflow Vendoring (Advanced)
 
-### Required: install-module-config.yaml
+For modules that need workflows from other modules but want to remain standalone, use **workflow vendoring**:
+
+**In Agent YAML:**
 
 ```yaml
-module_name: 'Module Name'
-module_code: 'module-code'
-
-install_steps:
-  - name: 'Create directories'
-    action: 'mkdir'
-    paths: [...]
-
-  - name: 'Copy files'
-    action: 'copy'
-    mappings: [...]
-
-  - name: 'Register module'
-    action: 'register'
+menu:
+  - trigger: command-name
+    workflow: '{project-root}/bmad/SOURCE_MODULE/workflows/path/workflow.yaml'
+    workflow-install: '{project-root}/bmad/THIS_MODULE/workflows/vendored/workflow.yaml'
+    description: 'Command description'
 ```
 
-### Optional: installer.js
+**What Happens:**
 
-For complex installations requiring:
+- During installation, workflows are copied from `workflow` to `workflow-install` location
+- Vendored workflows get `config_source` updated to reference this module's config
+- Compiled agent only references the `workflow-install` path
+- Module becomes fully standalone - no source module dependency required
 
-- Database setup
-- API configuration
-- System integration
-- Permission management
+**Use Cases:**
 
-### Optional: External Assets
+- Specialized modules that reuse common workflows with different configs
+- Domain-specific adaptations (e.g., game dev using standard dev workflows)
+- Testing workflows in isolation
 
-Files that get copied outside the module:
+**Benefits:**
 
-- System configurations
-- User templates
-- Shared resources
+- Module independence (no forced dependencies)
+- Clean namespace (workflows in your module)
+- Config isolation (use your module's settings)
+- Customization ready (modify vendored workflows freely)
+
+## Installation Infrastructure
+
+### Required: \_module-installer/install-config.yaml
+
+This file defines both installation questions AND static configuration values:
+
+```yaml
+# Module metadata
+code: module-code
+name: 'Module Name'
+default_selected: false
+
+# Welcome message during installation
+prompt:
+  - 'Welcome to Module Name!'
+  - 'Brief description here'
+
+# Core values automatically inherited from installer:
+## user_name
+## communication_language
+## document_output_language
+## output_folder
+
+# INTERACTIVE fields (ask user during install)
+output_location:
+  prompt: 'Where should module outputs be saved?'
+  default: 'output/module-code'
+  result: '{project-root}/{value}'
+
+feature_level:
+  prompt: 'Which feature set?'
+  default: 'standard'
+  result: '{value}'
+  single-select:
+    - value: 'basic'
+      label: 'Basic - Core features only'
+    - value: 'standard'
+      label: 'Standard - Recommended features'
+    - value: 'advanced'
+      label: 'Advanced - All features'
+
+# STATIC fields (no prompt, just hardcoded values)
+module_version:
+  result: '1.0.0'
+
+data_path:
+  result: '{project-root}/bmad/module-code/data'
+```
+
+**Key Points:**
+
+- File is named `install-config.yaml` (NOT install-config.yaml)
+- Supports both interactive prompts and static values
+- `result` field uses placeholders: `{value}`, `{project-root}`, `{directory_name}`
+- Installer generates final `config.yaml` from this template
+
+### Optional: \_module-installer/installer.js
+
+For complex installations requiring custom logic:
+
+```javascript
+/**
+ * @param {Object} options - Installation options
+ * @param {string} options.projectRoot - Target project directory
+ * @param {Object} options.config - Config from install-config.yaml
+ * @param {Array} options.installedIDEs - IDEs being configured
+ * @param {Object} options.logger - Logger (log, warn, error)
+ * @returns {boolean} - true if successful
+ */
+async function install(options) {
+  // Custom installation logic here
+  // - Database setup
+  // - API configuration
+  // - External downloads
+  // - Integration setup
+
+  return true;
+}
+
+module.exports = { install };
+```
+
+### Optional: \_module-installer/assets/
+
+Files to copy during installation:
+
+- External configurations
+- Documentation
+- Example files
 - Integration scripts
 
 ## Module Lifecycle

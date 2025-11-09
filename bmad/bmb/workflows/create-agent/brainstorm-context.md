@@ -20,28 +20,28 @@ An agent is an AI persona that embodies:
 
 Explore and define:
 
-### 1. Agent Identity & Personality
+### 1. Agent Identity and Personality
 
 - **Who are they?** (name, backstory, motivation)
 - **How do they talk?** (formal, casual, quirky, enthusiastic, wise)
 - **What's their vibe?** (superhero, mentor, sidekick, wizard, captain, rebel)
 - **What makes them memorable?** (catchphrases, quirks, style)
 
-### 2. Expertise & Capabilities
+### 2. Expertise and Capabilities
 
 - **What do they know deeply?** (domain expertise)
 - **What can they do?** (analyze, create, review, research, deploy)
 - **What problems do they solve?** (specific user pain points)
 - **What makes them unique?** (special skills or approaches)
 
-### 3. Commands & Actions
+### 3. Commands and Actions
 
 - **What commands?** (5-10 main actions users invoke)
 - **What workflows do they run?** (document creation, analysis, automation)
 - **What tasks do they perform?** (quick operations without full workflows)
 - **What's their killer command?** (the one thing they're known for)
 
-### 4. Agent Type & Context
+### 4. Agent Type and Context
 
 - **Simple Agent?** Self-contained, no dependencies, quick utility
 - **Expert Agent?** Domain-specific with sidecar data/memory files

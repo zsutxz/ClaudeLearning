@@ -1,10 +1,13 @@
 # ReDoc Workflow Instructions
 
-<workflow>
-
-<critical>The workflow execution engine is governed by: {project_root}/bmad/core/tasks/workflow.md</critical>
-<critical>You MUST have already loaded and processed: {project_root}/src/modules/bmb/workflows/redoc/workflow.yaml</critical>
+<critical>The workflow execution engine is governed by: {project-root}/bmad/core/tasks/workflow.xml</critical>
+<critical>You MUST have already loaded and processed: {project-root}/src/modules/bmb/workflows/redoc/workflow.yaml</critical>
+<critical>Communicate in {communication_language} throughout the documentation process</critical>
 <critical>This is an AUTONOMOUS workflow - minimize user interaction unless clarification is absolutely required</critical>
+<critical>IMPORTANT: Process ONE document at a time to avoid token limits. Each README should be created individually, not batched.</critical>
+<critical>When using Task tool with sub-agents: Only request ONE workflow or agent documentation per invocation to prevent token overflow.</critical>
+
+<workflow>
 
 <step n="1" goal="Load BMAD conventions and initialize">
 <action>Load ALL BMAD convention documents from {bmad_conventions}:
@@ -69,7 +72,11 @@
 </step>
 
 <step n="3" goal="Process leaf-level documentation" repeat="for-each-leaf-item">
-<action>For each individual workflow folder in execution plan:
+<critical>TOKEN LIMIT WARNING: Process ONE item at a time to prevent token overflow issues.</critical>
+<critical>If using Task tool with sub-agents: NEVER batch multiple workflows/agents in a single invocation.</critical>
+<critical>Each README creation should be a separate operation with its own file save.</critical>
+<critical>Sequential processing is MANDATORY - do not attempt parallel documentation generation.</critical>
+<action>For each individual workflow folder in execution plan (PROCESS ONE AT A TIME):
 1. Read ALL files completely:
    - workflow.yaml (metadata, purpose, configuration)
    - instructions.md (step structure, goals)
@@ -94,9 +101,11 @@
    - Focus on DISTINCTIVE features, not boilerplate
 
 4. Save README.md to workflow folder
-   </action>
 
-<action>For each individual agent file in execution plan:
+<critical>If multiple workflows need documentation, process them SEQUENTIALLY not in parallel. Each workflow gets its own complete processing cycle.</critical>
+</action>
+
+<action>For each individual agent file in execution plan (PROCESS ONE AT A TIME):
 
 1. Read agent definition file completely:
    - XML structure and metadata
@@ -121,7 +130,7 @@
 4. Save README.md
    </action>
 
-<check>If clarification needed about purpose or unique features → Ask user briefly, then continue</check>
+<action if="clarification needed about purpose or unique features">Ask user briefly, then continue</action>
 </step>
 
 <step n="4" goal="Process mid-level folder documentation" if="target_type requires folder docs">
@@ -229,6 +238,7 @@
 - Any catalog files created
 - Files skipped or requiring manual review (if any)
 - Coverage: X% of items documented
+- Processing notes: Confirm sequential processing was used to avoid token limits
   </action>
 
 <action>Display summary to user</action>
@@ -247,9 +257,9 @@ For each README with last-redoc-date frontmatter:
 </step>
 
 <step n="8" goal="Completion">
-<action>Confirm autonomous workflow execution complete</action>
+<action>Confirm to {user_name} in {communication_language} that autonomous workflow execution is complete</action>
 <action>Provide path to all updated documentation</action>
-<action>Suggest next steps if needed (e.g., "Run redoc on parent module to update references")</action>
+<action>Suggest next steps if needed</action>
 </step>
 
 </workflow>

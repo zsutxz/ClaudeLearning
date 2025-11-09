@@ -144,7 +144,7 @@ How we'll know the module is successful:
 **Deliverables:**
 {{phase2_deliverables}}
 
-### Phase 3: Polish & Optimization
+### Phase 3: Polish and Optimization
 
 **Timeline:** {{phase3_timeline}}
 
@@ -161,11 +161,11 @@ How we'll know the module is successful:
 
 {{creative_features}}
 
-### Easter Eggs & Delighters
+### Easter Eggs and Delighters
 
 {{easter_eggs}}
 
-### Module Lore & Theming
+### Module Lore and Theming
 
 {{module_lore}}
 
@@ -209,7 +209,7 @@ How we'll know the module is successful:
 
 ---
 
-## Resources & References
+## Resources and References
 
 ### Inspiration Sources
 
@@ -235,7 +235,7 @@ How we'll know the module is successful:
 
 {{detailed_workflow_specs}}
 
-### C. Data Structures & Schemas
+### C. Data Structures and Schemas
 
 {{data_schemas}}
 
@@ -248,14 +248,14 @@ How we'll know the module is successful:
 ## Next Steps
 
 1. **Review this brief** with stakeholders
-2. **Run build-module workflow** using this brief as input
-3. **Create first agent** using build-agent workflow
-4. **Develop initial workflows** using build-workflow
+2. **Run create-module workflow** using this brief as input
+3. **Create first agent** using create-agent workflow
+4. **Develop initial workflows** using create-workflow
 5. **Test MVP** with target users
 
 ---
 
-_This Module Brief is ready to be fed directly into the build-module workflow for scaffolding and implementation._
+_This Module Brief is ready to be fed directly into the create-module workflow for scaffolding and implementation._
 
 **Module Viability Score:** {{viability_score}}/10
 **Estimated Development Effort:** {{effort_estimate}}

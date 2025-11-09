@@ -17,7 +17,7 @@ validation-rules:
 - [ ] All tasks and subtasks for this story are marked complete with [x]
 - [ ] Implementation aligns with every Acceptance Criterion in the story
 
-## Tests & Quality
+## Tests and Quality
 
 - [ ] Unit tests added/updated for core functionality changed by this story
 - [ ] Integration tests added/updated when component interactions are affected

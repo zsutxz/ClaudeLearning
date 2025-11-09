@@ -30,7 +30,7 @@ When Claude Code is selected during BMAD installation:
 | **epic-optimizer**       | Story breakdown and sizing               | PM Agent   | Epic details, story sequencing                |
 | **document-reviewer**    | Quality checks and validation            | PM/Analyst | Final document review before delivery         |
 
-### Architecture & Documentation Subagents
+### Architecture and Documentation Subagents
 
 | Subagent                   | Purpose                                   | Used By   | Recommended For                                |
 | -------------------------- | ----------------------------------------- | --------- | ---------------------------------------------- |

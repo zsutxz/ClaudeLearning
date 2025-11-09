@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Module Brief workflow creates comprehensive blueprints for building new BMAD modules using strategic analysis and creative vision. It serves as the essential planning phase that transforms initial ideas into detailed, actionable specifications ready for implementation with the build-module workflow.
+The Module Brief workflow creates comprehensive blueprints for building new BMAD modules using strategic analysis and creative vision. It serves as the essential planning phase that transforms initial ideas into detailed, actionable specifications ready for implementation with the create-module workflow.
 
 ## Key Features
 
@@ -61,9 +61,9 @@ module-brief/
 
 ## Workflow Process
 
-### Phase 1: Foundation & Context (Steps 1-3)
+### Phase 1: Foundation and Context (Steps 1-3)
 
-**Mode Selection & Input Gathering**
+**Mode Selection and Input Gathering**
 
 - Choose operational mode (Interactive, Express, YOLO)
 - Check for and optionally load existing brainstorming results
@@ -101,7 +101,7 @@ module-brief/
 - Define input-process-output flows for each workflow
 - Assess complexity levels and implementation priorities
 
-### Phase 3: Validation & User Experience (Steps 6-7)
+### Phase 3: Validation and User Experience (Steps 6-7)
 
 **User Journey Mapping**
 
@@ -110,7 +110,7 @@ module-brief/
 - Validate end-to-end functionality and value delivery
 - Identify potential friction points and optimization opportunities
 
-**Technical Planning & Requirements**
+**Technical Planning and Requirements**
 
 - Assess data requirements and storage needs
 - Map integration points with other modules and external systems
@@ -133,27 +133,27 @@ module-brief/
 - Prioritize features and capabilities by value and complexity
 - Create clear milestones and success checkpoints
 
-### Phase 5: Enhancement & Risk Management (Steps 10-12)
+### Phase 5: Enhancement and Risk Management (Steps 10-12)
 
-**Creative Features & Special Touches** (Optional)
+**Creative Features and Special Touches** (Optional)
 
 - Design easter eggs and delightful user interactions
 - Plan module lore and thematic consistency
 - Add personality quirks and creative responses
 - Develop backstories and universe building
 
-**Risk Assessment & Mitigation**
+**Risk Assessment and Mitigation**
 
 - Identify technical, usability, and scope risks
 - Develop mitigation strategies for each risk category
 - Plan contingency approaches for potential challenges
 - Document decision points and alternative paths
 
-**Final Review & Export Preparation**
+**Final Review and Export Preparation**
 
 - Comprehensive review of all brief sections
 - Validation against quality and completeness criteria
-- Preparation for seamless handoff to build-module workflow
+- Preparation for seamless handoff to create-module workflow
 - Export readiness confirmation with actionable specifications
 
 ## Output
@@ -161,7 +161,7 @@ module-brief/
 ### Generated Files
 
 - **Module Brief Document**: Comprehensive planning document at `{output_folder}/module-brief-{module_code}-{date}.md`
-- **Strategic Specifications**: Ready-to-implement blueprint for build-module workflow
+- **Strategic Specifications**: Ready-to-implement blueprint for create-module workflow
 
 ### Output Structure
 
@@ -178,7 +178,7 @@ The module brief contains detailed specifications across multiple sections:
 9. **Creative Features** - Special touches, easter eggs, module lore
 10. **Risk Assessment** - Technical, usability, scope risks with mitigation
 11. **Implementation Notes** - Priority order, design decisions, open questions
-12. **Resources & References** - Inspiration sources, similar modules, technical references
+12. **Resources and References** - Inspiration sources, similar modules, technical references
 
 ## Requirements
 
@@ -203,7 +203,7 @@ The module brief contains detailed specifications across multiple sections:
 
 ### After Completion
 
-1. **Use as Blueprint** - Feed the brief directly into build-module workflow for implementation
+1. **Use as Blueprint** - Feed the brief directly into create-module workflow for implementation
 2. **Review with Stakeholders** - Validate assumptions and gather feedback before building
 3. **Update as Needed** - Treat as living document that evolves with implementation learnings
 4. **Reference During Development** - Use as north star for design decisions and scope management
@@ -254,11 +254,11 @@ To customize this workflow:
 
 For issues or questions:
 
-- Review the workflow creation guide at `/bmad/bmb/workflows/build-workflow/workflow-creation-guide.md`
+- Review the workflow creation guide at `/bmad/bmb/workflows/create-workflow/workflow-creation-guide.md`
 - Study existing module examples in `/bmad/` for patterns and inspiration
 - Validate output using `checklist.md`
-- Consult module structure guide at `build-module/module-structure.md`
+- Consult module structure guide at `create-module/module-structure.md`
 
 ---
 
-_Part of the BMad Method v5 - BMB (Builder) Module_
+_Part of the BMad Method v6 - BMB (Builder) Module_

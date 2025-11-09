@@ -6,13 +6,13 @@ This context guide provides project-specific considerations for brainstorming se
 
 When brainstorming for projects, consider exploring:
 
-- **User Problems & Pain Points** - What challenges do users face?
-- **Feature Ideas & Capabilities** - What could the product do?
+- **User Problems and Pain Points** - What challenges do users face?
+- **Feature Ideas and Capabilities** - What could the product do?
 - **Technical Approaches** - How might we build it?
 - **User Experience** - How will users interact with it?
-- **Business Model & Value** - How does it create value?
+- **Business Model and Value** - How does it create value?
 - **Market Differentiation** - What makes it unique?
-- **Technical Risks & Challenges** - What could go wrong?
+- **Technical Risks and Challenges** - What could go wrong?
 - **Success Metrics** - How will we measure success?
 
 ## Integration with Project Workflow

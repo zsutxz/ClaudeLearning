@@ -2,15 +2,15 @@
 
 ## Overview
 
-The Convert Legacy workflow is a comprehensive migration tool that converts BMAD v4 items (agents, workflows, modules) to v5 compliant format with proper structure and conventions. It bridges the gap between legacy BMAD implementations and the modern v5 architecture, ensuring seamless migration while preserving functionality and improving structure.
+The Convert Legacy workflow is a comprehensive migration tool that converts BMAD v4 items (agents, workflows, modules) to v6 compliant format with proper structure and conventions. It bridges the gap between legacy BMAD implementations and the modern v6 architecture, ensuring seamless migration while preserving functionality and improving structure.
 
 ## Key Features
 
 - **Multi-Format Detection** - Automatically identifies v4 agents, workflows, tasks, templates, and modules
-- **Intelligent Conversion** - Smart mapping from v4 patterns to v5 equivalents with structural improvements
-- **Sub-Workflow Integration** - Leverages build-agent, build-workflow, and build-module workflows for quality output
+- **Intelligent Conversion** - Smart mapping from v4 patterns to v6 equivalents with structural improvements
+- **Sub-Workflow Integration** - Leverages create-agent, create-workflow, and create-module workflows for quality output
 - **Structure Modernization** - Converts YAML-based agents to XML, templates to workflows, tasks to structured workflows
-- **Path Normalization** - Updates all references to use proper v5 path conventions
+- **Path Normalization** - Updates all references to use proper v6 path conventions
 - **Validation System** - Comprehensive validation of converted items before finalization
 - **Migration Reporting** - Detailed conversion reports with locations and manual adjustment notes
 
@@ -42,7 +42,7 @@ The workflow uses standard BMB configuration:
 
 - **output_folder**: Where converted items will be placed
 - **user_name**: Author information for converted items
-- **conversion_mappings**: v4-to-v5 pattern mappings (optional)
+- **conversion_mappings**: v4-to-v6 pattern mappings (optional)
 
 ## Workflow Structure
 
@@ -60,7 +60,7 @@ convert-legacy/
 
 ### Phase 1: Legacy Analysis (Steps 1-3)
 
-**Item Identification & Loading**
+**Item Identification and Loading**
 
 - Accepts file path or directory from user
 - Loads complete file/folder structure for analysis
@@ -82,7 +82,7 @@ convert-legacy/
 **Target Module Selection**
 
 - Prompts for target module (bmm, bmb, cis, custom)
-- Determines proper installation paths using v5 conventions
+- Determines proper installation paths using v6 conventions
 - Shows target location for user confirmation
 - Ensures all paths use `{project-root}/bmad/` format
 
@@ -91,14 +91,14 @@ convert-legacy/
 **Strategy Selection Based on Item Type**
 
 - **Simple Agents**: Direct XML conversion with metadata mapping
-- **Complex Agents**: Workflow-assisted creation using build-agent
+- **Complex Agents**: Workflow-assisted creation using create-agent
 - **Templates**: Template-to-workflow conversion with proper structure
 - **Tasks**: Task-to-workflow conversion with step mapping
-- **Modules**: Full module creation using build-module workflow
+- **Modules**: Full module creation using create-module workflow
 
 **Workflow Type Determination**
 
-- Analyzes legacy items to determine v5 workflow type:
+- Analyzes legacy items to determine v6 workflow type:
   - **Document Workflow**: Generates documents with templates
   - **Action Workflow**: Performs actions without output documents
   - **Interactive Workflow**: Guides user interaction sessions
@@ -108,25 +108,25 @@ convert-legacy/
 
 **Direct Agent Conversion (5a)**
 
-- Transforms v4 YAML agent format to v5 XML structure
+- Transforms v4 YAML agent format to v6 XML structure
 - Maps persona blocks (role, style, identity, principles)
-- Converts commands list to v5 `<cmds>` format
+- Converts commands list to v6 `<cmds>` format
 - Updates task references to workflow invocations
-- Normalizes all paths to v5 conventions
+- Normalizes all paths to v6 conventions
 
 **Workflow-Assisted Creation (5b-5e)**
 
 - Extracts key information from legacy items
 - Invokes appropriate sub-workflows:
-  - `build-agent` for complex agent creation
-  - `build-workflow` for template/task conversion
-  - `build-module` for full module migration
-- Ensures proper v5 structure and conventions
+  - `create-agent` for complex agent creation
+  - `create-workflow` for template/task conversion
+  - `create-module` for full module migration
+- Ensures proper v6 structure and conventions
 
 **Template-to-Workflow Conversion (5c)**
 
 - Converts YAML template sections to workflow steps
-- Maps `elicit: true` flags to `<elicit-required/>` tags
+- Maps `elicit: true` flags to `<invoke-task halt="true">{project-root}/bmad/core/tasks/adv-elicit.xml</invoke-task>` tags
 - Transforms conditional sections to flow control
 - Creates proper template.md from content structure
 - Integrates v4 create-doc.md task patterns
@@ -136,10 +136,10 @@ convert-legacy/
 - Analyzes task purpose to determine workflow type
 - Extracts step-by-step instructions to workflow steps
 - Converts decision trees to flow control tags
-- Maps 1-9 elicitation menus to v5 elicitation patterns
+- Maps 1-9 elicitation menus to v6 elicitation patterns
 - Preserves execution logic and critical notices
 
-### Phase 4: Validation & Finalization (Steps 6-8)
+### Phase 4: Validation and Finalization (Steps 6-8)
 
 **Comprehensive Validation**
 
@@ -155,7 +155,7 @@ convert-legacy/
 - Notes manual adjustments needed
 - Provides warnings and recommendations
 
-**Cleanup & Archival**
+**Cleanup and Archival**
 
 - Optional archival of original v4 files
 - Final location confirmation
@@ -165,13 +165,13 @@ convert-legacy/
 
 ### Generated Files
 
-- **Converted Items**: Proper v5 format in target module locations
+- **Converted Items**: Proper v6 format in target module locations
 - **Migration Report**: Detailed conversion documentation
 - **Validation Results**: Quality assurance confirmation
 
 ### Output Structure
 
-Converted items follow v5 conventions:
+Converted items follow v6 conventions:
 
 1. **Agents** - XML format with proper persona and command structure
 2. **Workflows** - Complete workflow folders with yaml, instructions, and templates
@@ -182,8 +182,8 @@ Converted items follow v5 conventions:
 
 - **Legacy v4 Items** - Source files or directories to convert
 - **Target Module Access** - Write permissions to target module directories
-- **Sub-Workflow Availability** - build-agent, build-workflow, build-module workflows accessible
-- **Conversion Mappings** (optional) - v4-to-v5 pattern mappings for complex conversions
+- **Sub-Workflow Availability** - create-agent, create-workflow, create-module workflows accessible
+- **Conversion Mappings** (optional) - v4-to-v6 pattern mappings for complex conversions
 
 ## Best Practices
 
@@ -197,7 +197,7 @@ Converted items follow v5 conventions:
 
 1. **Validate Item Type Detection** - Confirm automatic detection or correct manually
 2. **Choose Appropriate Strategy** - Use workflow-assisted creation for complex items
-3. **Review Path Mappings** - Ensure all references use proper v5 path conventions
+3. **Review Path Mappings** - Ensure all references use proper v6 path conventions
 4. **Test Incrementally** - Convert simple items first to validate process
 
 ### After Completion
@@ -235,7 +235,7 @@ Converted items follow v5 conventions:
 
 To customize this workflow:
 
-1. **Update Conversion Mappings** - Modify v4-to-v5 pattern mappings in data/
+1. **Update Conversion Mappings** - Modify v4-to-v6 pattern mappings in data/
 2. **Extend Detection Logic** - Add new item type detection patterns
 3. **Add Conversion Strategies** - Implement specialized conversion approaches
 4. **Enhance Validation** - Add additional quality checks in validation step
@@ -244,7 +244,7 @@ To customize this workflow:
 
 - **v1.0.0** - Initial release
   - Multi-format v4 item detection and conversion
-  - Integration with build-agent, build-workflow, build-module
+  - Integration with create-agent, create-workflow, create-module
   - Comprehensive path normalization
   - Migration reporting and validation
 
@@ -252,11 +252,11 @@ To customize this workflow:
 
 For issues or questions:
 
-- Review the workflow creation guide at `/bmad/bmb/workflows/build-workflow/workflow-creation-guide.md`
-- Check conversion mappings at `/bmad/bmb/data/v4-to-v5-mappings.yaml`
+- Review the workflow creation guide at `/bmad/bmb/workflows/create-workflow/workflow-creation-guide.md`
+- Check conversion mappings at `/bmad/bmb/data/v4-to-v6-mappings.yaml`
 - Validate output using `checklist.md`
-- Consult BMAD v5 documentation for proper conventions
+- Consult BMAD v6 documentation for proper conventions
 
 ---
 
-_Part of the BMad Method v5 - BMB (Builder) Module_
+_Part of the BMad Method v6 - BMB (Builder) Module_

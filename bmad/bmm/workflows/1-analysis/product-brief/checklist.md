@@ -41,7 +41,7 @@
 - [ ] Secondary segment (if applicable) is equally detailed
 - [ ] Avoids generic personas like "busy professionals"
 
-## Goals & Metrics
+## Goals and Metrics
 
 - [ ] Business objectives include measurable outcomes with targets
 - [ ] User success metrics focus on behaviors, not features
@@ -67,7 +67,7 @@
 - [ ] Technology preferences are marked as preferences, not decisions
 - [ ] Integration requirements with existing systems are identified
 
-## Constraints & Assumptions
+## Constraints and Assumptions
 
 - [ ] Budget constraints are documented if known
 - [ ] Timeline or deadline pressures are specified

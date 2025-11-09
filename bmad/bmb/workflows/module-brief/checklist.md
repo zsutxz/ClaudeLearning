@@ -8,7 +8,7 @@
 - [ ] Target users are clearly defined
 - [ ] Unique value proposition is articulated
 
-## Vision & Concept
+## Vision and Concept
 
 - [ ] Problem being solved is clearly stated
 - [ ] Solution approach is explained
@@ -80,9 +80,9 @@
 
 ## Implementation Readiness
 
-- [ ] Brief provides enough detail for build-module workflow
-- [ ] Agent specifications sufficient for build-agent workflow
-- [ ] Workflow descriptions ready for build-workflow
+- [ ] Brief provides enough detail for create-module workflow
+- [ ] Agent specifications sufficient for create-agent workflow
+- [ ] Workflow descriptions ready for create-workflow
 - [ ] Resource requirements are clear
 - [ ] Success metrics are measurable
 

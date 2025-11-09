@@ -1,6 +1,6 @@
 # ReDoc Workflow Validation Checklist
 
-## Initialization & Setup
+## Initialization and Setup
 
 - [ ] All BMAD convention documents loaded and understood
 - [ ] Target path validated and exists
@@ -66,7 +66,7 @@
 - [ ] Frontmatter syntax is correct and dates are current
 - [ ] No redundant explanation of standard BMAD patterns
 
-## Validation & Reporting
+## Validation and Reporting
 
 - [ ] All planned documentation items created/updated
 - [ ] Frontmatter dates verified as current across all files

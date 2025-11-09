@@ -20,7 +20,7 @@ A module is a cohesive package that provides:
 
 Explore and define:
 
-### 1. Domain & Purpose
+### 1. Domain and Purpose
 
 - **What domain/problem space?** (e.g., game development, marketing, personal productivity)
 - **Who is the target user?** (developers, writers, managers, hobbyists)

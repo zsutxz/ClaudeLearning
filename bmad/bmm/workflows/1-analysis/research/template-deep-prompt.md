@@ -62,7 +62,7 @@
 
 ---
 
-## Complete Research Prompt (Copy & Paste)
+## Complete Research Prompt (Copy and Paste)
 
 ```
 {{deep_research_prompt}}

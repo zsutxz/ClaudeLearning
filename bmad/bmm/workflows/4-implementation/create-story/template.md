@@ -1,6 +1,6 @@
 # Story {{epic_num}}.{{story_num}}: {{story_title}}
 
-Status: Draft
+Status: drafted
 
 ## Story
 
@@ -34,17 +34,11 @@ so that {{benefit}}.
 
 - Cite all technical details with source paths and sections, e.g. [Source: docs/<file>.md#Section]
 
-## Change Log
-
-| Date     | Version | Description   | Author        |
-| -------- | ------- | ------------- | ------------- |
-| {{date}} | 0.1     | Initial draft | {{user_name}} |
-
 ## Dev Agent Record
 
 ### Context Reference
 
-<!-- Path(s) to story context XML/JSON will be added here by context workflow -->
+<!-- Path(s) to story context XML will be added here by context workflow -->
 
 ### Agent Model Used
 

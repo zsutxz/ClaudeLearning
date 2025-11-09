@@ -20,7 +20,7 @@ A workflow is a structured process that provides:
 
 Explore and define:
 
-### 1. Problem & Purpose
+### 1. Problem and Purpose
 
 - **What task needs structure?** (specific process users struggle with)
 - **Why is this hard manually?** (complexity, inconsistency, missing steps)
@@ -35,14 +35,14 @@ Explore and define:
 - **What's optional vs required?** (flexibility points)
 - **What checkpoints matter?** (validation, review, approval points)
 
-### 3. Inputs & Outputs
+### 3. Inputs and Outputs
 
 - **What inputs are needed?** (documents, data, user answers)
 - **What outputs are generated?** (documents, code, configurations)
 - **What format?** (markdown, XML, YAML, actions)
 - **What quality criteria?** (how to validate success)
 
-### 4. Workflow Type & Style
+### 4. Workflow Type and Style
 
 - **Document Workflow?** Creates structured documents (PRDs, specs, reports)
 - **Action Workflow?** Performs operations (refactoring, deployment, analysis)
@@ -78,7 +78,7 @@ A great BMAD workflow should be:
 4. **Checkpoints** (where to pause for approval)
 5. **Variables** (data passed between steps)
 
-### Quality & Validation
+### Quality and Validation
 
 1. **Success criteria** (what defines "done")
 2. **Validation checklist** (measurable quality checks)
