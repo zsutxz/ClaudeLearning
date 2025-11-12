@@ -6,6 +6,24 @@ import logging
 import os
 from typing import Optional
 
+# 加载.env文件中的环境变量
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    # 如果没有python-dotenv，手动读取.env文件
+    env_file = '.env'
+    if os.path.exists(env_file):
+        with open(env_file, 'r') as f:
+            for line in f:
+                if '=' in line and not line.strip().startswith('#'):
+                    key, value = line.strip().split('=', 1)
+                    os.environ[key] = value
+
+# 确保API密钥存在
+if not os.getenv('ANTHROPIC_API_KEY'):
+    raise ValueError("请设置ANTHROPIC_API_KEY环境变量或在.env文件中配置")
+
 from claude_agent_sdk import (
     AssistantMessage,
     ClaudeAgentOptions,
