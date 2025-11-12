@@ -1,6 +1,7 @@
-# Claude Agent SDK - DeepSeek版本依赖
+# 通用AI代理SDK - 多模型支持依赖
+anthropic>=0.3.0
 openai>=1.0.0
+requests>=2.28.0
 
-# 可选依赖（用于更高级功能）
-# requests>=2.28.0
+# 可选依赖
 # python-dotenv>=1.0.0  # 用于.env文件管理
