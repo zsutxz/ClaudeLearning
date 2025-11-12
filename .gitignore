@@ -66,3 +66,4 @@ pip-delete-this-directory.txt
 
 # Note: Never ignore .mcp.json as it's needed for MCP server configuration
 .mcp.json
+langgraph-agent/.env
