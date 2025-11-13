@@ -57,7 +57,7 @@ async def basic_example():
     print("=== Basic Example ===")
 
     try:
-        message_stream = query(prompt="What is 2 + 2?")
+        message_stream = query(prompt="What is 2 + 5?")
         await process_messages(message_stream)
     except Exception as e:
         logger.error(f"Basic example failed: {e}")
@@ -97,7 +97,7 @@ async def with_tools_example():
         )
 
         message_stream = query(
-            prompt="Create a file called hello.txt with 'Hello, World!' in it",
+            prompt="Create a file called hello33.txt in the current directory(./) with 'Hello, World!' in it.",
             options=options,
         )
         await process_messages(message_stream, show_cost=True)
@@ -114,7 +114,7 @@ async def main():
     try:
         await basic_example()
         await with_options_example()
-        await with_tools_example()
+        await with_tools_example() 
         logger.info("All examples completed successfully")
     except Exception as e:
         logger.error(f"Application failed: {e}")
