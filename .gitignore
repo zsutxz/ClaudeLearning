@@ -64,6 +64,4 @@ pip-delete-this-directory.txt
 # Story files should not be ignored as they are important documentation
 # docs/stories/ is intentionally not ignored
 
-# Note: Never ignore .mcp.json as it's needed for MCP server configuration
-.mcp.json
 langgraph-agent/.env

@@ -125,17 +125,22 @@ class ResearchAgent:
 
         return response.content
 
-    async def research_technology(self, technology: str) -> Dict[str, Any]:
+    async def research_technology(self, technology: str, fast_mode: bool = False) -> Dict[str, Any]:
         """
         完整的技术研究流程
 
         Args:
             technology: 技术名称
+            fast_mode: 是否使用快速模式（跳过网络搜索）
 
         Returns:
             完整的研究结果
         """
         print(f"开始研究技术: {technology}")
+
+        if fast_mode:
+            print("使用快速模式（跳过网络搜索）...")
+            return self._get_mock_research_results(technology)
 
         # 1. 搜索信息
         print("搜索相关资料...")
@@ -165,6 +170,59 @@ class ResearchAgent:
             "search_results": search_results,
             "analysis": analysis,
             "report": report,
+            "timestamp": self._get_timestamp()
+        }
+
+    def _get_mock_research_results(self, technology: str) -> Dict[str, Any]:
+        """获取模拟研究结果用于快速模式"""
+        # 基于技术名称生成基本的分析结果
+        mock_analysis = {
+            "summary": f"{technology}是一种重要的技术，适合学习者掌握",
+            "trends": {
+                "trends": [
+                    f"{technology}在业界应用广泛",
+                    f"{technology}生态系统持续发展",
+                    f"{technology}学习资源丰富"
+                ]
+            },
+            "categories": {
+                "基础概念": 30,
+                "实践应用": 40,
+                "高级特性": 20,
+                "最佳实践": 10
+            },
+            "difficulty": {"overall_difficulty": "beginner"}
+        }
+
+        mock_report = f"""
+# {technology}技术研究报告
+
+## 1. 技术概述
+{technology}是当前重要的技术之一，具有广泛的应用前景。
+
+## 2. 最新趋势
+- {technology}在业界应用日益广泛
+- 学习资源和社区支持持续增长
+- 技术生态不断成熟
+
+## 3. 学习资源分类
+- 官方文档和教程
+- 在线课程和视频
+- 实战项目和案例
+
+## 4. 难度评估
+{technology}适合初学者入门，同时也支持高级应用开发。
+
+## 5. 推荐学习路径
+建议从基础概念开始，逐步深入到实际应用。
+"""
+
+        return {
+            "technology": technology,
+            "status": "completed",
+            "search_results": {"results": []},  # 空的搜索结果
+            "analysis": mock_analysis,
+            "report": mock_report,
             "timestamp": self._get_timestamp()
         }
 

@@ -50,7 +50,19 @@ class TechLearningAssistant:
             )
 
             if result["status"] == "completed":
-                self._print_success_result(result["data"])
+                # 确保data是字典格式
+                data = result.get("data", {})
+                if isinstance(data, str):
+                    # 如果data是字符串，尝试解析
+                    try:
+                        import ast
+                        data = ast.literal_eval(data)
+                    except:
+                        data = {"result": data}
+                elif not isinstance(data, dict):
+                    data = {"result": data}
+
+                self._print_success_result(data)
                 return result
             else:
                 self._print_error_result(result)
@@ -78,12 +90,16 @@ class TechLearningAssistant:
         research_summary = data.get('research_summary', {})
         if research_summary:
             print("\n研究摘要:")
-            print(f"   {research_summary.get('summary', '无摘要')}")
-            key_insights = research_summary.get('key_insights', [])
-            if key_insights:
-                print("   关键洞察:")
-                for insight in key_insights:
-                    print(f"   - {insight}")
+            if isinstance(research_summary, dict):
+                print(f"   {research_summary.get('summary', '无摘要')}")
+                key_insights = research_summary.get('key_insights', [])
+                if key_insights:
+                    print("   关键洞察:")
+                    for insight in key_insights:
+                        print(f"   - {insight}")
+            else:
+                # 如果是字符串，直接显示
+                print(f"   {research_summary}")
 
         # 学习方案
         learning_plan = data.get('learning_plan', '')

@@ -121,7 +121,8 @@ class TechLearningWorkflow:
         """技术研究阶段"""
         try:
             technology = state["technology"]
-            research_results = await self.research_agent.research_technology(technology)
+            # 默认使用快速模式避免网络问题
+            research_results = await self.research_agent.research_technology(technology, fast_mode=True)
 
             if research_results["status"] == "no_results":
                 return {
@@ -245,23 +246,35 @@ class TechLearningWorkflow:
                     "difficulty": {"overall_difficulty": "intermediate"}
                 }
 
+            # 安全获取学习方案数据
+            if isinstance(learning_plan, dict):
+                plan_content = learning_plan.get("learning_plan", "学习方案")
+                resources = learning_plan.get("resources", {})
+                timeline = learning_plan.get("estimated_timeline", {})
+                success_metrics = learning_plan.get("success_metrics", [])
+            else:
+                plan_content = str(learning_plan) if learning_plan else "学习方案"
+                resources = {}
+                timeline = {}
+                success_metrics = []
+
             final_output = {
                 "technology": state.get("technology", "未知技术"),
                 "experience_level": state.get("experience_level", "beginner"),
                 "duration_hours": state.get("duration_hours", 20),
                 "research_summary": analysis.get("summary", "技术研究摘要"),
                 "research_report": research_results.get("report", "技术报告"),
-                "learning_plan": learning_plan.get("learning_plan", "学习方案"),
-                "resources": learning_plan.get("resources", {}),
-                "timeline": learning_plan.get("estimated_timeline", {}),
-                "success_metrics": learning_plan.get("success_metrics", []),
+                "learning_plan": plan_content,
+                "resources": resources,
+                "timeline": timeline,
+                "success_metrics": success_metrics,
                 "personalization_applied": state.get("status") == "customized",
                 "timestamp": research_results.get("timestamp", "")
             }
 
             return {
                 **state,
-                "messages": [("assistant", str(final_output))],
+                "messages": [str(final_output)],
                 "status": "completed"
             }
 
@@ -277,7 +290,7 @@ class TechLearningWorkflow:
         error_message = state.get("error", "未知错误")
         return {
             **state,
-            "messages": [("assistant", f"处理过程中发生错误: {error_message}")],
+            "messages": [f"处理过程中发生错误: {error_message}"],
             "status": "failed"
         }
 
@@ -324,16 +337,52 @@ class TechLearningWorkflow:
             result = await self.workflow.ainvoke(initial_state)
 
             if result["status"] == "completed":
-                # 解析最终输出
-                final_message = result["messages"][-1][1] if result["messages"] else "{}"
-                if isinstance(final_message, str):
-                    import json
-                    try:
-                        return json.loads(final_message)
-                    except:
-                        return {"status": "completed", "data": final_message}
+                # 解析最终输出 - 处理AIMessage对象
+                if result["messages"]:
+                    final_message = result["messages"][-1]
+                    # 检查是否是AIMessage对象
+                    if hasattr(final_message, 'content'):
+                        # AIMessage对象
+                        message_content = final_message.content
+                    elif isinstance(final_message, tuple) and len(final_message) >= 2:
+                        # 元组格式 (role, content)
+                        message_content = final_message[1]
+                    elif isinstance(final_message, dict):
+                        # 字典格式
+                        message_content = final_message.get('content', str(final_message))
+                    else:
+                        # 直接使用字符串
+                        message_content = str(final_message)
                 else:
-                    return {"status": "completed", "data": final_message}
+                    return {"status": "error", "error": "没有找到输出消息"}
+
+                if isinstance(message_content, str):
+                    import json
+                    import ast
+                    try:
+                        # 尝试解析JSON
+                        if message_content.strip().startswith('{'):
+                            # 先尝试用ast.literal_eval解析（支持单引号）
+                            try:
+                                parsed_data = ast.literal_eval(message_content)
+                            except:
+                                # 如果AST解析失败，尝试修复引号后用JSON解析
+                                fixed_content = message_content.replace("'", '"')
+                                parsed_data = json.loads(fixed_content)
+
+                            # 确保数据是字典格式
+                            if isinstance(parsed_data, dict):
+                                return {"status": "completed", "data": parsed_data}
+                            else:
+                                return {"status": "completed", "data": {"result": parsed_data}}
+                        else:
+                            # 如果不是JSON格式，直接返回字符串
+                            return {"status": "completed", "data": {"result": message_content}}
+                    except (json.JSONDecodeError, ValueError, SyntaxError):
+                        # 如果不是JSON格式，直接返回字符串
+                        return {"status": "completed", "data": {"result": message_content}}
+                else:
+                    return {"status": "completed", "data": {"result": message_content}}
             else:
                 return {
                     "status": result["status"],

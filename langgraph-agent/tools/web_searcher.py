@@ -146,23 +146,35 @@ class WebSearcher:
     async def search_arxiv(self, query: str, num_results: int = 5) -> List[Dict[str, Any]]:
         """搜索学术论文"""
         try:
-            search = arxiv.Search(
-                query=query,
-                max_results=num_results,
-                sort_by=arxiv.SortCriterion.SubmittedDate
-            )
+            # 使用asyncio.wait_for添加超时保护
+            def _search_arxiv():
+                search = arxiv.Search(
+                    query=query,
+                    max_results=num_results,
+                    sort_by=arxiv.SortCriterion.SubmittedDate
+                )
 
-            results = []
-            for paper in search.results():
-                results.append({
-                    "title": paper.title,
-                    "authors": [author.name for author in paper.authors],
-                    "summary": paper.summary,
-                    "published": paper.published.date().isoformat(),
-                    "pdf_url": paper.pdf_url,
-                    "source": "arxiv"
-                })
+                results = []
+                for paper in search.results():
+                    results.append({
+                        "title": paper.title,
+                        "authors": [author.name for author in paper.authors],
+                        "summary": paper.summary[:200] + "..." if len(paper.summary) > 200 else paper.summary,
+                        "published": paper.published.date().isoformat(),
+                        "pdf_url": paper.pdf_url,
+                        "source": "arxiv"
+                    })
+                return results
+
+            # 设置10秒超时
+            results = await asyncio.wait_for(
+                asyncio.get_event_loop().run_in_executor(None, _search_arxiv),
+                timeout=10.0
+            )
             return results
+        except asyncio.TimeoutError:
+            print(f"ArXiv搜索超时")
+            return []
         except Exception as e:
             print(f"ArXiv搜索失败: {e}")
             return []
@@ -176,21 +188,42 @@ class WebSearcher:
             # 可以添加更多RSS源
         ]
 
-        results = []
-        for feed_url in blog_feeds:
+        async def _fetch_feed(feed_url):
             try:
-                feed = feedparser.parse(feed_url)
-                for entry in feed.entries:
-                    if query.lower() in entry.title.lower() or query.lower() in entry.summary.lower():
-                        results.append({
-                            "title": entry.title,
-                            "link": entry.link,
-                            "summary": entry.summary,
-                            "published": entry.get("published", ""),
-                            "source": "blog"
-                        })
+                def _parse_feed():
+                    feed = feedparser.parse(feed_url)
+                    results = []
+                    for entry in feed.entries:
+                        if query.lower() in entry.title.lower() or query.lower() in entry.summary.lower():
+                            results.append({
+                                "title": entry.title,
+                                "link": entry.link,
+                                "summary": entry.summary[:200] + "..." if len(entry.summary) > 200 else entry.summary,
+                                "published": entry.get("published", ""),
+                                "source": "blog"
+                            })
+                    return results
+
+                # 设置5秒超时
+                return await asyncio.wait_for(
+                    asyncio.get_event_loop().run_in_executor(None, _parse_feed),
+                    timeout=5.0
+                )
+            except asyncio.TimeoutError:
+                print(f"RSS源超时 {feed_url}")
+                return []
             except Exception as e:
                 print(f"RSS源解析失败 {feed_url}: {e}")
+                return []
+
+        # 并行获取所有RSS源
+        tasks = [_fetch_feed(feed_url) for feed_url in blog_feeds]
+        feed_results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        results = []
+        for feed_result in feed_results:
+            if isinstance(feed_result, list):
+                results.extend(feed_result)
 
         return results[:5]  # 限制结果数量
 
