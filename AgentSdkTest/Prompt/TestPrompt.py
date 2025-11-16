@@ -302,7 +302,7 @@ class UniversalAIAgent:
                 print(content, end="", flush=True)
                 full_response += content
 
-        print()
+        # print()
         self.conversation_history.append({"role": "assistant", "content": full_response})
         return full_response
 
@@ -330,13 +330,13 @@ class UniversalAIAgent:
         print()
         self.conversation_history.append({"role": "assistant", "content": full_response})
         return full_response
-
+    
     def clear_history(self):
         """清空对话历史"""
         # 保留系统提示词
         system_messages = [msg for msg in self.conversation_history if msg["role"] == "system"]
         self.conversation_history = system_messages
-
+        
     def get_conversation_summary(self) -> str:
         """获取对话摘要"""
         if not self.conversation_history:
@@ -347,9 +347,6 @@ class UniversalAIAgent:
 
         return f"对话统计: {user_messages} 条用户消息, {assistant_messages} 条助手回复"
 
-
-# 为了向后兼容，保留原有类名的别名
-ClaudeAgent = UniversalAIAgent
 
 class UniversalTaskAgent(UniversalAIAgent):
     """通用任务型代理"""
@@ -371,55 +368,26 @@ class UniversalTaskAgent(UniversalAIAgent):
         prompt = f"请帮我解决这个问题: {problem}\n\n请提供详细的解决方案。"
         return self.chat(prompt)
 
+class UniversalTalkAgent(UniversalAIAgent):
+    """通用任务型代理"""
 
-class UniversalCodeAgent(UniversalAIAgent):
-    """通用代码助手代理"""
-
-    def __init__(self, language: str = "Python", **kwargs):
+    def __init__(self, task_description: str, **kwargs):
         super().__init__(**kwargs)
-        self.language = language
-        self.add_system_prompt(f"""你是一个专业的{language}编程助手。
+        self.task_description = task_description
+        self.add_system_prompt(f"""你是一个计算机专家，兼数学家: {task_description}
 
-你的能力包括:
-- 编写高质量的{language}代码
-- 代码审查和优化建议
-- 调试和错误修复
-- 解释复杂的概念和算法
-- 提供最佳实践建议
+请遵循以下原则:
+1. 准确理解用户需求
+2. 提供具体可行的解决方案
+3. 如有问题及时澄清
+4. 保持专业和友好的态度
+5. 在必要时请求更多信息""")
 
-请确保代码:
-1. 语法正确，符合语言规范
-2. 逻辑清晰，易于理解
-3. 包含必要的注释
-4. 遵循最佳实践和安全原则""")
-
-    def write_code(self, requirement: str) -> str:
-        """根据需求编写代码"""
-        prompt = f"请编写{self.language}代码来实现以下功能: {requirement}"
+    def solve_problem(self, problem: str) -> str:
+        prompt = f"{problem}\n"
         return self.chat(prompt)
-
-    def review_code(self, code: str) -> str:
-        """代码审查"""
-        prompt = f"请审查以下{self.language}代码，提供改进建议:\n\n```{self.language.lower()}\n{code}\n```"
-        return self.chat(prompt)
-
-    def debug_code(self, code: str, error_message: str) -> str:
-        """调试代码"""
-        prompt = f"""以下{self.language}代码出现了错误，请帮助调试:
-
-代码:
-```{self.language.lower()}
-{code}
-```
-
-错误信息:
-{error_message}
-
-请分析问题原因并提供修复方案。"""
-        return self.chat(prompt)
-
-
-
+    
+    
 def main():
     """主函数 - 演示通用AI代理的使用"""
     print("通用AI代理SDK Python示例")
@@ -433,22 +401,40 @@ def main():
             print(f"  {provider}: {', '.join(config['models'][:3])}{'...' if len(config['models']) > 3 else ''}")
 
 
-        # 2. 任务型代理(deepseek)
+        # # 2. 任务型代理(claude)
+        # print("\n任务型代理示例（模拟模式）:")
+        # task_agent = UniversalTaskAgent(
+        #     "帮助用户制定学习计划和提供学习建议",
+        #     provider="claude",
+        #     api_key=os.getenv('CLAUDE_API_KEY'),
+        #     base_url=os.getenv('CLAUDE_BASE_URL', 'https://api.anthropic.com')
+        # )
+
+        # plan = task_agent.solve_problem("我想学习人工智能，应该从哪里开始？")
+        # print("学习建议:", plan)
+        # print("-" * 40)
+
+
+        # 3. 问题回答(claude)
         print("\n任务型代理示例（模拟模式）:")
-        task_agent = UniversalTaskAgent(
-            "帮助用户制定学习计划和提供学习建议",
+        talk_agent = UniversalTaskAgent(
+            "帮助用户给出标准答案",
             provider="claude",
             api_key=os.getenv('CLAUDE_API_KEY'),
             base_url=os.getenv('CLAUDE_BASE_URL', 'https://api.anthropic.com')
         )
+        
+        prompt = """
+        为正方形内的弹跳黄球编写python脚本，
+        确保正确处理碰撞检测。
+        让正方形缓慢旋转。"""
 
-        plan = task_agent.solve_problem("我想学习人工智能，应该从哪里开始？")
+        plan = talk_agent.solve_problem(prompt)
         print("学习建议:", plan)
         print("-" * 40)
 
-
         # 显示对话统计
-        print(f"{task_agent.get_conversation_summary()}")
+        print(f"{talk_agent.get_conversation_summary()}")
 
     except Exception as e:
         print(f"运行示例时出错: {str(e)}")
