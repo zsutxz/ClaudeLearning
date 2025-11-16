@@ -3,11 +3,27 @@
 快速测试DeepSeek API
 """
 
-# 在这里设置你的DeepSeek API密钥
-DEEPSEEK_API_KEY = "sk-943df85"
 
 import os
 from openai import OpenAI
+
+# 加载.env文件中的环境变量
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    # 如果没有python-dotenv，手动读取.env文件
+    env_file = '.env'
+    if os.path.exists(env_file):
+        with open(env_file, 'r') as f:
+            for line in f:
+                if '=' in line and not line.strip().startswith('#'):
+                    key, value = line.strip().split('=', 1)
+                    os.environ[key] = value
+
+# 确保API密钥存在
+if not os.getenv('DEEPSEEK_API_KEY'):
+    raise ValueError("请设置DEEPSEEK_API_KEY环境变量或在.env文件中配置")
 
 def test_deepseek_api():
     """测试DeepSeek API连接"""
@@ -21,8 +37,8 @@ def test_deepseek_api():
     try:
         # 创建客户端
         client = OpenAI(
-            api_key=DEEPSEEK_API_KEY,
-            base_url="https://api.deepseek.com"
+            api_key=os.getenv('DEEPSEEK_API_KEY'),
+            base_url=os.getenv('DEEPSEEK_BASE_URL', 'https://api.deepseek.com')
         )
 
         print("正在测试DeepSeek API连接...")
@@ -38,9 +54,10 @@ def test_deepseek_api():
         )
 
         print("API连接成功！")
+        
+        print("-" * 40)
         reply = response.choices[0].message.content
         print("DeepSeek回复:", reply)
-        print("-" * 40)
 
         # 代码生成测试
         code_response = client.chat.completions.create(

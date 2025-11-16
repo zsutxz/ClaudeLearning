@@ -1,0 +1,111 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""修复的Todo功能测试 - 简化版本"""
+
+import asyncio
+import sys
+from typing import List, Dict
+from claude_agent_sdk import query, ClaudeAgentOptions
+from claude_agent_sdk.types import AssistantMessage, ToolUseBlock
+import os
+
+# 设置控制台编码
+if sys.platform == 'win32':
+    import codecs
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.detach())
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.detach())
+
+# 加载环境变量
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    env_file = '.env'
+    if os.path.exists(env_file):
+        with open(env_file, 'r') as f:
+            for line in f:
+                if '=' in line and not line.strip().startswith('#'):
+                    key, value = line.strip().split('=', 1)
+                    os.environ[key] = value
+
+if not os.getenv('ANTHROPIC_API_KEY'):
+    raise ValueError("请设置ANTHROPIC_API_KEY环境变量或在.env文件中配置")
+
+class TodoTracker:
+    def __init__(self):
+        self.todos: List[Dict] = []
+
+    def display_progress(self):
+        if not self.todos:
+            return
+
+        completed = len([t for t in self.todos if t["status"] == "completed"])
+        in_progress = len([t for t in self.todos if t["status"] == "in_progress"])
+        pending = len([t for t in self.todos if t["status"] == "pending"])
+        total = len(self.todos)
+
+        print(f"\n📊 任务统计：{completed}/{total} 已完成, {in_progress} 进行中, {pending} 待开始\n")
+
+        for i, todo in enumerate(self.todos):
+            status = todo["status"]
+            if status == "completed":
+                icon = "✅"
+                text = todo["content"]
+            elif status == "in_progress":
+                icon = "🔧"
+                text = todo.get("activeForm", todo["content"])
+            else:  # pending
+                icon = "❌"
+                text = todo["content"]
+            print(f"{i + 1:2d}. {icon} {text}")
+        print()
+
+    def process_message(self, message):
+        """处理收到的消息"""
+        if isinstance(message, AssistantMessage):
+            for content_block in message.content:
+                if isinstance(content_block, ToolUseBlock):
+                    if content_block.name == "TodoWrite":
+                        self.todos = content_block.input.get("todos", [])
+                        print("🔄 待办事项状态更新：")
+                        self.display_progress()
+
+async def test_todo_functionality():
+    """测试Todo功能"""
+    print("🚀 开始测试Todo功能...")
+
+    tracker = TodoTracker()
+
+    try:
+        options = ClaudeAgentOptions(max_turns=10)
+
+        print("📝 提示Claude使用TodoWrite工具创建任务列表...")
+
+        async for message in query(
+            prompt="请使用TodoWrite工具创建一个学习游戏开发的完整任务列表，包含至少5个具体任务",
+            options=options
+        ):
+            tracker.process_message(message)
+
+            # 显示其他类型消息的简单信息
+            if hasattr(message, 'content') and not isinstance(message, AssistantMessage):
+                print(f"💬 收到消息: {type(message).__name__}")
+
+    except Exception as e:
+        print(f"❌ 错误: {e}")
+        import traceback
+        traceback.print_exc()
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(test_todo_functionality())
+    except KeyboardInterrupt:
+        print("\n⚠️ 程序被用户中断")
+    except Exception as e:
+        print(f"❌ 程序错误: {e}")
+        # 忽略一些已知的库清理问题
+        error_msg = str(e)
+        if any(keyword in error_msg for keyword in ["cancel scope", "Event loop is closed", "unclosed transport"]):
+            print("ℹ️ 忽略已知的库清理问题")
+        else:
+            raise
