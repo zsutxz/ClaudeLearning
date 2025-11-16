@@ -52,9 +52,45 @@ async def test_deepseek_config():
         return False
 
 
+async def test_learning():
+    print("=== 测试 DeepSeek Learning ===")
+
+    try:
+        # 获取配置
+        llm_config = settings.get_llm_config()
+        print(f"使用模型: {llm_config.get('model')}")
+        print(f"API Base: {llm_config.get('openai_api_base', 'Default')}")
+
+        # 初始化 LLM
+        llm = ChatOpenAI(**llm_config)
+
+        # 发送测试消息
+        test_prompt = """
+        请为Python初学者制定一个2小时的学习计划，包含以下内容：
+        1. 学习目标（3个）
+        2. 具体内容安排
+        3. 实践练习
+
+        请用中文回答，保持简洁实用。
+        """
+
+        messages = [HumanMessage(content=test_prompt)]
+        print("\n正在调用 DeepSeek API...")
+        response = await llm.ainvoke(messages)
+
+        print("\n=== DeepSeek 回复 ===")
+        print(response.content)
+
+        return True
+
+    except Exception as e:
+        print(f"\n✗ DeepSeek Learning 测试失败: {str(e)}")
+        return False
+
 async def main():
     """主函数"""
     success = await test_deepseek_config()
+    success = await test_learning()
 
     print(f"\n=== 测试结果 ===")
     if success:
@@ -71,3 +107,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+    
