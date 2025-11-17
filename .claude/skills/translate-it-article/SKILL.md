@@ -1,129 +1,131 @@
 ---
 name: translate-it-article
-description: Professional IT technical article translation tool that translates English technical documentation, blog posts, and academic papers into easy-to-understand, engaging Simplified Chinese while preserving complete formatting and saving locally.
+description: 专业IT技术文章翻译工具，将英文技术文档、博客文章、学术论文翻译成通俗易懂、引人入胜的简体中文，并保持格式完整保存到本地。
 license: MIT
 allowed-tools: [WebFetch, Read, Write, mcp__filesystem__write_file, mcp__filesystem__read_file]
 ---
 
-## Usage
-When users need to translate IT technical articles, use the following calling methods:
+## 使用方法
+当用户需要翻译IT技术文章时，使用以下调用方式：
 ```
-/translate-it-article [English article URL]
-or
-/translate-it-article [Paste English article content directly]
-or
+/translate-it-article  [英文文章URL]
+或
+/translate-it-article  [直接粘贴英文文章内容]
+或
 /翻译it文章 [英文文章URL]
-or
+或
 /翻译it文章 [直接粘贴英文文章内容]
+或
+/translate-it-article [英文文章URL]
+或
+/translate-it-article [直接粘贴英文文章内容]
 ```
 
-## Skill Trigger Timing
-Use this skill when users make the following requests:
-- "translate this technical article"
-- "help me translate this IT documentation"
-- "translate this English technical blog"
-- "convert this technical paper to Chinese"
+## 技能调用时机
+当用户提出以下需求时，使用此skill：
 - "翻译这篇技术文章"
 - "把这段英文翻译成中文"
 - "翻译一下这个IT文档"
 - "帮我翻译技术博客"
-- Similar translation requests
+- "translate this technical article"
+- "help me translate this IT documentation"
+- 类似的翻译需求
 
-## Features
-Input English technical article URL or directly paste English article content, the system will automatically:
-1. **Smart Translation** - Maintain technical accuracy while using easy-to-understand language
-2. **Format Preservation** - Completely preserve original Markdown formatting, images, links, and other elements
-3. **Terminology Standardization** - Use standard translations for professional terms, with English original noted on first appearance
-4. **Local Saving** - Automatically save translation results as local Markdown files
+## 功能说明
+输入英文技术文章URL或直接粘贴英文文章内容，系统将自动：
+1. **智能翻译** - 保持技术准确性的同时，使用通俗易懂的语言表达
+2. **格式保留** - 完整保持原文的Markdown格式、图片、链接等元素
+3. **术语规范** - 专业术语使用标准翻译，首次出现时标注英文原文
+4. **本地保存** - 自动保存翻译结果为本地Markdown文件
 
-## Translation Principles
+## 翻译原则
 
-### 🎯 Target Audience
-- General readers interested in IT technology
-- Non-native English speaking technical practitioners
-- Developers who need to quickly understand foreign technical information
+### 🎯 目标读者
+- 对IT技术感兴趣的普通读者
+- 非英语母语的技术从业者
+- 需要快速了解国外技术资讯的开发者
 
-### ✨ Translation Style
-- **Storytelling Narrative** - Explain technical concepts like telling stories, avoiding dry academic style
-- **Colloquial Expression** - Use natural Chinese word order, avoiding translation-ese
-- **Clear Logic** - Maintain complete logical chain of original text, clear organization
+### ✨ 翻译风格
+- **故事化叙述** - 像讲故事一样解释技术概念，避免枯燥学术风格
+- **口语化表达** - 使用自然的中文语序，避免翻译腔
+- **逻辑清晰** - 保持原文逻辑链条完整，条理清楚
 
-### 🔍 Technical Accuracy
-- **Factual Consistency** - Core data, technical principles, logical relationships must be completely consistent with original text
-- **Standard Terminology** - Use industry-recognized Chinese technical term translations
-  - First appearance: `人工智能 (Artificial Intelligence)`
-  - Subsequent appearances: `AI` or `人工智能`
-- **Code Integrity** - Code blocks, command lines, API calls remain untranslated
+### 🔍 技术准确性
+- **事实一致** - 核心数据、技术原理、逻辑关系必须与原文完全一致
+- **术语标准** - 使用行业公认的中文技术术语翻译
+  - 首次出现：`人工智能 (Artificial Intelligence)`
+  - 后续出现：`AI` 或 `人工智能`
+- **代码完整** - 代码块、命令行、API调用保持原样不翻译
 
-### 📝 Format Handling
-- **Title Hierarchy** - Maintain H1/H2/H3 title hierarchy structure
-- **Emphasis Formatting** - Preserve bold, italic, strikethrough and other emphasis formats
-- **List Structure** - Maintain ordered and unordered list structures
-- **Link References** - Preserve hyperlink and reference link formats
-- **Image Captions** - Translate image alt text, preserve image links
+### 📝 格式处理
+- **标题层级** - 保持H1/H2/H3等标题层级结构
+- **强调格式** - 保留粗体、斜体、删除线等强调格式
+- **列表结构** - 保持有序列表和无序列表结构
+- **链接引用** - 保持超链接和引用链接格式
+- **图片说明** - 翻译图片alt文本，保留图片链接
 
-### 🌐 Cultural Adaptation
-- **Technical Background** - Provide appropriate explanations for Western-specific technical backgrounds or cultural phenomena
-- **Case Examples** - Replace unfamiliar foreign cases with more easily understood Chinese equivalents
-- **Annotation Standards** - Use `**（annotation content）**` format for content requiring additional explanation
+### 🌐 文化适配
+- **技术背景** - 对欧美特有的技术背景或文化现象进行适当解释
+- **案例说明** - 将不熟悉的外国案例替换为更容易理解的中文对应案例
+- **注释规范** - 需要额外解释的内容使用 `**（注释内容）**` 格式
 
-### 📋 Processing Workflow
-1. **Content Analysis** - Identify article type (technical blog/academic paper/news article)
-2. **Terminology Extraction** - Extract professional terms, establish translation comparison table
-3. **Structural Translation** - Translate by paragraph and title structure
-4. **Format Check** - Ensure Markdown format is completely intact
-5. **Quality Proofreading** - Check technical accuracy and expression fluency
-6. **Local Saving** - Save as `[original filename]_zh.md`
+### 📋 处理流程
+1. **内容分析** - 识别文章类型（技术博客/学术论文/新闻资讯）
+2. **术语提取** - 提取专业术语，建立翻译对照表
+3. **结构翻译** - 按段落和标题结构进行翻译
+4. **格式检查** - 确保Markdown格式完整无损
+5. **质量校对** - 检查技术准确性和表达流畅性
+6. **本地保存** - 保存为 `[原文件名]_zh.md`
 
-## Output Format
+## 输出格式
 
-### File Naming
-- URL articles: `[website name]_[article title]_zh.md`
-- Direct paste: `translated article_[date time]_zh.md`
+### 文件命名
+- URL文章：`[网站名称]_[文章标题]_zh.md`
+- 直接粘贴：`翻译文章_[日期时间]_zh.md`
 
-### File Structure
+### 文件结构
 ```markdown
-# [Translated article title]
+# [翻译后的文章标题]
 
-**Original Link**: [Original URL]
-**Translation Time**: [Translation date]
-**Article Type**: [Technical blog/Academic paper/News article]
+**原文链接**: [原始URL]
+**翻译时间**: [翻译日期]
+**文章类型**: [技术博客/学术论文/新闻资讯]
 
 ---
 
-[Translated article content, maintaining complete format]
+[翻译后的文章内容，保持完整格式]
 ```
 
-## Quality Assurance
+## 质量保证
 
-### ✅ Accuracy Check
-- [ ] Technical terms translated correctly
-- [ ] Data and facts consistent with original text
-- [ ] Logical relationships maintained
-- [ ] Code and commands not incorrectly translated
+### ✅ 准确性检查
+- [ ] 技术术语翻译正确
+- [ ] 数据和事实与原文一致
+- [ ] 逻辑关系保持完整
+- [ ] 代码和命令未错误翻译
 
-### ✅ Readability Check
-- [ ] Chinese expression natural and fluent
-- [ ] Long sentences appropriately split
-- [ ] Paragraph structure clear
-- [ ] No obvious translation-ese
+### ✅ 可读性检查
+- [ ] 中文表达自然流畅
+- [ ] 长句已适当拆分
+- [ ] 段落结构清晰
+- [ ] 无明显翻译腔
 
-### ✅ Format Check
-- [ ] Markdown format complete
-- [ ] Image links working
-- [ ] Code block format correct
-- [ ] Lists and title hierarchy correct
+### ✅ 格式检查
+- [ ] Markdown格式完整
+- [ ] 图片链接正常
+- [ ] 代码块格式正确
+- [ ] 列表和标题层级正确
 
-## Example Comparison
+## 示例对比
 
-### Original
+### 原文
 ```
 ## Machine Learning in Production
 
 Deploying ML models at scale requires careful consideration of latency, throughput, and monitoring.
 ```
 
-### Translated
+### 翻译后
 ```
 ## 生产环境中的机器学习应用
 
@@ -132,4 +134,10 @@ Deploying ML models at scale requires careful consideration of latency, throughp
 
 ---
 
-*💡 Tip: This skill focuses on high-quality translation of technical articles, ensuring technical accuracy while enhancing the reading experience for Chinese readers.*
+*💡 提示：此技能专注于技术文章的高质量翻译，确保技术准确性的同时提升中文读者的阅读体验。*
+
+## 🌐 Multi-language Support
+This skill supports both Chinese and English commands:
+- Chinese: `/翻译it文章`
+- English: `/translate-it-article`  
+- Original: `/it-translate`
