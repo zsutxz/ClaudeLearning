@@ -65,3 +65,4 @@ pip-delete-this-directory.txt
 # docs/stories/ is intentionally not ignored
 
 langgraph-agent/.env
+CLAUDE.local.md
