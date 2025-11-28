@@ -1,0 +1,412 @@
+# 架构模式配置文件
+# 定义不同编程语言和框架的常见架构模式
+
+languages:
+  python:
+    frameworks:
+      django:
+        patterns:
+          - name: "Model-View-Template (MVT)"
+            indicators:
+              - "models.py"
+              - "views.py"
+              - "templates/"
+              - "urls.py"
+            description: "Django的标准MVT架构模式"
+          - name: "ORM Pattern"
+            indicators:
+              - "class Meta"
+              - "objects = models.Manager()"
+              - "ForeignKey"
+            description: "对象关系映射模式"
+          - name: "Middleware Pattern"
+            indicators:
+              - "MIDDLEWARE"
+              - "process_request"
+              - "process_response"
+            description: "中间件处理模式"
+
+      flask:
+        patterns:
+          - name: "Blueprint Pattern"
+            indicators:
+              - "Blueprint"
+              - "Blueprint("
+            description: "Flask的模块化路由模式"
+          - name: "Application Factory"
+            indicators:
+              - "def create_app"
+              - "app = Flask(__name__)"
+            description: "应用工厂模式"
+
+      fastapi:
+        patterns:
+          - name: "Dependency Injection"
+            indicators:
+              - "Depends("
+              - "Annotated["
+            description: "FastAPI依赖注入模式"
+          - name: "Router Pattern"
+            indicators:
+              - "APIRouter"
+            description: "API路由器模式"
+
+      ai_ml:
+        patterns:
+          - name: "Pipeline Pattern"
+            indicators:
+              - "Pipeline"
+              - "fit_transform"
+              - "transform"
+            description: "数据处理管道模式"
+          - name: "Strategy Pattern"
+            indicators:
+              - "BaseModel"
+              - "abstractmethod"
+              - "def forward"
+            description: "模型策略模式"
+          - name: "Observer Pattern"
+            indicators:
+              - "callback"
+              - "hook"
+              - "event_handler"
+            description: "训练过程观察者模式"
+
+  csharp:
+    frameworks:
+      unity:
+        patterns:
+          - name: "Component Pattern"
+            indicators:
+              - "MonoBehaviour"
+              - "Component"
+              - "AddComponent"
+            description: "Unity组件系统模式"
+          - name: "Object Pool Pattern"
+            indicators:
+              - "Queue<GameObject>"
+              - "pool"
+              - "Instantiate"
+              - "Destroy"
+            description: "对象池模式，优化内存使用"
+          - name: "Singleton Pattern"
+            indicators:
+              - "static"
+              - "Instance"
+              - "private"
+              - "Awake()"
+            description: "单例模式，确保全局唯一实例"
+          - name: "Observer Pattern"
+            indicators:
+              - "event"
+              - "Action<"
+              - "UnityEvent"
+              - "delegate"
+            description: "事件驱动模式"
+          - name: "State Machine"
+            indicators:
+              - "enum State"
+              - "switch (state)"
+              - "currentState"
+            description: "状态机模式"
+          - name: "Factory Pattern"
+            indicators:
+              - "Create"
+              - "Factory"
+              - "Instantiate"
+            description: "对象创建工厂模式"
+
+      aspnet:
+        patterns:
+          - name: "Repository Pattern"
+            indicators:
+              - "IRepository"
+              - "DbContext"
+              - "AddAsync"
+              - "GetByIdAsync"
+            description: "数据仓储模式"
+          - name: "Unit of Work"
+            indicators:
+              - "IUnitOfWork"
+              - "SaveChangesAsync"
+              - "Commit"
+            description: "工作单元模式"
+          - name: "CQRS Pattern"
+            indicators:
+              - "ICommandHandler"
+              - "IQueryHandler"
+              - "MediatR"
+            description: "命令查询职责分离模式"
+          - name: "Middleware Pipeline"
+            indicators:
+              - "RequestDelegate"
+              - "UseMiddleware"
+              - "app.Use"
+            description: "中间件管道模式"
+
+  javascript:
+    frameworks:
+      react:
+        patterns:
+          - name: "Component Pattern"
+            indicators:
+              - "function Component"
+              - "useState"
+              - "useEffect"
+              - "return <"
+            description: "React函数组件模式"
+          - name: "Hooks Pattern"
+            indicators:
+              - "use"
+              - "Custom Hook"
+              - "return ["
+            description: "自定义Hook模式"
+          - name: "Context Pattern"
+            indicators:
+              - "createContext"
+              - "useContext"
+              - "Provider"
+            description: "React Context状态管理模式"
+          - name: "HOC Pattern"
+            indicators:
+              - "with"
+              - "Higher-Order Component"
+              - "WrappedComponent"
+            description: "高阶组件模式"
+
+      vue:
+        patterns:
+          - name: "Component Pattern"
+            indicators:
+              - "Vue.component"
+              - "export default"
+              - "data()"
+              - "methods:"
+            description: "Vue组件模式"
+          - name: "Mixin Pattern"
+            indicators:
+              - "mixins:"
+              - "Vue.mixin"
+            description: "Vue混入模式"
+          - name: "Provide/Inject"
+            indicators:
+              - "provide:"
+              - "inject:"
+            description: "Vue依赖注入模式"
+
+      nodejs:
+        patterns:
+          - name: "Module Pattern"
+            indicators:
+              - "module.exports"
+              - "require("
+              - "export"
+            description: "Node.js模块模式"
+          - name: "Event-Driven Pattern"
+            indicators:
+              - "EventEmitter"
+              - "on("
+              - "emit("
+            description: "事件驱动模式"
+          - name: "Middleware Pattern"
+            indicators:
+              - "(req, res, next)"
+              - "app.use"
+              - "next()"
+            description: "中间件模式"
+
+  typescript:
+    frameworks:
+      nestjs:
+        patterns:
+          - name: "Dependency Injection"
+            indicators:
+              - "@Injectable"
+              - "constructor("
+              - "private readonly"
+            description: "依赖注入模式"
+          - name: "Decorator Pattern"
+            indicators:
+              - "@Controller"
+              - "@Get"
+              - "@Post"
+              - "@Param"
+            description: "装饰器模式"
+          - name: "Module Pattern"
+            indicators:
+              - "@Module"
+              - "imports:"
+              - "providers:"
+              - "controllers:"
+            description: "NestJS模块模式"
+
+  java:
+    frameworks:
+      spring:
+        patterns:
+          - name: "Dependency Injection"
+            indicators:
+              - "@Autowired"
+              - "@Component"
+              - "@Service"
+              - "@Repository"
+            description: "Spring依赖注入模式"
+          - name: "MVC Pattern"
+            indicators:
+              - "@Controller"
+              - "@RequestMapping"
+              - "ModelAndView"
+            description: "Spring MVC模式"
+          - name: "AOP Pattern"
+            indicators:
+              - "@Aspect"
+              - "@Before"
+              - "@After"
+              - "@Around"
+            description: "面向切面编程模式"
+          - name: "Repository Pattern"
+            indicators:
+              - "JpaRepository"
+              - "extends JpaRepository"
+              - "save()"
+              - "findById()"
+            description: "Spring Data仓储模式"
+
+  go:
+    patterns:
+      - name: "Interface Segregation"
+        indicators:
+          - "type.*interface"
+          - "func.*.*.*interface"
+        description: "Go接口分离模式"
+      - name: "Goroutine Pattern"
+        indicators:
+          - "go func"
+          - "make(chan"
+          - "<-chan"
+        description: "并发协程模式"
+      - name: "Struct Composition"
+        indicators:
+          - "type.*struct"
+          - "struct {"
+          - "embed"
+        description: "结构体组合模式"
+
+design_principles:
+  solid:
+    - name: "Single Responsibility"
+      indicators:
+        - "每个类只有一个职责"
+        - "方法功能单一"
+      description: "单一职责原则"
+
+    - name: "Open/Closed"
+      indicators:
+        - "abstract class"
+        - "interface"
+        - "extension"
+      description: "开闭原则"
+
+    - name: "Liskov Substitution"
+      indicators:
+        - "继承"
+        - "重写"
+        - "多态"
+      description: "里氏替换原则"
+
+    - name: "Interface Segregation"
+      indicators:
+        - "小接口"
+        - "职责分离"
+      description: "接口隔离原则"
+
+    - name: "Dependency Inversion"
+      indicators:
+        - "依赖注入"
+        - "依赖抽象"
+        - "IoC容器"
+      description: "依赖倒置原则"
+
+architectural_styles:
+  - name: "Layered Architecture"
+    characteristics:
+      - "分层结构"
+      - "单向依赖"
+      - "关注点分离"
+    examples:
+      - "表现层 -> 业务层 -> 数据层"
+
+  - name: "Microservices"
+    characteristics:
+      - "服务拆分"
+      - "API网关"
+      - "服务发现"
+    examples:
+      - "用户服务、订单服务、支付服务"
+
+  - name: "Event-Driven Architecture"
+    characteristics:
+      - "事件发布订阅"
+      - "异步处理"
+      - "松耦合"
+    examples:
+      - "消息队列、事件总线"
+
+  - name: "Hexagonal Architecture"
+    characteristics:
+      - "端口适配器"
+      - "业务逻辑核心"
+      - "外部隔离"
+    examples:
+      - "Repository模式、Service层"
+
+anti_patterns:
+  - name: "God Object"
+    indicators:
+      - "类过于庞大"
+      - "职责过多"
+      - "方法过多"
+    solution: "拆分职责，遵循单一职责原则"
+
+  - name: "Spaghetti Code"
+    indicators:
+      - "控制流复杂"
+      - "goto语句"
+      - "深度嵌套"
+    solution: "重构代码，简化控制流"
+
+  - name: "Copy-Paste Programming"
+    indicators:
+      - "重复代码"
+      - "相似函数"
+      - "硬编码"
+    solution: "提取公共方法，使用模板模式"
+
+  - name: "Magic Numbers"
+    indicators:
+      - "未命名的数字"
+      - "硬编码值"
+      - "缺少常量"
+    solution: "定义命名常量，使用枚举"
+
+quality_metrics:
+  complexity:
+    - "圈复杂度 < 10"
+    - "方法长度 < 50行"
+    - "类长度 < 500行"
+
+  coupling:
+    - "低耦合设计"
+    - "依赖抽象而非具体实现"
+    - "接口隔离"
+
+  cohesion:
+    - "高内聚模块"
+    - "相关功能聚集"
+    - "职责明确"
+
+  testability:
+    - "依赖注入"
+    - "接口抽象"
+    - "纯函数"
+    - "模拟对象支持"
