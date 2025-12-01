@@ -13,11 +13,21 @@ export OPENAI_API_KEY="your-openai-api-key-here"
 
 import os
 from typing import List, Dict, Optional
-import anthropic
-import openai
 
-DEEPSEEK_API_KEY="sk-943df854319e423ca178e68e4668ca5a"
-# 关键：指定 DeepSeek 的 API 基础 URL
+# 可选导入 - 处理依赖缺失的情况
+try:
+    import anthropic
+except ImportError:
+    anthropic = None
+
+try:
+    import openai
+except ImportError:
+    openai = None
+
+# DeepSeek API密钥 - 从环境变量获取
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
+# DeepSeek API 基础 URL
 DEEPSEEK_BASE_URL = "https://api.deepseek.com/v1"
 
 # llm = ChatOpenAI(
@@ -33,17 +43,17 @@ class UniversalAIAgent:
         "claude": {
             "models": ["claude-3-5-sonnet-20241022", "claude-3-haiku-20240307", "claude-3-opus-20240229"],
             "env_key": "ANTHROPIC_API_KEY",
-            "client_class": anthropic.Anthropic
+            "client_class": anthropic.Anthropic if anthropic else None
         },
         "openai": {
             "models": ["gpt-3.5-turbo", "gpt-4", "gpt-4-turbo-preview"],
             "env_key": "OPENAI_API_KEY",
-            "client_class": openai.OpenAI
+            "client_class": openai.OpenAI if openai else None
         },
         "deepseek": {
             "models": ["deepseek-chat"],
             "env_key": "DEEPSEEK_API_KEY",
-            "client_class": openai.OpenAI
+            "client_class": openai.OpenAI if openai else None
         },
         "ollama": {
             "models": ["llama2", "mistral", "codellama", "phi"],

@@ -65,5 +65,6 @@ pip-delete-this-directory.txt
 # docs/stories/ is intentionally not ignored
 
 langgraph-agent/.env
+*.env.example
 CLAUDE.local.md
 AgentSdkTest/hello33.txt
