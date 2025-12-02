@@ -32,8 +32,7 @@
       "Bash(find:*)",
       "Bash(dotnet build:*)",
       "Skill(translate-to-chinese)",
-      "Bash(rm:*)",
-      "Bash(python:*)"
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []
