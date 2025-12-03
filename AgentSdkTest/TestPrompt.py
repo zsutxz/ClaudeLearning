@@ -46,7 +46,7 @@ class UniversalAIAgent:
 
     SUPPORTED_PROVIDERS = {
         "claude": {
-            "models": ["claude-4-5-sonnet", "claude-4-haiku", "claude-4-opus"],
+            "models": ["glm-4.6", "claude-4-haiku", "claude-4-opus"],
             "env_key": "ANTHROPIC_API_KEY",
             "client_class": anthropic.Anthropic
         },
@@ -120,7 +120,7 @@ class UniversalAIAgent:
 
             # 初始化客户端
             if self.provider == "claude":
-                self.client = anthropic.Anthropic(api_key=self.api_key)
+                self.client = anthropic.Anthropic(api_key=self.api_key, base_url=base_url)
                 print(f"[Claude] 使用Claude模型: {model}")
             elif self.provider == "openai":
                 self.client = openai.OpenAI(api_key=self.api_key, base_url=base_url)
@@ -407,7 +407,7 @@ def main():
         #     "帮助用户制定学习计划和提供学习建议",
         #     provider="claude",
         #     api_key=os.getenv('CLAUDE_API_KEY'),
-        #     base_url=os.getenv('CLAUDE_BASE_URL', 'https://api.anthropic.com')
+        #     base_url=os.getenv('CLAUDE_BASE_URL', 'https://open.bigmodel.cn/api/anthropic')
         # )
 
         # plan = task_agent.solve_problem("我想学习人工智能，应该从哪里开始？")

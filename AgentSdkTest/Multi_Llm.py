@@ -41,7 +41,7 @@ class UniversalAIAgent:
 
     SUPPORTED_PROVIDERS = {
         "claude": {
-            "models": ["claude-3-5-sonnet-20241022", "claude-3-haiku-20240307", "claude-3-opus-20240229"],
+            "models": ["glm-4.6", "claude-4-haiku", "claude-4-opus"],
             "env_key": "ANTHROPIC_API_KEY",
             "client_class": anthropic.Anthropic if anthropic else None
         },
@@ -115,7 +115,7 @@ class UniversalAIAgent:
 
             # 初始化客户端
             if self.provider == "claude":
-                self.client = anthropic.Anthropic(api_key=self.api_key)
+                self.client = anthropic.Anthropic(api_key=self.api_key,base_url=base_url)
                 print(f"[Claude] 使用Claude模型: {model}")
             elif self.provider == "openai":
                 self.client = openai.OpenAI(api_key=self.api_key, base_url=base_url)
@@ -433,19 +433,19 @@ def main():
         print("回复:", response)
         print("-" * 40)
 
-        # 2. 任务型代理（模拟模式）
+        # 2. 任务型代理(claude)
         print("\n任务型代理示例（模拟模式）:")
         task_agent = UniversalTaskAgent(
             "帮助用户制定学习计划和提供学习建议",
-            provider="deepseek",
-            api_key=DEEPSEEK_API_KEY,
-            base_url=DEEPSEEK_BASE_URL
+            provider="claude",
+            api_key=os.getenv('CLAUDE_API_KEY'),
+            base_url=os.getenv('CLAUDE_BASE_URL', 'https://open.bigmodel.cn/api/anthropic')
         )
 
         plan = task_agent.solve_problem("我想学习人工智能，应该从哪里开始？")
         print("学习建议:", plan)
         print("-" * 40)
-
+        
         # 3. 代码助手代理（模拟模式）
         print("\n代码助手代理示例（模拟模式）:")
         code_agent = UniversalCodeAgent(language="Python",       
@@ -457,6 +457,7 @@ def main():
         print("代码解决方案:")
         print(code_solution)
         print("-" * 40)
+    
 
         # 4. 代码审查示例（模拟模式）
         print("\n代码审查示例（模拟模式）:")
