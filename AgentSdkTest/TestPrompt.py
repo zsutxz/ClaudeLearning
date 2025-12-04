@@ -16,6 +16,7 @@ from typing import List, Dict, Optional
 import anthropic
 import openai
 
+
 # 加载.env文件中的环境变量
 try:
     from dotenv import load_dotenv
@@ -30,11 +31,6 @@ except ImportError:
                     key, value = line.strip().split('=', 1)
                     os.environ[key] = value
 
-# 确保API密钥存在
-if not os.getenv('ANTHROPIC_API_KEY'):
-    raise ValueError("请设置ANTHROPIC_API_KEY环境变量或在.env文件中配置")
-
-
 # llm = ChatOpenAI(
 #     model="deepseek-chat", # 使用 DeepSeek 的模型名称
 #     openai_api_base=DEEPSEEK_BASE_URL, # 指定 DeepSeek 的 URL
@@ -48,17 +44,17 @@ class UniversalAIAgent:
         "claude": {
             "models": ["glm-4.6", "claude-4-haiku", "claude-4-opus"],
             "env_key": "ANTHROPIC_API_KEY",
-            "client_class": anthropic.Anthropic
+            "client_class": anthropic.Anthropic if anthropic else None
         },
         "openai": {
             "models": ["gpt-3.5-turbo", "gpt-4", "gpt-4-turbo-preview"],
             "env_key": "OPENAI_API_KEY",
-            "client_class": openai.OpenAI
+            "client_class": openai.OpenAI if openai else None
         },
         "deepseek": {
             "models": ["deepseek-chat"],
             "env_key": "DEEPSEEK_API_KEY",
-            "client_class": openai.OpenAI
+            "client_class": openai.OpenAI if openai else None
         },
         "ollama": {
             "models": ["llama2", "mistral", "codellama", "phi"],
@@ -112,8 +108,9 @@ class UniversalAIAgent:
             else:
                 self.api_key = api_key or os.getenv(provider_config["env_key"])
 
+            # 检查API密钥是否有效
             if not self.api_key:
-                print(f"[Warning] 未设置{provider_config['env_key']}环境变量，将使用模拟模式")
+                print(f"[Warning] 未设置有效的{provider_config['env_key']}环境变量，将使用模拟模式")
                 self.provider = "mock"
                 self.client = None
                 return
@@ -401,22 +398,22 @@ def main():
             print(f"  {provider}: {', '.join(config['models'][:3])}{'...' if len(config['models']) > 3 else ''}")
 
 
-        # # 2. 任务型代理(claude)
-        # print("\n任务型代理示例（模拟模式）:")
-        # task_agent = UniversalTaskAgent(
-        #     "帮助用户制定学习计划和提供学习建议",
-        #     provider="claude",
-        #     api_key=os.getenv('CLAUDE_API_KEY'),
-        #     base_url=os.getenv('CLAUDE_BASE_URL', 'https://open.bigmodel.cn/api/anthropic')
-        # )
+        # 2. 任务型代理(claude)
+        print("\n任务型代理示例（模拟模式）:")
+        task_agent = UniversalTaskAgent(
+            "帮助用户制定学习计划和提供学习建议",
+            provider="claude",
+            api_key=os.getenv('CLAUDE_API_KEY'),
+            base_url=os.getenv('CLAUDE_BASE_URL', 'https://open.bigmodel.cn/api/anthropic')
+        )
 
-        # plan = task_agent.solve_problem("我想学习人工智能，应该从哪里开始？")
-        # print("学习建议:", plan)
-        # print("-" * 40)
 
+        plan = task_agent.solve_problem("我想学习人工智能，应该从哪里开始？")
+        print("学习建议:", plan)
+        print("-" * 40)
 
         # 3. 问题回答(claude)
-        print("\n任务型代理示例（模拟模式）:")
+        print("\n编程助手示例:")
         talk_agent = UniversalTaskAgent(
             "帮助用户给出标准答案",
             provider="claude",

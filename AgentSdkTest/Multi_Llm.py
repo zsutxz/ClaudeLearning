@@ -25,10 +25,7 @@ try:
 except ImportError:
     openai = None
 
-# DeepSeek API密钥 - 从环境变量获取
-DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
-# DeepSeek API 基础 URL
-DEEPSEEK_BASE_URL = "https://api.deepseek.com/v1"
+
 
 # llm = ChatOpenAI(
 #     model="deepseek-chat", # 使用 DeepSeek 的模型名称
