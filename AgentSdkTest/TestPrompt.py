@@ -21,7 +21,7 @@ def main():
             "帮助用户制定学习计划和提供学习建议",
             provider="claude",
             api_key=os.getenv('ANTHROPIC_API_KEY'),
-            base_url=os.getenv('CLAUDE_BASE_URL', 'https://open.bigmodel.cn/api/anthropic')
+            base_url=os.getenv('ANTHROPIC_BASE_URL', 'https://open.bigmodel.cn/api/anthropic')
         )
 
 
