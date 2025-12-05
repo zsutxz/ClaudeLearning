@@ -68,3 +68,4 @@ langgraph-agent/.env
 *.env.example
 CLAUDE.local.md
 AgentSdkTest/hello33.txt
+AgentSdkTest/env.rar
