@@ -74,14 +74,18 @@ skill docx                       # Word文档处理
 - **依赖**: 4个核心Python包
 
 #### 4. Claude技能系统 (`.claude/skills/`)
-- **功能**: 20+个专业技能模块，扩展Claude Code能力
+- **功能**: 35个专业技能模块，扩展Claude Code能力
 - **主要技能**:
-  - `code-architecture-analyzer` - 智能代码架构解读工具
-  - `ai-news-aggregator` - AI新闻聚合器
-  - `algorithmic-art` - 算法艺术生成器
-  - `docx` - Word文档处理工具
-  - `pdf` - PDF文档处理工具
-  - `artifacts-builder` - HTML构件构建器
+  - `code-architecture-analyzer` - 智能代码架构解读和分析工具
+  - `ai-news-aggregator` - AI行业新闻聚合和智能总结
+  - `algorithmic-art` - 算法艺术生成器（p5.js）
+  - `docx` - Word文档创建、编辑和分析工具
+  - `pdf` - PDF文档处理、提取和转换工具
+  - `artifacts-builder` - HTML构件构建器（React、Tailwind CSS）
+  - `mcp-builder` - MCP服务器开发指南
+  - `meeting-insights-analyzer` - 会议记录分析和行为洞察
+  - `video-downloader` - 视频下载和处理工具
+  - `unity-*` - Unity游戏开发相关技能套件
 
 #### 5. 产品文档 (`docs/`)
 - **内容**: 完整的产品简报和需求文档
@@ -107,7 +111,7 @@ E:\AI\ClaudeLearning\
 │   └── docs/                    # BMAD文档
 ├── .claude/                     # Claude工具和配置
 │   ├── settings.local.json      # Claude本地配置
-│   └── skills/                  # 20+专业技能模块
+│   └── skills/                  # 35个专业技能模块
 ├── AgentSdkTest/                # Claude Agent SDK测试
 │   ├── Multi_LLm.py             # 多模型支持
 │   ├── TestMcp.py               # MCP服务器测试
@@ -305,6 +309,18 @@ OPENAI_API_KEY=your_openai_api_key_here
 - `.claude/settings.local.json` - Claude本地配置，启用文件系统MCP服务器
 - `AgentSdkTest/.mcp.json` - MCP文件系统服务器配置
 
+### 实际使用的模型配置
+当前环境主要通过glm-4.6模型（智谱AI）提供服务：
+```bash
+# 主要使用模型
+GLM_MODEL=glm-4.6
+
+# 支持的备用模型
+ANTHROPIC_API_KEY=your_anthropic_api_key_here  # Claude模型
+OPENAI_API_KEY=your_openai_api_key_here         # OpenAI模型
+DEEPSEEK_API_KEY=your_deepseek_api_key_here     # DeepSeek模型
+```
+
 ## 📝 开发指南
 
 ### 新项目添加流程
@@ -373,12 +389,15 @@ git diff
 
 ### 3. Claude技能生态系统
 
-#### 技能分类
-- **创意设计**: algorithmic-art, canvas-design, slack-gif-creator
-- **开发技术**: artifacts-builder, mcp-server, webapp-testing
-- **企业通信**: brand-guidelines, internal-comms, theme-factory
-- **文档处理**: docx, pdf, pptx, xlsx
-- **元技能**: skill-creator, template-skill
+#### 实际技能分类（35个技能）
+- **代码与开发**: code-architecture-analyzer, artifacts-builder, mcp-builder, unity-*
+- **文档处理**: docx, pdf, pptx, xlsx, translate-it-article
+- **创意设计**: algorithmic-art, canvas-design, image-enhancer
+- **商业分析**: ai-news-aggregator, lead-research-assistant, bmm-*
+- **数据科学**: data-scientist, bmm-data-analyst, llm-evaluation
+- **企业管理**: internal-comms, invoice-organizer, meeting-insights-analyzer
+- **媒体处理**: video-downloader, theme-factory
+- **元技能**: skill-creator, template-skill, prompt-engineering-patterns
 
 #### 技能使用模式
 ```bash
@@ -430,6 +449,7 @@ npm install -g bmad-method
 - 检查ANTHROPIC_API_KEY是否正确设置
 - 验证Claude Agent SDK版本兼容性
 - 确认网络代理设置（如需要）
+- 当前环境使用glm-4.6模型，确认智谱AI访问正常
 
 **问题**: 多模型测试失败
 - 验证对应模型的API密钥配置
@@ -501,11 +521,11 @@ workflows:
 - AI应用开发 (Python LangGraph)
 - 智能代理集成 (Claude SDK)
 - 企业级开发 (BMAD框架)
-- 专业化技能系统 (30+技能)
+- 专业化技能系统 (35个技能)
 
 ### 2. **完善的开发生态**
 - 统一的MCP服务器集成
-- 30+专业扩展技能
+- 35个专业扩展技能
 - 企业级BMAD开发框架
 - 完整的文档和规范
 
