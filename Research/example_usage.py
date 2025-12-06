@@ -18,11 +18,6 @@ async def basic_usage_example():
     print("=== Research Agent 基础使用示例 ===\n")
 
     # 创建Research Agent
-    # agent = ResearchAgent(
-    #     research_domain="人工智能",
-    #     provider="mock",  # 使用模拟模式进行演示
-    #     model="mock-model"
-    # )
     agent = ResearchAgent(
             research_domain="人工智能",
             provider="claude",  # 使用模拟模式进行测试
