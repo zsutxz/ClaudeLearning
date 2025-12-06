@@ -18,11 +18,17 @@ async def basic_usage_example():
     print("=== Research Agent 基础使用示例 ===\n")
 
     # 创建Research Agent
+    # agent = ResearchAgent(
+    #     research_domain="人工智能",
+    #     provider="mock",  # 使用模拟模式进行演示
+    #     model="mock-model"
+    # )
     agent = ResearchAgent(
-        research_domain="人工智能",
-        provider="mock",  # 使用模拟模式进行演示
-        model="mock-model"
-    )
+            research_domain="人工智能",
+            provider="claude",  # 使用模拟模式进行测试
+            api_key=os.getenv('ANTHROPIC_API_KEY'),
+            base_url=os.getenv('ANTHROPIC_BASE_URL', 'https://open.bigmodel.cn/api/anthropic')
+        )
 
     print(f"研究领域: {agent.research_domain}")
     print(f"AI提供商: {agent.provider}")
@@ -116,7 +122,7 @@ async def advanced_usage_example():
 
     print("\n=== 高级示例完成 ===\n")
 
-def configuration_example():
+async def configuration_example():
     """配置示例"""
     print("=== 配置示例 ===\n")
 
@@ -276,9 +282,9 @@ if __name__ == "__main__":
     # 检查环境
     try:
         from research_agent import ResearchAgent
-        print("✓ ResearchAgent 导入成功")
+        print("[OK] ResearchAgent 导入成功")
     except ImportError as e:
-        print(f"✗ 导入错误: {e}")
+        print(f"[ERROR] 导入错误: {e}")
         print("请确保依赖已正确安装")
         sys.exit(1)
 

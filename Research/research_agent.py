@@ -26,7 +26,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'AgentSdkTest'))
 
 # 导入基础代理类
 try:
-    from MultiAIAgent import UniversalTaskAgent, UniversalAIAgent
+    from MultiAIAgent import UniversalTaskAgent
 except ImportError:
     print("Error: 无法导入MultiAIAgent，请确保AgentSdkTest目录存在且包含MultiAIAgent.py")
     UniversalTaskAgent = object
@@ -168,8 +168,13 @@ class ResearchAgent(UniversalTaskAgent):
         """
         logger.info(f"开始执行技术调研: {query}")
 
+        # 过滤出 ResearchConfig 接受的参数
+        config_kwargs = {k: v for k, v in options.items()
+                        if k in ['research_domain', 'max_sources', 'output_format',
+                                'include_github', 'include_papers', 'include_blogs', 'cache_results']}
+
         # 更新配置
-        config = ResearchConfig(**options)
+        config = ResearchConfig(**config_kwargs)
 
         # 初始化模块
         if not self.literature_retriever:
@@ -247,8 +252,10 @@ class ResearchAgent(UniversalTaskAgent):
     async def _search_literature(self, query: str, config: ResearchConfig) -> Dict[str, Any]:
         """执行文献检索"""
         try:
-            if hasattr(self.literature_retriever, '__call__'):
+            if hasattr(self.literature_retriever, '__call__') and asyncio.iscoroutinefunction(self.literature_retriever):
                 return await self.literature_retriever(query, config)
+            elif hasattr(self.literature_retriever, '__call__'):
+                return self.literature_retriever(query, config)
             else:
                 # 使用AI进行基础文献搜索建议
                 prompt = f"""请为"{query}"这个研究主题提供文献搜索建议。
@@ -277,8 +284,10 @@ class ResearchAgent(UniversalTaskAgent):
     async def _process_data(self, query: str, config: ResearchConfig) -> Dict[str, Any]:
         """处理研究数据"""
         try:
-            if hasattr(self.data_processor, '__call__'):
+            if hasattr(self.data_processor, '__call__') and asyncio.iscoroutinefunction(self.data_processor):
                 return await self.data_processor(query, config)
+            elif hasattr(self.data_processor, '__call__'):
+                return self.data_processor(query, config)
             else:
                 # 使用AI进行基础数据处理建议
                 prompt = f"""对于"{query}"这个研究主题，请提供数据收集和处理建议。
@@ -306,8 +315,10 @@ class ResearchAgent(UniversalTaskAgent):
     async def _check_quality(self, research_data: Dict[str, Any]) -> Dict[str, Any]:
         """执行质量检查"""
         try:
-            if hasattr(self.quality_checker, '__call__'):
+            if hasattr(self.quality_checker, '__call__') and asyncio.iscoroutinefunction(self.quality_checker):
                 return await self.quality_checker(research_data)
+            elif hasattr(self.quality_checker, '__call__'):
+                return self.quality_checker(research_data)
             else:
                 # 使用AI进行基础质量评估
                 prompt = f"""请对以下研究数据进行质量评估:
@@ -527,8 +538,9 @@ if __name__ == "__main__":
         # 创建研究代理
         agent = ResearchAgent(
             research_domain="人工智能",
-            provider="mock",  # 使用模拟模式进行测试
-            model="mock-model"
+            provider="claude",  # 使用模拟模式进行测试
+            api_key=os.getenv('ANTHROPIC_API_KEY'),
+            base_url=os.getenv('ANTHROPIC_BASE_URL', 'https://open.bigmodel.cn/api/anthropic')
         )
 
         # 执行研究
