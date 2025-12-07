@@ -1,0 +1,65 @@
+# RAG系统依赖包
+
+# 核心LangChain
+langchain>=0.1.0
+langchain-community>=0.0.13
+langchain-openai>=0.0.2
+
+# 向量数据库
+chromadb>=0.4.15
+faiss-cpu>=1.7.4
+pinecone-client>=2.2.4
+weaviate-client>=3.24.2
+qdrant-client>=1.6.4
+
+# 嵌入模型
+sentence-transformers>=2.2.2
+instruct-embeddings>=1.0.1
+
+# 文档处理
+pypdf>=3.17.0
+unstructured[all-docs]>=0.11.6
+python-docx>=1.1.0
+python-multipart>=0.0.6
+
+# 文本处理
+tiktoken>=0.5.2
+nltk>=3.8.1
+
+# 数据处理
+pandas>=2.1.4
+numpy>=1.24.4
+
+# LLM和API
+openai>=1.6.1
+anthropic>=0.7.8
+tiktoken>=0.5.2
+
+# 检索和重排
+rank-bm25>=0.2.2
+cohere>=4.40
+
+# 工具和配置
+python-dotenv>=1.0.0
+pydantic>=2.5.0
+pyyaml>=6.0.1
+
+# 日志和监控
+rich>=13.7.0
+tqdm>=4.66.1
+
+# 评估
+rouge-score>=0.1.2
+bert-score>=0.3.13
+nltk>=3.8.1
+
+# Web服务（可选）
+fastapi>=0.104.1
+uvicorn>=0.24.0
+streamlit>=1.28.2
+
+# 开发和测试
+pytest>=7.4.4
+pytest-asyncio>=0.21.1
+black>=23.11.0
+flake8>=6.1.0
