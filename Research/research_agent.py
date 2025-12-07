@@ -17,9 +17,11 @@ import sys
 import asyncio
 import json
 import logging
+import re
 from typing import Dict, List, Optional, Any
 from datetime import datetime
 from dataclasses import dataclass
+from pathlib import Path
 
 # 添加AgentSdkTest路径到系统路径
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'AgentSdkTest'))
@@ -46,6 +48,8 @@ class ResearchConfig:
     include_papers: bool = True
     include_blogs: bool = True
     cache_results: bool = True
+    save_to_file: bool = True  # 是否自动保存报告到文件
+    reports_dir: str = "reports"  # 报告保存目录
 
 @dataclass
 class ResearchResult:
@@ -57,6 +61,7 @@ class ResearchResult:
     report: str
     metadata: Dict[str, Any]
     timestamp: datetime
+    saved_file_path: Optional[str] = None  # 保存的文件路径
 
 class ResearchAgent(UniversalTaskAgent):
     """
@@ -125,6 +130,9 @@ class ResearchAgent(UniversalTaskAgent):
         self.data_processor = None
         self.report_generator = None
         self.quality_checker = None
+
+        # 确保报告目录存在
+        self._ensure_reports_directory()
 
         logger.info(f"Research Agent 初始化完成 - 研究领域: {research_domain}")
 
@@ -533,7 +541,7 @@ if __name__ == "__main__":
     # 测试代码
     async def test_research_agent():
         """测试Research Agent"""
-        print("=== Research Agent 测试 ===")
+        print("=== Research Agent ===")
 
         # 创建研究代理
         agent = ResearchAgent(
@@ -545,7 +553,7 @@ if __name__ == "__main__":
 
         # 执行研究
         result = await agent.conduct_research(
-            query="大语言模型的最新发展趋势",
+            query="使用llm rag 进行客服系统构建的最新方法",
             max_sources=10,
             output_format="markdown"
         )
