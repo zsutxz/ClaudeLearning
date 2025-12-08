@@ -136,6 +136,46 @@ class ResearchAgent(UniversalTaskAgent):
 
         logger.info(f"Research Agent 初始化完成 - 研究领域: {research_domain}")
 
+    def _ensure_reports_directory(self):
+        """确保reports目录存在"""
+        try:
+            reports_dir = Path(self.config.reports_dir)
+            reports_dir.mkdir(exist_ok=True)
+            logger.info(f"Reports目录已准备: {reports_dir.absolute()}")
+        except Exception as e:
+            logger.error(f"创建reports目录失败: {e}")
+
+    def _generate_filename(self, query: str, timestamp: datetime) -> str:
+        """生成报告文件名"""
+        # 清理查询字符串，移除不安全字符
+        safe_query = re.sub(r'[<>:"/\\|?*]', '_', query)
+        safe_query = re.sub(r'\s+', '_', safe_query)
+        safe_query = safe_query.strip('_')[:50]  # 限制长度
+
+        # 格式化时间戳
+        time_str = timestamp.strftime('%Y%m%d_%H%M%S')
+
+        # 生成文件名
+        filename = f"{time_str}_{safe_query}.{self.config.output_format}"
+        return filename
+
+    def _save_report_to_file(self, report: str, filename: str) -> str:
+        """保存报告到文件"""
+        try:
+            reports_dir = Path(self.config.reports_dir)
+            file_path = reports_dir / filename
+
+            # 保存报告
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.write(report)
+
+            logger.info(f"报告已保存到: {file_path.absolute()}")
+            return str(file_path.absolute())
+
+        except Exception as e:
+            logger.error(f"保存报告失败: {e}")
+            return None
+
     def _init_modules(self):
         """初始化功能模块"""
         try:
@@ -179,7 +219,8 @@ class ResearchAgent(UniversalTaskAgent):
         # 过滤出 ResearchConfig 接受的参数
         config_kwargs = {k: v for k, v in options.items()
                         if k in ['research_domain', 'max_sources', 'output_format',
-                                'include_github', 'include_papers', 'include_blogs', 'cache_results']}
+                                'include_github', 'include_papers', 'include_blogs', 'cache_results',
+                                'save_to_file', 'reports_dir']}
 
         # 更新配置
         config = ResearchConfig(**config_kwargs)
@@ -224,6 +265,19 @@ class ResearchAgent(UniversalTaskAgent):
                 'config': config
             })
 
+            # 保存报告到文件（如果启用）
+            saved_file_path = None
+            if config.save_to_file:
+                try:
+                    # 生成文件名
+                    filename = self._generate_filename(query, datetime.now())
+
+                    # 保存报告
+                    saved_file_path = self._save_report_to_file(final_report, filename)
+
+                except Exception as e:
+                    logger.error(f"自动保存报告失败: {e}")
+
             # 构建结果
             result = ResearchResult(
                 query=query,
@@ -236,12 +290,16 @@ class ResearchAgent(UniversalTaskAgent):
                     'config': config.__dict__,
                     'provider': self.provider,
                     'model': self.model,
-                    'timestamp': datetime.now().isoformat()
+                    'timestamp': datetime.now().isoformat(),
+                    'saved_file_path': saved_file_path
                 },
-                timestamp=datetime.now()
+                timestamp=datetime.now(),
+                saved_file_path=saved_file_path
             )
 
             logger.info(f"技术调研完成: {query}")
+            if saved_file_path:
+                logger.info(f"报告已保存到: {saved_file_path}")
             return result
 
         except Exception as e:
@@ -555,13 +613,23 @@ if __name__ == "__main__":
         result = await agent.conduct_research(
             query="使用llm rag 进行客服系统构建的最新方法",
             max_sources=10,
-            output_format="markdown"
+            output_format="markdown",
+            save_to_file=True,  # 启用自动保存
+            reports_dir="reports"  # 指定保存目录
         )
 
         print(f"研究查询: {result.query}")
         print(f"生成时间: {result.timestamp}")
+        print(f"保存路径: {result.saved_file_path}")
         print("\n=== 生成的报告 ===")
         print(result.report)
+
+        # 验证文件是否保存成功
+        if result.saved_file_path and os.path.exists(result.saved_file_path):
+            print(f"\n✅ 报告已成功保存到: {result.saved_file_path}")
+            print(f"📁 文件大小: {os.path.getsize(result.saved_file_path)} 字节")
+        else:
+            print("\n❌ 报告保存失败")
 
         print("\n=== 测试完成 ===")
 
