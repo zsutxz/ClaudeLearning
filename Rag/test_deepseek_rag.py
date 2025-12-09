@@ -155,6 +155,7 @@ def test_deepseek_rag():
             embedding=embeddings,
             persist_directory="./test_vector_store"
         )
+        
         print("向量存储创建成功！")
 
         # Test similarity search
