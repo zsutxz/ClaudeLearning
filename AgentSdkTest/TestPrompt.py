@@ -30,7 +30,7 @@ def main():
         print("-" * 40)
 
         # 显示对话统计
-        print(f"{talk_agent.get_conversation_summary()}")
+        print(f"{task_agent.get_conversation_summary()}")
 
     except Exception as e:
         print(f"运行示例时出错: {str(e)}")

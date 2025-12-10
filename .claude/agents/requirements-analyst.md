@@ -1,5 +1,5 @@
 ---
-name: bmm-requirements-analyst
+name: requirements-analyst
 description: Analyzes and refines product requirements, ensuring completeness, clarity, and testability. use PROACTIVELY when extracting requirements from user input or validating requirement quality
 tools:
 ---

@@ -1,0 +1,44 @@
+{
+  "mcpServers": {
+    "research-tools": {
+      "command": "python",
+      "args": ["-m", "mcp_servers.research_server"],
+      "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}",
+        "KAGGLE_USERNAME": "${KAGGLE_USERNAME}",
+        "KAGGLE_KEY": "${KAGGLE_KEY}",
+        "ARXIV_API_BASE": "${ARXIV_API_BASE:http://export.arxiv.org/api/query}",
+        "RESEARCH_DATA_DIR": "./data",
+        "CACHE_ENABLED": "true",
+        "LOG_LEVEL": "INFO"
+      }
+    },
+    "github-server": {
+      "command": "python",
+      "args": ["-m", "mcp_servers.github_server"],
+      "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}",
+        "GITHUB_API_BASE": "${GITHUB_API_BASE:https://api.github.com}",
+        "MAX_RESULTS": "20"
+      }
+    },
+    "arxiv-server": {
+      "command": "python",
+      "args": ["-m", "mcp_servers.arxiv_server"],
+      "env": {
+        "ARXIV_API_BASE": "${ARXIV_API_BASE:http://export.arxiv.org/api/query}",
+        "MAX_PAPERS": "10",
+        "SORT_BY": "relevance"
+      }
+    },
+    "kaggle-server": {
+      "command": "python",
+      "args": ["-m", "mcp_servers.kaggle_server"],
+      "env": {
+        "KAGGLE_USERNAME": "${KAGGLE_USERNAME}",
+        "KAGGLE_KEY": "${KAGGLE_KEY}",
+        "CACHE_DIR": "./data/kaggle"
+      }
+    }
+  }
+}

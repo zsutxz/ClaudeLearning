@@ -1,0 +1,87 @@
+# Research Agent 依赖管理
+# 继承 AgentSdkTest 核心依赖
+
+# Claude Agent SDK 核心依赖 (继承)
+anthropic>=0.3.0
+openai>=1.0.0
+requests>=2.28.0
+
+# 环境变量管理
+python-dotenv>=1.0.0
+
+# 研究专用依赖 - 数据处理和分析
+pandas>=2.0.0
+numpy>=1.24.0
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+
+# API集成库
+PyGithub>=1.59.0
+kaggle>=1.5.0
+arxiv>=1.4.0
+scholarly>=1.7.0
+
+# 网页抓取和HTTP客户端
+httpx>=0.24.0
+aiohttp>=3.8.0
+selenium>=4.15.0
+
+# 文档处理
+python-docx>=0.8.11
+PyPDF2>=3.0.0
+markdown>=3.5.0
+
+# 报告生成和模板
+jinja2>=3.1.0
+reportlab>=4.0.0
+weasyprint>=60.0
+
+# 数据可视化
+matplotlib>=3.7.0
+seaborn>=0.12.0
+plotly>=5.17.0
+
+# 缓存和存储
+redis>=4.6.0
+sqlalchemy>=2.0.0
+# sqlite3 (Python标准库，无需安装)
+
+# 日期时间处理
+python-dateutil>=2.8.0
+pytz>=2023.3
+
+# 配置管理
+pydantic>=2.0.0
+pyyaml>=6.0
+
+# 日志和监控
+loguru>=0.7.0
+rich>=13.0.0
+
+# 异步支持
+# asyncio (Python标准库，无需安装)
+aiofiles>=23.0.0
+
+# 测试框架
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-mock>=3.11.0
+
+# 代码质量
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.5.0
+
+# 安全依赖
+cryptography>=41.0.0
+python-jose>=3.3.0
+
+# 可选依赖 - 高级功能
+# transformers>=4.35.0  # 用于文本分析
+# sentence-transformers>=2.2.0  # 用于语义搜索
+# chromadb>=0.4.0  # 用于向量数据库
+# streamlit>=1.28.0  # 用于Web界面
+
+# 开发依赖
+pre-commit>=3.4.0
+isort>=5.12.0

@@ -1,0 +1,224 @@
+# RAG系统配置文件
+
+# 数据配置
+data:
+  data_path: "./data"
+  persist_path: "./vector_store"
+  file_types:
+    - "**/*.txt"
+    - "**/*.md"
+    - "**/*.pdf"
+    - "**/*.docx"
+    - "**/*.csv"
+
+# 向量数据库配置
+vector_store:
+  type: "chroma"  # chroma, faiss, pinecone, weaviate, qdrant
+  collection_name: "rag_collection"
+
+  # Chroma配置
+  chroma:
+    persist_directory: "./vector_store/chroma"
+
+  # Pinecone配置
+  pinecone:
+    api_key: "${PINECONE_API_KEY}"
+    environment: "us-west1-gcp"
+    index_name: "rag-index"
+
+  # Weaviate配置
+  weaviate:
+    url: "http://localhost:8080"
+    index_name: "Document"
+
+  # Qdrant配置
+  qdrant:
+    path: "./vector_store/qdrant"
+
+  # FAISS配置
+  faiss:
+    save_path: "./vector_store/faiss"
+
+# 嵌入模型配置
+embeddings:
+  model: "openai"  # openai, huggingface, instruct
+
+  # OpenAI嵌入
+  openai:
+    model_name: "text-embedding-ada-002"
+    api_key: "${OPENAI_API_KEY}"
+
+  # HuggingFace嵌入
+  huggingface:
+    model_name: "sentence-transformers/all-MiniLM-L6-v2"
+    device: "cpu"
+
+  # Instruct嵌入
+  instruct:
+    model_name: "hkunlp/instructor-large"
+    device: "cpu"
+
+# 文档处理配置
+document_processing:
+  chunk_size: 1000
+  chunk_overlap: 200
+  chunk_strategy: "recursive"  # recursive, token, semantic, markdown
+
+  # 递归分割配置
+  recursive:
+    separators: ["\n\n", "\n", " ", ""]
+
+  # Token分割配置
+  token:
+    encoding_name: "cl100k_base"  # tiktoken编码
+
+  # 语义分割配置
+  semantic:
+    breakpoint_threshold_type: "percentile"
+    breakpoint_threshold_amount: 95
+
+  # Markdown分割配置
+  markdown:
+    headers:
+      - ["#", "Header 1"]
+      - ["##", "Header 2"]
+      - ["###", "Header 3"]
+
+# 检索配置
+retrieval:
+  strategy: "semantic"  # semantic, hybrid, multi_query, contextual
+  top_k: 5
+  search_type: "similarity"  # similarity, mmr
+
+  # MMR配置
+  mmr:
+    fetch_k: 20
+    lambda_mult: 0.5
+
+  # 混合检索配置
+  hybrid:
+    dense_weight: 0.7
+    sparse_weight: 0.3
+
+  # 多查询配置
+  multi_query:
+    num_queries: 3
+
+  # 重排配置
+  rerank:
+    enabled: true
+    model: "cross-encoder/ms-marco-MiniLM-L-6-v2"
+    top_n: 10
+
+# LLM配置
+llm:
+  provider: "openai"  # openai, anthropic, huggingface
+
+  # OpenAI配置
+  openai:
+    model_name: "gpt-3.5-turbo"
+    temperature: 0.1
+    max_tokens: 1000
+    api_key: "${OPENAI_API_KEY}"
+
+  # Anthropic配置
+  anthropic:
+    model_name: "claude-3-sonnet-20240229"
+    temperature: 0.1
+    max_tokens: 1000
+    api_key: "${ANTHROPIC_API_KEY}"
+
+# 提示模板配置
+prompts:
+  qa_template: |
+    使用以下上下文来回答问题。如果无法基于上下文回答，请说"我没有足够的信息来回答这个问题"。
+
+    上下文：
+    {context}
+
+    问题：{question}
+
+    答案：
+
+  qa_with_citations: |
+    基于以下上下文回答问题，并在答案中使用[1], [2]等格式引用来源。
+
+    上下文：
+    {context}
+
+    问题：{question}
+
+    答案（包含引用）：
+
+  conversational: |
+    你是一个有用的AI助手。使用提供的上下文来回答用户的问题。
+    如果上下文中没有相关信息，请诚实地说明。
+
+    上下文：
+    {context}
+
+    聊天历史：
+    {chat_history}
+
+    当前问题：{question}
+
+    回答：
+
+# 评估配置
+evaluation:
+  metrics:
+    - "accuracy"
+    - "retrieval_precision"
+    - "retrieval_recall"
+    - "answer_relevance"
+    - "faithfulness"
+
+  # 评估数据集
+  dataset_path: "./data/evaluation.json"
+
+  # 输出路径
+  output_path: "./results/evaluation"
+
+# 日志配置
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "./logs/rag_system.log"
+  max_size: "10MB"
+  backup_count: 5
+
+# API服务配置（可选）
+api:
+  host: "0.0.0.0"
+  port: 8000
+  debug: false
+
+  # CORS配置
+  cors:
+    allow_origins: ["*"]
+    allow_methods: ["GET", "POST"]
+    allow_headers: ["*"]
+
+  # 认证配置
+  auth:
+    enabled: false
+    api_key_header: "X-API-Key"
+    api_keys: []
+
+# Streamlit应用配置（可选）
+streamlit:
+  title: "RAG问答系统"
+  page_icon: "🔍"
+  layout: "wide"
+  sidebar_state: "expanded"
+
+  # 界面配置
+  ui:
+    show_sources: true
+    show_metadata: true
+    max_context_length: 1000
+
+  # 会话配置
+  session:
+    max_history: 10
+    clear_on_submit: false

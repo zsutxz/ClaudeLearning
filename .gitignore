@@ -64,8 +64,8 @@ pip-delete-this-directory.txt
 # Story files should not be ignored as they are important documentation
 # docs/stories/ is intentionally not ignored
 
-langgraph-agent/.env
 *.env.example
 CLAUDE.local.md
 AgentSdkTest/hello33.txt
 AgentSdkTest/env.rar
+Research/reports/

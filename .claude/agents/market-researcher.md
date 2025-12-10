@@ -1,5 +1,5 @@
 ---
-name: bmm-market-researcher
+name: market-researcher
 description: Conducts comprehensive market research and competitive analysis for product requirements. use PROACTIVELY when gathering market insights, competitor analysis, or user research during PRD creation
 tools:
 ---

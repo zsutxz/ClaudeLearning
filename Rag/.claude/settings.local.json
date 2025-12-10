@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip-audit:*)",
+      "Bash(chcp:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
