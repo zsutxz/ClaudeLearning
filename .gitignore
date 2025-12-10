@@ -70,3 +70,6 @@ AgentSdkTest/hello33.txt
 AgentSdkTest/env.rar
 Research/reports/
 Rag/.env
+Rag/test_sentence_transformers_store/chroma.sqlite3
+Rag/test_sentence_transformers_store/2ba46a69-dd95-4e7d-a57c-60b9d967f5a5/data_level0.bin
+Rag/test_sentence_transformers_store/2ba46a69-dd95-4e7d-a57c-60b9d967f5a5/length.bin
