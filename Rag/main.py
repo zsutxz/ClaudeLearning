@@ -43,11 +43,15 @@ class SentenceTransformersEmbeddings:
 
     def embed_query(self, text):
         """生成单个文本的嵌入向量"""
-        return self.model.encode(text, convert_to_tensor=False)
+        embedding = self.model.encode(text, convert_to_tensor=False)
+        # 确保返回的是列表格式，Chroma期望这个格式
+        return embedding.tolist() if hasattr(embedding, 'tolist') else embedding
 
     def embed_documents(self, texts):
         """批量生成文本的嵌入向量（更高效）"""
-        return self.model.encode(texts, convert_to_tensor=False, batch_size=32)
+        embeddings = self.model.encode(texts, convert_to_tensor=False, batch_size=32)
+        # 确保返回的是列表的列表格式
+        return [emb.tolist() if hasattr(emb, 'tolist') else emb for emb in embeddings]
 
     def __call__(self, text):
         """兼容LangChain的调用方式"""
@@ -205,11 +209,11 @@ def test_sentence_transformers_rag():
         print("\n" + "="*60)
         print("测试完成！Sentence-Transformers RAG系统工作正常")
         print("\n优势:")
-        print("✓ 完全本地运行，无需API密钥")
-        print("✓ 支持多种语言的预训练模型")
-        print("✓ 可离线使用，保护数据隐私")
-        print("✓ 批量处理效率高")
-        print("✓ 支持自定义模型微调")
+        print("+ 完全本地运行，无需API密钥")
+        print("+ 支持多种语言的预训练模型")
+        print("+ 可离线使用，保护数据隐私")
+        print("+ 批量处理效率高")
+        print("+ 支持自定义模型微调")
 
         print("\n推荐的中文优化模型:")
         print("- shibing624/text2vec-base-chinese")
