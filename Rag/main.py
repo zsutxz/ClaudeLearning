@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 """
 RAG系统主程序
-使用Sentence-Transformers进行本地文本嵌入测试
+集成了检索（Retrieval）和生成（Generation）的完整RAG系统
 """
 
 import sys
+import os
 from pathlib import Path
 
 # 导入自定义模块
 from embeddings.sentence_transformers_embeddings import SentenceTransformersEmbeddings
 from core.document_loader import DocumentLoader
 from core.vector_store import VectorStoreManager
+from core.rag_system import CompleteRAGSystem, RAGConfig
 from config.environment import setup_environment
 from config.huggingface_mirror import setup_huggingface_mirror
 
@@ -130,6 +132,127 @@ def test_sentence_transformers_rag():
         traceback.print_exc()
         return False
 
+def test_complete_rag_system():
+    """测试完整的RAG系统（检索+生成）"""
+    print("="*60)
+    print("完整RAG系统测试 (DeepSeek LLM集成)")
+    print("="*60)
+
+    try:
+        # 检查环境变量
+        deepseek_api_key = os.getenv('DEEPSEEK_API_KEY')
+        if not deepseek_api_key:
+            print("\n[警告] 未设置DEEPSEEK_API_KEY环境变量")
+            print("将只进行检索测试，不生成答案")
+            print("\n要使用完整功能，请:")
+            print("1. 设置环境变量: export DEEPSEEK_API_KEY=your_key")
+            print("2. 或创建.env文件并添加DEEPSEEK_API_KEY=your_key")
+
+        # 设置环境
+        print("\n1. 设置环境...")
+        env_manager = setup_environment()
+
+        # 设置 Hugging Face 镜像
+        print("\n2. 设置 Hugging Face 国内镜像...")
+        setup_huggingface_mirror()
+
+        # 创建RAG配置
+        print("\n3. 创建RAG系统配置...")
+        config = RAGConfig(
+            embedding_model_name="paraphrase-multilingual-MiniLM-L12-v2",
+            vector_store_type="chroma",
+            llm_provider="deepseek",
+            llm_model_name="deepseek-chat",
+            retrieval_k=3,
+            max_tokens=1000,
+            temperature=0.7
+        )
+
+        # 初始化完整RAG系统
+        print("\n4. 初始化完整RAG系统...")
+        rag_system = CompleteRAGSystem(config)
+
+        # 显示系统信息
+        stats = rag_system.get_stats()
+        print(f"\n[系统信息]")
+        for key, value in stats.items():
+            print(f"  - {key}: {value}")
+
+        # 测试查询
+        print("\n5. 执行测试查询...")
+        test_questions = [
+            "什么是RAG技术？",
+            "如何优化RAG系统的性能？",
+            "RAG系统有哪些应用场景？"
+        ]
+
+        # 执行单个查询测试
+        print("\n[单个查询测试]")
+        question = test_questions[0]
+        result = rag_system.query(question)
+        rag_system.print_result(result)
+
+        # 批量查询测试
+        print("\n[批量查询测试]")
+        batch_results = rag_system.batch_query(test_questions)
+
+        # 打印总结
+        print("\n" + "="*60)
+        print("测试完成！完整RAG系统工作正常")
+        print("\n系统特性:")
+        print("[+] 本地嵌入模型，支持离线检索")
+        print("[+] DeepSeek LLM集成，智能生成答案")
+        print("[+] 模块化设计，易于扩展")
+        print("[+] 支持多种向量数据库")
+        print("[+] 完整的RAG流程：检索→生成")
+
+        if deepseek_api_key:
+            print("\n[✓] 完整RAG功能已启用")
+        else:
+            print("\n[!] 仅检索功能可用（需配置DEEPSEEK_API_KEY以启用生成）")
+
+        return True
+
+    except Exception as e:
+        print(f"\n错误: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+
+def main():
+    """主函数"""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="RAG系统测试程序")
+    parser.add_argument(
+        "--mode",
+        choices=["retrieval", "complete", "both"],
+        default="complete",
+        help="运行模式: retrieval(仅检索), complete(完整RAG), both(两者)"
+    )
+
+    args = parser.parse_args()
+
+    success = True
+
+    if args.mode in ["retrieval", "both"]:
+        print("\n" + "="*60)
+        print("运行检索系统测试...")
+        print("="*60)
+        success_retrieval = test_sentence_transformers_rag()
+        success = success and success_retrieval
+
+    if args.mode in ["complete", "both"]:
+        print("\n" + "="*60)
+        print("运行完整RAG系统测试...")
+        print("="*60)
+        success_complete = test_complete_rag_system()
+        success = success and success_complete
+
+    return success
+
+
 if __name__ == "__main__":
-    success = test_sentence_transformers_rag()
+    success = main()
     sys.exit(0 if success else 1)

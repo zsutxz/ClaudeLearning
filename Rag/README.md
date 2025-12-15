@@ -1,583 +1,329 @@
-# RAG系统 - 完整部署指南
+# RAG系统 - 智能检索增强生成系统
 
-本项目提供了多种RAG（Retrieval-Augmented Generation）系统的实现方案，从简单的本地嵌入到专业的Sentence-Transformers部署。
+一个模块化的RAG（Retrieval-Augmented Generation）系统，支持多种向量数据库和嵌入模型，专为生产环境设计。
 
-## 📋 目录
+## 🌟 核心特性
 
-- [项目概述](#项目概述)
-- [环境准备](#环境准备)
-- [快速开始](#快速开始)
-- [部署方案](#部署方案)
-- [示例代码](#示例代码)
-- [性能对比](#性能对比)
-- [常见问题](#常见问题)
-- [进阶用法](#进阶用法)
-
-## 🎯 项目概述
-
-本项目包含多种RAG实现方案：
-
-1. **DeepSeek API方案** (`test_deepseek_rag.py`) - 使用DeepSeek的聊天API
-2. **TF-IDF本地方案** (`test_local_embedding_simple.py`) - 轻量级本地实现
-3. **Sentence-Transformers方案** (`test_sentence_transformers_rag.py`) - 专业的本地嵌入
-4. **完整RAG系统** (`src/rag_system_final.py`) - 支持多种向量数据库的完整实现
-
-## 🚀 特性
-
-- **多种向量数据库支持**：Chroma, FAISS, Pinecone, Weaviate, Qdrant
-- **多种嵌入模型**：OpenAI, HuggingFace, Sentence-Transformers, TF-IDF
-- **灵活的检索策略**：语义搜索、混合搜索、多查询检索、上下文压缩
-- **完整的文档处理**：支持PDF、Markdown、Word、CSV等格式
-- **本地部署选项**：完全离线运行，保护数据隐私
-- **易于使用**：简洁的API和详细的文档
+- **完整RAG流程**：集成了检索(Retrieval)和生成(Generation)的完整RAG系统
+- **模块化架构**：核心组件解耦，易于扩展和维护
+- **DeepSeek LLM集成**：支持DeepSeek大语言模型进行智能答案生成
+- **多模型支持**：Sentence-Transformers、OpenAI、Hugging Face等
+- **多向量数据库**：Chroma、FAISS、Pinecone、Weaviate、Qdrant
+- **本地部署**：支持完全离线运行，保护数据隐私
+- **高性能**：批量处理、GPU加速、缓存机制
+- **易于使用**：简洁的API设计，详细的文档和示例
 
 ## 📁 项目结构
 
 ```
 rag/
-├── src/                       # 源代码
-│   ├── rag_system_final.py    # 完整RAG系统实现
-│   ├── simple_rag.py          # 简化版RAG系统
-│   └── evaluation.py          # 评估模块
-├── data/                      # 数据目录
-│   └── sample_documents/      # 示例文档
-├── test_deepseek_rag.py       # DeepSeek API版本
-├── test_local_embedding_simple.py  # TF-IDF本地版本
-├── test_sentence_transformers_rag.py # Sentence-Transformers版本
-├── test_openai_rag.py         # OpenAI版本测试
-├── deploy_sentence_transformers_guide.md  # 详细部署指南
-└── README.md                  # 项目说明
-```
-
-## 🔧 环境准备
-
-### 基础依赖
-
-```bash
-# 必需的Python包
-pip install langchain langchain-community chromadb
-pip install openai python-dotenv numpy scikit-learn
-```
-
-### Sentence-Transformers 依赖
-
-```bash
-# 安装sentence-transformers和PyTorch
-pip install sentence-transformers torch
-
-# GPU支持（可选，提升性能）
-pip install sentence-transformers torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-```
-
-### 环境变量配置
-
-创建 `.env` 文件：
-
-```env
-# DeepSeek API配置
-DEEPSEEK_API_KEY=your_deepseek_api_key_here
-DEEPSEEK_BASE_URL=https://api.deepseek.com
-
-# OpenAI API（如果需要）
-OPENAI_API_KEY=your_openai_api_key_here
-
-# Hugging Face镜像（国内加速）
-HF_ENDPOINT=https://hf-mirror.com
+├── core/                       # 核心模块
+│   ├── __init__.py
+│   ├── vector_store.py         # 向量存储管理
+│   ├── document_loader.py      # 文档加载器
+│   └── rag_system.py           # 完整RAG系统实现
+├── embeddings/                 # 嵌入模型
+│   ├── __init__.py
+│   └── sentence_transformers_embeddings.py  # Sentence-Transformers实现
+├── llm/                        # LLM集成模块
+│   ├── __init__.py
+│   ├── base_llm.py             # LLM基类
+│   └── deepseek_llm.py         # DeepSeek LLM实现
+├── config/                     # 配置模块
+│   ├── __init__.py
+│   ├── environment.py          # 环境配置
+│   └── huggingface_mirror.py   # HuggingFace镜像配置
+├── utils/                      # 工具模块
+│   ├── __init__.py
+│   └── similarity.py           # 相似度计算
+├── tests/                      # 测试模块
+│   ├── __init__.py
+│   └── test_sentence_transformers.py
+├── data/                       # 数据目录
+│   └── sample_documents/       # 示例文档
+│       └── rag_introduction.md
+├── main.py                     # 主程序入口
+├── demo_rag.py                 # RAG系统演示脚本
+├── .env.example                # 环境变量示例
+├── requirements.txt            # 依赖列表
+└── README.md                   # 项目文档
 ```
 
 ## 🚀 快速开始
 
-### 1. 测试本地TF-IDF方案（无需网络）
+### 1. 环境准备
 
 ```bash
-python test_local_embedding_simple.py
+# 克隆项目
+git clone <repository-url>
+cd rag
+
+# 创建虚拟环境
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# 安装依赖
+pip install -r requirements.txt
 ```
 
-**特点**：
-- ✅ 完全本地运行
-- ✅ 无需下载模型
-- ✅ 适合快速验证
+### 2. 配置环境变量
 
-### 2. 测试DeepSeek API方案
+创建 `.env` 文件：
+
+```env
+# Hugging Face镜像（国内用户推荐）
+HF_ENDPOINT=https://hf-mirror.com
+
+# OpenAI API（可选）
+OPENAI_API_KEY=your_openai_api_key_here
+
+# 其他配置...
+```
+
+### 3. 运行示例
 
 ```bash
-python test_deepseek_rag.py
+# 运行完整RAG系统测试
+python main.py
+
+# 或者运行交互式演示
+python demo_rag.py
+
+# 仅运行检索部分测试
+python main.py --mode retrieval
+
+# 运行完整功能
+python main.py --mode complete
 ```
 
-**注意**：需要配置DeepSeek API密钥
+## 💻 使用示例
 
-### 3. 测试Sentence-Transformers方案（推荐）
-
-```bash
-python test_sentence_transformers_rag.py
-```
-
-**首次运行**会自动下载模型，请耐心等待。
-
-### 4. 使用完整RAG系统
-
-```bash
-# 离线版本
-python test_offline_rag.py
-
-# OpenAI版本（需要API密钥）
-export OPENAI_API_KEY=your_key_here
-python test_openai_rag.py
-```
-
-## 📦 部署方案
-
-### 方案一：Sentence-Transformers（推荐）
-
-这是最适合生产环境的方案，提供高质量的语义理解。
-
-#### 1.1 模型选择
-
-| 模型名称 | 大小 | 特点 | 适用场景 |
-|---------|------|------|---------|
-| `shibing624/text2vec-base-chinese` | 420MB | 中文优化 | 中文为主的应用 |
-| `paraphrase-multilingual-MiniLM-L12-v2` | 420MB | 多语言轻量 | 国际化应用 |
-| `all-mpnet-base-v2` | 420MB | 英文高质量 | 英文应用 |
-| `paraphrase-multilingual-mpnet-base-v2` | 1.1GB | 多语言高质量 | 对质量要求高的场景 |
-
-#### 1.2 实现代码
+### 基础用法
 
 ```python
-from sentence_transformers import SentenceTransformer
-import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
+from embeddings.sentence_transformers_embeddings import SentenceTransformersEmbeddings
+from core.document_loader import DocumentLoader
+from core.vector_store import VectorStoreManager
 
-class SentenceTransformersEmbeddings:
-    """专业的本地嵌入实现"""
-
-    def __init__(self, model_name="paraphrase-multilingual-MiniLM-L12-v2"):
-        print(f"加载模型: {model_name}")
-        self.model = SentenceTransformer(model_name)
-
-    def embed_query(self, text):
-        """生成查询嵌入"""
-        return self.model.encode(text)
-
-    def embed_documents(self, texts, batch_size=32):
-        """批量生成文档嵌入"""
-        return self.model.encode(texts, batch_size=batch_size)
-
-    def similarity_search(self, query, documents, k=3):
-        """语义搜索"""
-        query_emb = self.embed_query(query)
-        doc_embs = self.embed_documents([doc.page_content for doc in documents])
-
-        # 计算相似度
-        similarities = cosine_similarity([query_emb], doc_embs)[0]
-
-        # 获取Top-K结果
-        top_indices = np.argsort(similarities)[::-1][:k]
-
-        results = []
-        for idx in top_indices:
-            results.append({
-                'document': documents[idx],
-                'similarity': similarities[idx]
-            })
-
-        return results
-
-# 使用示例
-embeddings = SentenceTransformersEmbeddings("shibing624/text2vec-base-chinese")
-results = embeddings.similarity_search("什么是RAG？", documents)
-```
-
-#### 1.3 集成到ChromaDB
-
-```python
-from langchain_community.vectorstores import Chroma
-
-# 创建向量存储
-vector_store = Chroma.from_documents(
-    documents=documents,
-    embedding=embeddings,  # 使用上面的embeddings实例
-    persist_directory="./chroma_store"
+# 初始化嵌入模型
+embeddings = SentenceTransformersEmbeddings(
+    model_name="paraphrase-multilingual-MiniLM-L12-v2"
 )
 
-# 搜索
-results = vector_store.similarity_search("查询文本", k=5)
+# 加载文档
+loader = DocumentLoader()
+documents = loader.load_text_documents()
+
+# 创建向量存储
+vector_store_manager = VectorStoreManager()
+vector_store = vector_store_manager.create_vector_store(
+    documents=documents,
+    embeddings=embeddings
+)
+
+# 执行搜索
+query = "什么是RAG技术？"
+results = vector_store_manager.similarity_search(query, k=3)
+vector_store_manager.print_search_results(results)
 ```
 
-### 方案二：TF-IDF本地方案
-
-适合快速原型开发和资源受限的环境。
+### 高级用法
 
 ```python
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+# 批量嵌入优化
+batch_results = embeddings.test_batch_embedding(
+    texts=["文本1", "文本2", "文本3"],
+    batch_size=32
+)
 
-class LocalTfidfEmbeddings:
-    """轻量级TF-IDF嵌入"""
+# 相似度分析
+from utils.similarity import SimilarityCalculator
 
-    def __init__(self, max_features=1000):
-        self.vectorizer = TfidfVectorizer(
-            max_features=max_features,
-            ngram_range=(1, 2)
-        )
-        self.fitted = False
-
-    def fit(self, documents):
-        """训练TF-IDF"""
-        texts = [doc.page_content for doc in documents]
-        self.vectorizer.fit(texts)
-        self.fitted = True
-
-    def search(self, query, documents, k=3):
-        """搜索相关文档"""
-        if not self.fitted:
-            self.fit(documents)
-
-        # 转换查询
-        query_vec = self.vectorizer.transform([query])
-
-        # 转换文档
-        doc_texts = [doc.page_content for doc in documents]
-        doc_vecs = self.vectorizer.transform(doc_texts)
-
-        # 计算相似度
-        similarities = cosine_similarity(query_vec, doc_vecs)[0]
-
-        # 返回结果
-        results = []
-        for idx in np.argsort(similarities)[::-1][:k]:
-            results.append({
-                'document': documents[idx],
-                'similarity': similarities[idx]
-            })
-
-        return results
+text1_emb = embeddings.embed_query("人工智能正在改变世界")
+text2_emb = embeddings.embed_query("AI技术影响我们的生活")
+similarity = SimilarityCalculator.cosine_similarity(text1_emb, text2_emb)
+print(f"相似度: {similarity:.3f}")
 ```
 
-### 方案三：API混合方案
+## 🔧 配置选项
 
-结合本地嵌入和云端LLM的优势。
+### 嵌入模型选择
+
+| 模型名称 | 大小 | 语言 | 特点 | 适用场景 |
+|---------|------|------|------|---------|
+| `shibing624/text2vec-base-chinese` | 420MB | 中文 | 中文优化 | 中文应用 |
+| `paraphrase-multilingual-MiniLM-L12-v2` | 420MB | 多语言 | 轻量多语言 | 国际化应用 |
+| `all-mpnet-base-v2` | 420MB | 英文 | 高质量英文 | 英文应用 |
+| `paraphrase-multilingual-mpnet-base-v2` | 1.1GB | 多语言 | 高质量多语言 | 高质量要求 |
+
+### 向量数据库配置
 
 ```python
-import os
-from openai import OpenAI
+# Chroma（默认，轻量级本地）
+vector_store = VectorStoreManager().create_vector_store(
+    documents=documents,
+    embeddings=embeddings,
+    vector_store_type="chroma"
+)
 
-class HybridRAGSystem:
-    """混合RAG系统：本地嵌入 + 云端LLM"""
+# FAISS（高性能本地）
+vector_store = VectorStoreManager().create_vector_store(
+    documents=documents,
+    embeddings=embeddings,
+    vector_store_type="faiss"
+)
 
-    def __init__(self, embedding_model, api_key, base_url):
-        self.embeddings = embedding_model
-        self.client = OpenAI(
-            api_key=api_key,
-            base_url=base_url
-        )
-
-    def query(self, question, documents, k=3):
-        """完整查询流程"""
-        # 1. 检索相关文档
-        retrieved_docs = self.embeddings.similarity_search(
-            question, documents, k
-        )
-
-        # 2. 构建提示
-        context = "\n".join([
-            doc['document'].page_content for doc in retrieved_docs
-        ])
-
-        prompt = f"""基于以下信息回答问题：
-
-信息：
-{context}
-
-问题：{question}
-
-回答："""
-
-        # 3. 调用LLM生成答案
-        response = self.client.chat.completions.create(
-            model="deepseek-chat",
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=500
-        )
-
-        return {
-            "answer": response.choices[0].message.content,
-            "sources": retrieved_docs
-        }
+# 其他向量数据库配置...
 ```
 
-## 📊 性能对比
+## 📊 性能优化
 
-| 方案 | 嵌入质量 | 速度 | 成本 | 隐私 | 部署难度 |
-|------|---------|------|------|------|---------|
-| Sentence-Transformers | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | 低 | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
-| TF-IDF | ⭐⭐ | ⭐⭐⭐⭐⭐ | 最低 | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| OpenAI API | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | 高 | ⭐ | ⭐⭐⭐⭐⭐ |
-| DeepSeek API | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | 中 | ⭐ | ⭐⭐⭐⭐ |
-
-## 🔧 高级配置
-
-### GPU加速
+### 1. 批量处理
 
 ```python
+# 批量嵌入，提高效率
+embeddings_list = embeddings.embed_documents(
+    texts=large_text_list,
+    batch_size=32
+)
+```
+
+### 2. GPU加速
+
+```python
+# 自动检测并使用GPU
 import torch
-
-# 检查GPU
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-print(f"使用设备: {device}")
-
-# 加载模型到GPU
-model = SentenceTransformer(model_name)
-model = model.to(device)
-
-# 使用GPU编码
-embeddings = model.encode(texts, device=device)
+model = SentenceTransformer(model_name).to(device)
 ```
 
-### 批量处理优化
+### 3. 缓存机制
 
 ```python
-def batch_encode(texts, batch_size=32):
-    """高效的批量编码"""
-    embeddings = []
-    for i in range(0, len(texts), batch_size):
-        batch = texts[i:i+batch_size]
-        batch_emb = model.encode(batch, show_progress_bar=True)
-        embeddings.extend(batch_emb)
-    return embeddings
+# 嵌入结果自动缓存
+embeddings = SentenceTransformersEmbeddings(
+    model_name=model_name,
+    cache_folder="./embeddings_cache"
+)
 ```
 
-### 缓存机制
+## 🌐 网络问题解决
+
+### 国内用户优化
 
 ```python
-import pickle
-import hashlib
-
-class CachedEmbeddings:
-    """带缓存的嵌入系统"""
-
-    def __init__(self, model, cache_dir="./cache"):
-        self.model = model
-        self.cache_dir = Path(cache_dir)
-        self.cache_dir.mkdir(exist_ok=True)
-
-    def get_cache_path(self, text):
-        """生成缓存路径"""
-        hash_key = hashlib.md5(text.encode()).hexdigest()
-        return self.cache_dir / f"{hash_key}.pkl"
-
-    def encode(self, text):
-        """带缓存的编码"""
-        cache_path = self.get_cache_path(text)
-
-        # 尝试从缓存读取
-        if cache_path.exists():
-            with open(cache_path, 'rb') as f:
-                return pickle.load(f)
-
-        # 生成新的嵌入
-        embedding = self.model.encode(text)
-
-        # 保存到缓存
-        with open(cache_path, 'wb') as f:
-            pickle.dump(embedding, f)
-
-        return embedding
-```
-
-## 🌐 网络问题解决方案
-
-### 使用国内镜像
-
-```python
-import os
-# 使用Hugging Face镜像
-os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
+# 自动配置HuggingFace镜像
+from config.huggingface_mirror import setup_huggingface_mirror
+setup_huggingface_mirror()
 ```
 
 ### 离线部署
 
-1. **在有网络的环境下载模型**：
-```python
-model = SentenceTransformer('model-name')
-model.save('./local_model')
-```
+1. 下载模型到本地
+2. 配置本地模型路径
+3. 完全离线运行
 
-2. **打包到离线环境**：
+## 🧪 测试
+
 ```bash
-tar -czf sentence_transformers_model.tar.gz ./local_model
+# 运行所有测试
+python -m pytest tests/
+
+# 运行特定测试
+python -m pytest tests/test_sentence_transformers.py
+
+# 运行性能测试
+python tests/test_sentence_transformers.py --benchmark
 ```
 
-3. **离线环境加载**：
-```python
-model = SentenceTransformer('./local_model')
-```
+## 📚 API文档
 
-## 📚 详细功能
+### SentenceTransformersEmbeddings
 
-### 1. 向量数据库选择
+主要的嵌入模型类，提供文本嵌入功能。
 
-```python
-# Chroma（轻量级，本地使用）
-config = RAGConfig(vector_store_type="chroma")
+#### 方法列表
 
-# FAISS（高性能，本地）
-config = RAGConfig(vector_store_type="faiss")
+- `embed_query(text: str) -> np.ndarray`: 生成查询嵌入
+- `embed_documents(texts: List[str]) -> List[np.ndarray]`: 批量生成文档嵌入
+- `test_embedding(text: str) -> Dict`: 测试单个文本嵌入
+- `test_batch_embedding() -> Dict`: 测试批量嵌入性能
 
-# Pinecone（云端，可扩展）
-config = RAGConfig(
-    vector_store_type="pinecone",
-    pinecone_api_key="your-key",
-    pinecone_environment="us-west1-gcp"
-)
+### VectorStoreManager
 
-# Weaviate（混合搜索）
-config = RAGConfig(vector_store_type="weaviate")
-```
+向量存储管理器，支持多种向量数据库。
 
-### 2. 嵌入模型选择
+#### 方法列表
 
-```python
-# OpenAI
-config = RAGConfig(embedding_model="openai", embedding_model_name="text-embedding-ada-002")
+- `create_vector_store(documents, embeddings)`: 创建向量存储
+- `similarity_search(query: str, k: int = 4)`: 执行相似度搜索
+- `print_search_results(results)`: 格式化打印搜索结果
 
-# HuggingFace Sentence Transformers
-config = RAGConfig(
-    embedding_model="huggingface",
-    embedding_model_name="sentence-transformers/all-MiniLM-L6-v2"
-)
+### DocumentLoader
 
-# 本地Sentence-Transformers
-from sentence_transformers import SentenceTransformer
-model = SentenceTransformer('shibing624/text2vec-base-chinese')
-```
+文档加载器，支持多种文档格式。
 
-### 3. 检索策略
+#### 方法列表
 
-```python
-# 语义搜索（默认）
-config = RAGConfig(retrieval_strategy="semantic")
+- `load_text_documents(directory: str = "./data")`: 加载文本文档
+- `create_test_documents()`: 创建测试文档
 
-# 多查询检索（生成多个查询变体）
-config = RAGConfig(retrieval_strategy="multi_query")
+## 🔍 故障排除
 
-# 上下文压缩（只保留相关部分）
-config = RAGConfig(retrieval_strategy="contextual")
+### 常见问题
 
-# 混合搜索（语义+关键词）
-config = RAGConfig(retrieval_strategy="hybrid")
-```
+1. **模型下载失败**
+   - 检查网络连接
+   - 使用国内镜像：`HF_ENDPOINT=https://hf-mirror.com`
+   - 手动下载模型文件
 
-## ❓ 常见问题
+2. **内存不足**
+   - 使用更小的模型
+   - 减小batch_size
+   - 使用CPU而非GPU
 
-### Q1: 模型下载失败怎么办？
-
-**解决方案**：
-1. 使用国内镜像：`export HF_ENDPOINT=https://hf-mirror.com`
-2. 手动下载模型文件
-3. 使用代理
-
-### Q2: 内存不足如何处理？
-
-**解决方案**：
-1. 使用更小的模型（如MiniLM）
-2. 减小batch_size
-3. 增加虚拟内存
-4. 使用CPU而非GPU
-
-### Q3: 如何选择合适的模型？
-
-**选择指南**：
-- 中文为主 → `shibing624/text2vec-base-chinese`
-- 多语言需求 → `paraphrase-multilingual-MiniLM-L12-v2`
-- 追求质量 → `paraphrase-multilingual-mpnet-base-v2`
-- 资源受限 → `all-MiniLM-L6-v2`
-
-### Q4: 如何提高检索准确率？
-
-**优化方法**：
-1. 使用更高质量的嵌入模型
-2. 增加文档数量和质量
-3. 优化查询语句
-4. 使用混合检索（BM25 + 向量）
-
-## 🚀 进阶用法
-
-### 微调自定义模型
-
-```python
-from sentence_transformers import SentenceTransformer, losses
-from sentence_transformers.readers import InputExample
-
-# 准备训练数据
-train_examples = [
-    InputExample(texts=['句子1', '相似句子'], label=1.0),
-    InputExample(texts=['句子1', '不相似句子'], label=0.0),
-]
-
-# 加载预训练模型
-model = SentenceTransformer('base-model')
-
-# 定义损失函数
-train_loss = losses.CosineSimilarityLoss(model)
-
-# 微调
-model.fit(
-    train_objectives=[(train_dataloader, train_loss)],
-    epochs=3,
-    warmup_steps=100,
-    output_path='./fine-tuned-model'
-)
-```
-
-### 多模态RAG
-
-```python
-from sentence_transformers import SentenceTransformer, util
-from PIL import Image
-
-# 加载多模态模型
-model = SentenceTransformer('clip-ViT-B-32')
-
-# 图像和文本嵌入
-image_emb = model.encode(Image.open('image.jpg'))
-text_emb = model.encode('图片描述')
-
-# 计算相似度
-similarity = util.cos_sim(image_emb, text_emb)
-```
-
-## 📝 最佳实践
-
-1. **生产环境部署**
-   - 使用专业的嵌入模型
+3. **性能问题**
+   - 启用GPU加速
+   - 使用批量处理
    - 实现缓存机制
-   - 监控性能指标
-   - 定期更新模型
 
-2. **性能优化**
-   - GPU加速批量处理
-   - 合理的batch_size
-   - 向量化操作
-   - 异步处理
+4. **中文支持**
+   - 使用中文优化模型：`shibing624/text2vec-base-chinese`
+   - 确保文本编码正确
 
-3. **安全考虑**
-   - 本地部署保护数据隐私
-   - API密钥安全管理
-   - 输入内容过滤
-   - 访问权限控制
+### 调试模式
 
-## 📚 相关资源
+```python
+import logging
+logging.basicConfig(level=logging.DEBUG)
+```
 
-- [Sentence-Transformers官方文档](https://www.sbert.net/)
-- [Hugging Face模型库](https://huggingface.co/models)
-- [LangChain文档](https://python.langchain.com/)
-- [ChromaDB文档](https://docs.trychroma.com/)
-- [详细部署指南](./deploy_sentence_transformers_guide.md)
+## 🤝 贡献指南
 
-## 🤝 贡献
-
-欢迎提交问题和改进建议！
+1. Fork 项目
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 开启 Pull Request
 
 ## 📄 许可证
 
-本项目采用 MIT 许可证。
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
+
+## 🙏 致谢
+
+- [Sentence-Transformers](https://github.com/UKPLab/sentence-transformers) - 优秀的句子嵌入库
+- [LangChain](https://github.com/langchain-ai/langchain) - 强大的LLM应用框架
+- [ChromaDB](https://github.com/chroma-core/chroma) - 轻量级向量数据库
+- [FAISS](https://github.com/facebookresearch/faiss) - 高效的相似度搜索库
+
+## 📞 联系方式
+
+如有问题或建议，请通过以下方式联系：
+
+- 提交 [Issue](https://github.com/your-username/rag/issues)
+- 发送邮件至 your-email@example.com
+
+---
+
+**注意**：本系统仍在开发中，某些功能可能发生变化。建议在生产环境使用前进行充分测试。

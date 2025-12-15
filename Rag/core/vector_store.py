@@ -33,8 +33,9 @@ class VectorStoreManager:
         self,
         documents: List[Document],
         embeddings,
-        persist_directory: Optional[str] = None
-    ) -> Chroma:
+        persist_directory: Optional[str] = None,
+        vector_store_type: str = "chroma"
+    ):
         """
         创建向量存储
 
@@ -42,21 +43,33 @@ class VectorStoreManager:
             documents: 文档列表
             embeddings: 嵌入模型实例
             persist_directory: 可选的持久化目录
+            vector_store_type: 向量存储类型（目前支持chroma）
 
         Returns:
-            Chroma向量存储实例
+            向量存储实例
         """
         if persist_directory:
             self.persist_directory = persist_directory
 
-        print("创建向量存储...")
+        print(f"创建向量存储 (类型: {vector_store_type})...")
 
         start_time = time.time()
-        self.vector_store = Chroma.from_documents(
-            documents=documents,
-            embedding=embeddings,
-            persist_directory=self.persist_directory
-        )
+
+        # 根据类型创建不同的向量存储
+        if vector_store_type.lower() == "chroma":
+            self.vector_store = Chroma.from_documents(
+                documents=documents,
+                embedding=embeddings,
+                persist_directory=self.persist_directory
+            )
+        else:
+            print(f"[警告] 不支持的向量存储类型: {vector_store_type}，使用默认的chroma")
+            self.vector_store = Chroma.from_documents(
+                documents=documents,
+                embedding=embeddings,
+                persist_directory=self.persist_directory
+            )
+
         end_time = time.time()
 
         print(f"向量存储创建成功！耗时: {end_time - start_time:.2f}秒")
