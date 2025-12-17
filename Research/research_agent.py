@@ -147,16 +147,15 @@ class ResearchAgent(UniversalTaskAgent):
 
     def _generate_filename(self, query: str, timestamp: datetime) -> str:
         """生成报告文件名"""
-        # 清理查询字符串，移除不安全字符
-        safe_query = re.sub(r'[<>:"/\\|?*]', '_', query)
-        safe_query = re.sub(r'\s+', '_', safe_query)
-        safe_query = safe_query.strip('_')[:50]  # 限制长度
-
         # 格式化时间戳
-        time_str = timestamp.strftime('%Y%m%d_%H%M%S')
+        time_str = timestamp.strftime('%Y%m%d%H%M%S')
+
+        # 生成统一的report前缀文件名
+        # 确保输出格式为md格式
+        format_ext = 'md' if self.config.output_format == 'markdown' else self.config.output_format
 
         # 生成文件名
-        filename = f"{time_str}_{safe_query}.{self.config.output_format}"
+        filename = f"report{time_str}.{format_ext}"
         return filename
 
     def _save_report_to_file(self, report: str, filename: str) -> str:

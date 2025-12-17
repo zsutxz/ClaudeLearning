@@ -119,7 +119,7 @@ class ReportGenerator:
                 'generated_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                 'research_domain': self.research_agent.research_domain,
                 'model_info': f"{self.research_agent.provider} - {self.research_agent.model}",
-                'report_id': f"report_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+                'report_id': f"report{datetime.now().strftime('%Y%m%d%H%M%S')}"
             },
             'executive_summary': self._generate_executive_summary(research_data),
             'table_of_contents': True,
