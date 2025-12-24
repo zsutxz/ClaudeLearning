@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Environment & Config
+.env
+config/.env
+*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test outputs
+test_output/
+test_report.txt
+*.log
+
+# Session data
+session_data.json
+examples/session_data.json
+
+# OS
+.DS_Store
+Thumbs.db

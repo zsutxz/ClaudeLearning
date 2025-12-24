@@ -1,0 +1,12 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schema/mcp-config.json",
+  "mcpServers": {
+    "filesystem": {
+      "command": "python",
+      "args": ["-m", "mcp_server_filesystem"],
+      "env": {
+        "ALLOWED_PATHS": "./"
+      }
+    }
+  }
+}

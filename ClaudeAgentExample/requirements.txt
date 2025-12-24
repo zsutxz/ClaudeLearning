@@ -1,0 +1,13 @@
+# Claude Agent SDK 示例项目依赖
+
+# 核心 SDK
+claude-agent-sdk>=0.1.18
+
+# 异步支持
+anyio>=4.0.0
+
+# 环境变量管理
+python-dotenv>=1.0.0
+
+# MCP 文件系统服务器 (可选)
+# mcp-server-filesystem>=0.1.0
