@@ -153,12 +153,23 @@ def load_env_file(env_path: Optional[str] = None) -> None:
     从 .env 文件加载环境变量
 
     Args:
-        env_path: .env 文件路径，默认为项目根目录下的 .env
+        env_path: .env 文件路径，默认按优先级查找 config/.env -> .env
     """
     if env_path is None:
-        # 查找 .env 文件
+        # 按优先级查找 .env 文件
         project_root = Path(__file__).parent.parent
-        env_path = project_root / ".env"
+        possible_paths = [
+            project_root / "config" / ".env",  # 优先使用 config/.env
+            project_root / ".env",              # 备用：根目录 .env
+        ]
+
+        for path in possible_paths:
+            if path.exists():
+                env_path = str(path)
+                break
+
+    if env_path is None:
+        return
 
     env_file = Path(env_path)
     if not env_file.exists():
@@ -180,6 +191,12 @@ def load_env_file(env_path: Optional[str] = None) -> None:
 # 模块加载时自动加载 .env 文件
 try:
     import dotenv
-    dotenv.load_dotenv()
+    # 优先从 config 目录加载 .env
+    project_root = Path(__file__).parent.parent
+    env_file = project_root / "config" / ".env"
+    if env_file.exists():
+        dotenv.load_dotenv(env_file)
+    else:
+        dotenv.load_dotenv()
 except ImportError:
     load_env_file()
