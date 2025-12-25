@@ -143,7 +143,7 @@ agent = create_multi_agent(agent_type="code", provider="claude")
 
 | 提供商 | 模型 | 说明 |
 |--------|------|------|
-| Claude | glm-4.7, glm-4.6 | 智谱AI（主要使用） |
+| Claude | glm-4.7, glm-4.7 | 智谱AI（主要使用） |
 | OpenAI | gpt-4o-mini, gpt-4 | OpenAI GPT 系列 |
 | DeepSeek | deepseek-chat | DeepSeek AI |
 | Ollama | llama2, mistral | 本地模型 |

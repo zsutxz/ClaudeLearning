@@ -33,8 +33,8 @@ from lib.utils import print_example_header, print_cost
 
 
 async def test_default_model():
-    """测试默认模型 (glm-4.6)"""
-    print("\n📝 测试 1: 默认模型 (glm-4.6)")
+    """测试默认模型 (glm-4.7)"""
+    print("\n📝 测试 1: 默认模型 (glm-4.7)")
     print("-" * 40)
 
     message_stream = query(

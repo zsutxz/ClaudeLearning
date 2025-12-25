@@ -313,7 +313,7 @@ OPENAI_API_KEY=your_openai_api_key_here
 当前环境主要通过glm-4.6模型（智谱AI）提供服务：
 ```bash
 # 主要使用模型
-GLM_MODEL=glm-4.6
+GLM_MODEL=glm-4.7
 
 # 支持的备用模型
 ANTHROPIC_API_KEY=your_anthropic_api_key_here  # Claude模型

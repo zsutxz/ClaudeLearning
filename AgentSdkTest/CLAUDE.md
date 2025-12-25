@@ -43,7 +43,7 @@ AgentSdkTest/
 - **核心SDK**: `claude-agent-sdk` (Anthropic官方)
 - **主要模型**: GLM-4.7 (智谱AI)
 - **多模型支持**:
-  - Claude (glm-4.7, glm-4.6 - 智谱AI)
+  - Claude (glm-4.7, glm-4.7 - 智谱AI)
   - OpenAI (gpt-4o-mini, gpt-4)
   - DeepSeek (deepseek-chat)
   - Ollama (llama2, mistral - 本地模型)

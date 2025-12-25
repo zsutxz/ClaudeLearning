@@ -62,7 +62,7 @@ if not api_key:
 
 # 显示当前配置
 print(f"✓ API密钥已配置: {api_key[:10]}...{api_key[-4:]}")
-model = os.getenv('ANTHROPIC_MODEL', 'glm-4.6')
+model = os.getenv('ANTHROPIC_MODEL', 'glm-4.7')
 print(f"✓ 使用模型: {model}")
 base_url = os.getenv('ANTHROPIC_BASE_URL', 'https://open.bigmodel.cn/api/anthropic')
 print(f"✓ API端点: {base_url}")

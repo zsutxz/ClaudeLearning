@@ -35,7 +35,7 @@ from research_agent import ResearchAgent, quick_research
 agent = ResearchAgent(
     research_domain="人工智能",
     provider="claude",
-    model="glm-4.6"
+    model="glm-4.7"
 )
 
 result = await agent.conduct_research(

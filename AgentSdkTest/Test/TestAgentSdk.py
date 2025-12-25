@@ -143,7 +143,7 @@ async def agent_test_example():
             system_prompt="您是一位代码审查专家，具有安全、性能和最佳实践方面的专业知识。审查代码时：识别安全漏洞、检查性能问题、验证编码标准的遵守情况、建议具体改进。",
             allowed_tools=["Read", "Grep", "Glob", "Bash"],
             max_turns=2,
-            model="glm-4.6"
+            model="glm-4.7"
         )
 
         message_stream = query(

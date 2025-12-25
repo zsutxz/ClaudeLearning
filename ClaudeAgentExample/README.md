@@ -228,7 +228,7 @@ print_cost(0.00123)
 |--------|------|--------|
 | `ANTHROPIC_API_KEY` | Claude API 密钥 | 必填 |
 | `ANTHROPIC_BASE_URL` | API 端点 | `https://open.bigmodel.cn/api/anthropic` |
-| `ANTHROPIC_MODEL` | 默认模型 | `glm-4.6` |
+| `ANTHROPIC_MODEL` | 默认模型 | `glm-4.7` |
 | `MAX_TOKENS` | 最大 token 数 | `4096` |
 | `TEMPERATURE` | 温度参数 | `0.7` |
 
@@ -241,7 +241,7 @@ options = ClaudeAgentOptions(
     system_prompt="系统提示词",
     max_turns=5,              # 最大对话轮次
     allowed_tools=["Read"],   # 允许的工具
-    model="glm-4.6",          # 模型名称
+    model="glm-4.7",          # 模型名称
 )
 ```
 
