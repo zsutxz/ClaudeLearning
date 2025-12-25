@@ -151,7 +151,7 @@ from AgentSdkTest.MultiAIAgent import UniversalAIAgent
 # 创建统一代理
 agent = UniversalAIAgent(
     provider="claude",  # 支持 claude, openai, deepseek, ollama
-    model="glm-4.6"
+    model="glm-4.7"
 )
 
 # 执行任务

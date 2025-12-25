@@ -1,7 +1,8 @@
 import asyncio
-from claude_agent_sdk import query, ClaudeAgentOptions
 import os
+from pathlib import Path
 from typing import Any
+from claude_agent_sdk import query, ClaudeAgentOptions
 
 # 加载.env文件中的环境变量
 try:
@@ -22,18 +23,21 @@ if not os.getenv('ANTHROPIC_API_KEY'):
     raise ValueError("请设置ANTHROPIC_API_KEY环境变量或在.env文件中配置")
 
 async def main():
+    # 获取当前项目目录
+    project_dir = Path(__file__).parent.parent.resolve()
+
     options = ClaudeAgentOptions(
         mcp_servers={
             "filesystem": {
                 "command": "python",
                 "args": ["-m", "mcp_server_filesystem"],
                 "env": {
-                    "ALLOWED_PATHS": "D:\\work\\AI\\ClaudeTest"
+                    "ALLOWED_PATHS": str(project_dir)
                 }
             }
         },
         allowed_tools=["mcp__filesystem__list_directory"],
-        cwd="D:\\work\\AI\\ClaudeTest"
+        cwd=str(project_dir)
     )
 
     try:

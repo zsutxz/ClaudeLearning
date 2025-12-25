@@ -4,6 +4,7 @@
 
 import asyncio
 import sys
+from pathlib import Path
 from typing import List, Dict
 from claude_agent_sdk import query, ClaudeAgentOptions
 from claude_agent_sdk.types import AssistantMessage, ToolUseBlock
@@ -15,21 +16,56 @@ if sys.platform == 'win32':
     sys.stdout = codecs.getwriter('utf-8')(sys.stdout.detach())
     sys.stderr = codecs.getwriter('utf-8')(sys.stderr.detach())
 
+# 获取项目根目录
+project_root = Path(__file__).parent.parent.resolve()
+
 # 加载环境变量
+env_loaded = False
 try:
     from dotenv import load_dotenv
-    load_dotenv()
+    # 尝试从config目录加载.env文件
+    env_file = project_root / "config" / ".env"
+    if env_file.exists():
+        load_dotenv(env_file)
+        env_loaded = True
+        print(f"✓ 已加载环境变量: {env_file}")
+    else:
+        # 尝试从项目根目录加载
+        load_dotenv(project_root / ".env")
+        env_loaded = True
+        print(f"✓ 已加载环境变量: {project_root / '.env'}")
 except ImportError:
-    env_file = '.env'
-    if os.path.exists(env_file):
-        with open(env_file, 'r') as f:
-            for line in f:
-                if '=' in line and not line.strip().startswith('#'):
-                    key, value = line.strip().split('=', 1)
-                    os.environ[key] = value
+    # 如果没有python-dotenv，手动读取.env文件
+    env_paths = [
+        project_root / "config" / ".env",
+        project_root / ".env",
+    ]
+    for env_file in env_paths:
+        if env_file.exists():
+            with open(env_file, 'r') as f:
+                for line in f:
+                    if '=' in line and not line.strip().startswith('#'):
+                        key, value = line.strip().split('=', 1)
+                        os.environ[key] = value
+            env_loaded = True
+            print(f"✓ 已加载环境变量: {env_file}")
+            break
 
-if not os.getenv('ANTHROPIC_API_KEY'):
-    raise ValueError("请设置ANTHROPIC_API_KEY环境变量或在.env文件中配置")
+# 检查API密钥
+api_key = os.getenv('ANTHROPIC_API_KEY')
+if not api_key:
+    print("❌ 错误: 请设置 ANTHROPIC_API_KEY 环境变量")
+    print(f"   可以在以下位置创建 .env 文件:")
+    print(f"   - {project_root / 'config' / '.env'}")
+    print(f"   - {project_root / '.env'}")
+    sys.exit(1)
+
+# 显示当前配置
+print(f"✓ API密钥已配置: {api_key[:10]}...{api_key[-4:]}")
+model = os.getenv('ANTHROPIC_MODEL', 'glm-4.6')
+print(f"✓ 使用模型: {model}")
+base_url = os.getenv('ANTHROPIC_BASE_URL', 'https://open.bigmodel.cn/api/anthropic')
+print(f"✓ API端点: {base_url}")
 
 class TodoTracker:
     def __init__(self):
@@ -72,12 +108,16 @@ class TodoTracker:
 
 async def test_todo_functionality():
     """测试Todo功能"""
-    print("🚀 开始测试Todo功能...")
+    print("\n🚀 开始测试Todo功能...")
 
     tracker = TodoTracker()
 
     try:
-        options = ClaudeAgentOptions(max_turns=10)
+        # 配置代理选项
+        options = ClaudeAgentOptions(
+            max_turns=10,
+            model=model
+        )
 
         print("📝 提示Claude使用TodoWrite工具创建任务列表...")
 

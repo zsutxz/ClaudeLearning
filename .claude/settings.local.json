@@ -32,14 +32,20 @@
       "Bash(find:*)",
       "Bash(dotnet build:*)",
       "Skill(translate-to-chinese)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(python Test/TestMultiLlm.py:*)",
+      "Bash(python -m py_compile:*)",
+      "Bash(python:*)",
+      "Bash(for file in *.py)",
+      "Bash(do echo \"Checking $file...\")",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []
   },
-  "outputStyle": "default",
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "agentvibes"
   ],
-  "enableAllProjectMcpServers": true
+  "outputStyle": "default"
 }

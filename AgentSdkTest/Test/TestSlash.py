@@ -5,6 +5,7 @@
 import asyncio
 import sys
 import json
+from pathlib import Path
 from claude_agent_sdk import query, ClaudeAgentOptions
 import os
 
@@ -14,21 +15,35 @@ if sys.platform == 'win32':
     sys.stdout = codecs.getwriter('utf-8')(sys.stdout.detach())
     sys.stderr = codecs.getwriter('utf-8')(sys.stderr.detach())
 
+# 获取项目根目录
+project_root = Path(__file__).parent.parent.resolve()
+
 # 加载.env文件中的环境变量
 try:
     from dotenv import load_dotenv
-    load_dotenv()
+    # 尝试从config目录加载.env文件
+    env_file = project_root / "config" / ".env"
+    if env_file.exists():
+        load_dotenv(env_file)
+    else:
+        load_dotenv()
 except ImportError:
-    env_file = '.env'
-    if os.path.exists(env_file):
-        with open(env_file, 'r') as f:
-            for line in f:
-                if '=' in line and not line.strip().startswith('#'):
-                    key, value = line.strip().split('=', 1)
-                    os.environ[key] = value
+    # 如果没有python-dotenv，手动读取.env文件
+    env_paths = [
+        project_root / "config" / ".env",
+        project_root / ".env",
+    ]
+    for env_file in env_paths:
+        if env_file.exists():
+            with open(env_file, 'r') as f:
+                for line in f:
+                    if '=' in line and not line.strip().startswith('#'):
+                        key, value = line.strip().split('=', 1)
+                        os.environ[key] = value
+            break
 
 if not os.getenv('ANTHROPIC_API_KEY'):
-    raise ValueError("请设置ANTHROPIC_API_KEY环境变量或在.env文件中配置")
+    raise ValueError(f"请设置ANTHROPIC_API_KEY环境变量或在以下位置配置.env文件:\n{project_root / 'config' / '.env'}")
 
 async def test_slash_in_conversation():
     """在对话上下文中测试slash命令"""

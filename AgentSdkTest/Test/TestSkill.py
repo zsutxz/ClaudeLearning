@@ -1,7 +1,8 @@
 import asyncio
-from claude_agent_sdk import query, ClaudeAgentOptions
 import os
+from pathlib import Path
 from typing import Any
+from claude_agent_sdk import query, ClaudeAgentOptions
 
 # 加载.env文件中的环境变量
 try:
@@ -30,11 +31,14 @@ async def main():
         print(message)
     
 async def test_skill():
+    # 获取项目根目录中的skills目录
+    skills_dir = Path(__file__).parent.parent.parent / ".claude" / "skills"
+
     options = ClaudeAgentOptions(
-    cwd="../.claude/skills/",  # Set the working directory to where skills are located
-    setting_sources=["user", "project"],  # Load Skills from filesystem
-    allowed_tools=["Skill", "Read", "Bash"]
-    )   
+        cwd=str(skills_dir),  # Set the working directory to where skills are located
+        setting_sources=["user", "project"],  # Load Skills from filesystem
+        allowed_tools=["Skill", "Read", "Bash"]
+    )
 
     async for message in query(
         prompt="Extract text from invoice.pdf",

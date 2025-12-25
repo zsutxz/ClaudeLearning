@@ -89,11 +89,7 @@ class UniversalAIAgent:
             print(f"[Ollama] 使用本地模型: {model} (端点: {self.base_url})")
         else:
             # 设置API密钥
-            if self.provider == "deepseek":
-                # DeepSeek使用硬编码的API Key
-                self.api_key = api_key or DEEPSEEK_API_KEY
-            else:
-                self.api_key = api_key or os.getenv(provider_config["env_key"])
+            self.api_key = api_key or os.getenv(provider_config["env_key"])
 
             if not self.api_key:
                 print(f"[Warning] 未设置{provider_config['env_key']}环境变量，将使用模拟模式")

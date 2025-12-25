@@ -1,6 +1,37 @@
 
 import os
-from MultiAIAgent import UniversalAIAgent,UniversalTaskAgent,UniversalCodeAgent
+import sys
+from pathlib import Path
+
+# 添加项目根目录到 Python 路径
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+# 加载.env文件中的环境变量
+try:
+    from dotenv import load_dotenv
+    # 尝试从config目录加载.env文件
+    env_file = project_root / "config" / ".env"
+    if env_file.exists():
+        load_dotenv(env_file)
+    else:
+        load_dotenv()
+except ImportError:
+    # 如果没有python-dotenv，手动读取.env文件
+    env_paths = [
+        project_root / "config" / ".env",
+        project_root / ".env",
+    ]
+    for env_file in env_paths:
+        if env_file.exists():
+            with open(env_file, 'r') as f:
+                for line in f:
+                    if '=' in line and not line.strip().startswith('#'):
+                        key, value = line.strip().split('=', 1)
+                        os.environ[key] = value
+            break
+
+from lib.multi_agent import UniversalAIAgent, UniversalTaskAgent, UniversalCodeAgent
 
 def main():
     """主函数 - 演示通用AI代理的使用"""
