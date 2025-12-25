@@ -1,7 +1,23 @@
-# 通用AI代理SDK - 多模型支持依赖
-anthropic>=0.3.0
-openai>=1.0.0
+# Claude Agent SDK 整合项目 - 依赖包
+# 核心依赖
+
+# Claude Agent SDK (Anthropic 官方 SDK)
+claude-agent-sdk>=0.1.18
+
+# 异步运行库
+anyio>=4.0.0
+
+# HTTP 请求库
 requests>=2.28.0
 
+# 环境变量管理
+python-dotenv>=1.0.0
+
+# 多模型支持
+anthropic>=0.3.0
+openai>=1.0.0
+
 # 可选依赖
-# python-dotenv>=1.0.0  # 用于.env文件管理
+
+# MCP 文件系统服务器
+# mcp-server-filesystem>=0.1.0
