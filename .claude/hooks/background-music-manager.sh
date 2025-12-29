@@ -28,7 +28,7 @@ ENABLED_FILE="$CONFIG_DIR/background-music-enabled.txt"
 VOLUME_FILE="$CONFIG_DIR/background-music-volume.txt"
 
 # Defaults
-DEFAULT_VOLUME="0.40"
+DEFAULT_VOLUME="0.34"
 
 # Ensure config directory exists
 mkdir -p "$CONFIG_DIR"
@@ -176,7 +176,15 @@ set_default_track() {
         ' "$audio_effects_cfg" > "$temp_file"
 
         mv "$temp_file" "$audio_effects_cfg"
-        echo "✅ Default background music set to: $track"
+
+        # Auto-enable background music if it was disabled
+        if ! is_enabled; then
+            set_enabled "true"
+            echo "✅ Default background music set to: $track"
+            echo "🎵 Background music enabled automatically"
+        else
+            echo "✅ Default background music set to: $track"
+        fi
     else
         echo "❌ Error: No default entry found in audio-effects.cfg"
         return 1
@@ -270,6 +278,12 @@ set_agent_track() {
         echo "${agent}||${track}|0.30" >> "$config_file"
         echo "✅ Added background music for $agent: $track"
     fi
+
+    # Auto-enable background music if it was disabled
+    if ! is_enabled; then
+        set_enabled "true"
+        echo "🎵 Background music enabled automatically"
+    fi
 }
 
 # Set background music for all agents
@@ -314,6 +328,12 @@ set_all_agents_track() {
 
     mv "$temp_file" "$config_file"
     echo "✅ Updated background music for $count agents: $track"
+
+    # Auto-enable background music if it was disabled
+    if ! is_enabled; then
+        set_enabled "true"
+        echo "🎵 Background music enabled automatically"
+    fi
 }
 
 # Main command handler

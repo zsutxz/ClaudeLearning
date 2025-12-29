@@ -140,8 +140,8 @@ fi
 # @why Provide seamless experience with automatic downloads
 # @param Uses global: $VOICE_MODEL
 # @sideeffects Downloads voice model files
-# @edgecases Prompts user for consent before downloading
-if ! verify_voice "$VOICE_MODEL"; then
+# @edgecases Prompts user for consent before downloading, skipped in test mode
+if [[ "${AGENTVIBES_TEST_MODE:-false}" != "true" ]] && ! verify_voice "$VOICE_MODEL"; then
   echo "📥 Voice model not found: $VOICE_MODEL"
   echo "   File size: ~25MB"
   echo "   Preview: https://huggingface.co/rhasspy/piper-voices"
@@ -162,10 +162,15 @@ if ! verify_voice "$VOICE_MODEL"; then
 fi
 
 # Get voice model path
-VOICE_PATH=$(get_voice_path "$VOICE_MODEL")
-if [[ $? -ne 0 ]]; then
-  echo "❌ Voice model path not found: $VOICE_MODEL"
-  exit 3
+# In test mode, use a fake path since we have mock piper that doesn't need real files
+if [[ "${AGENTVIBES_TEST_MODE:-false}" == "true" ]]; then
+  VOICE_PATH="/tmp/mock-voice-${VOICE_MODEL}.onnx"
+else
+  VOICE_PATH=$(get_voice_path "$VOICE_MODEL")
+  if [[ $? -ne 0 ]]; then
+    echo "❌ Voice model path not found: $VOICE_MODEL"
+    exit 3
+  fi
 fi
 
 # @function determine_audio_directory
@@ -262,10 +267,12 @@ SPEECH_RATE=$(get_speech_rate)
 # @edgecases Handles piper errors, invalid models, multi-speaker voices
 if [[ -n "$SPEAKER_ID" ]]; then
   # Multi-speaker voice: Pass speaker ID
-  echo "$TEXT" | piper --model "$VOICE_PATH" --speaker "$SPEAKER_ID" --length-scale "$SPEECH_RATE" --output_file "$TEMP_FILE" 2>/dev/null
+  # Add 2-second pause between sentences for better pacing
+  echo "$TEXT" | piper --model "$VOICE_PATH" --speaker "$SPEAKER_ID" --length-scale "$SPEECH_RATE" --sentence-silence 2.0 --output_file "$TEMP_FILE" 2>/dev/null
 else
   # Single-speaker voice
-  echo "$TEXT" | piper --model "$VOICE_PATH" --length-scale "$SPEECH_RATE" --output_file "$TEMP_FILE" 2>/dev/null
+  # Add 2-second pause between sentences for better pacing
+  echo "$TEXT" | piper --model "$VOICE_PATH" --length-scale "$SPEECH_RATE" --sentence-silence 2.0 --output_file "$TEMP_FILE" 2>/dev/null
 fi
 
 if [[ ! -f "$TEMP_FILE" ]] || [[ ! -s "$TEMP_FILE" ]]; then
@@ -409,3 +416,27 @@ if [[ -n "$BACKGROUND_MUSIC" ]]; then
   echo "🎶 Background music: $BACKGROUND_MUSIC"
 fi
 echo "🎤 Voice used: $VOICE_MODEL (Piper TTS)"
+
+# Show status indicators
+GLOBAL_MUTE_FILE="$HOME/.agentvibes-muted"
+PROJECT_MUTE_FILE="$PROJECT_ROOT/.claude/agentvibes-muted"
+PROJECT_UNMUTE_FILE="$PROJECT_ROOT/.claude/agentvibes-unmuted"
+BACKGROUND_ENABLED_FILE="$PROJECT_ROOT/.claude/config/background-music-enabled.txt"
+
+# Mute status indicator
+if [[ -f "$PROJECT_UNMUTE_FILE" ]] && [[ -f "$GLOBAL_MUTE_FILE" ]]; then
+  echo "🔊 Status: Unmuted (project overrides global mute)"
+elif [[ -f "$PROJECT_MUTE_FILE" ]]; then
+  echo "🔇 Status: Muted (project)"
+elif [[ -f "$GLOBAL_MUTE_FILE" ]]; then
+  echo "🔇 Status: Would be muted (global) - but this project is speaking"
+fi
+
+# Background music status indicator
+if [[ -z "$BACKGROUND_MUSIC" ]]; then
+  if [[ -f "$BACKGROUND_ENABLED_FILE" ]] && grep -q "true" "$BACKGROUND_ENABLED_FILE" 2>/dev/null; then
+    echo "🎵 Background music: Enabled but not playing (check config)"
+  else
+    echo "🎵 Background music: Disabled"
+  fi
+fi

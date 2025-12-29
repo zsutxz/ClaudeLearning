@@ -48,12 +48,29 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Check if muted (persists across sessions)
-# Supports both global (~/.agentvibes-muted) and project-local (.claude/agentvibes-muted) mute files
+# Project settings always override global settings:
+# - .claude/agentvibes-unmuted = project explicitly unmuted (overrides global mute)
+# - .claude/agentvibes-muted = project muted (overrides global unmute)
+# - ~/.agentvibes-muted = global mute (only if no project-level setting)
 GLOBAL_MUTE_FILE="$HOME/.agentvibes-muted"
 PROJECT_MUTE_FILE="$PROJECT_ROOT/.claude/agentvibes-muted"
+PROJECT_UNMUTE_FILE="$PROJECT_ROOT/.claude/agentvibes-unmuted"
 
-if [[ -f "$GLOBAL_MUTE_FILE" ]] || [[ -f "$PROJECT_MUTE_FILE" ]]; then
-  echo "🔇 TTS muted"
+# Check project-level settings first (project overrides global)
+if [[ -f "$PROJECT_UNMUTE_FILE" ]]; then
+  # Project explicitly unmuted - ignore global mute
+  :  # Continue (do nothing, will not exit)
+elif [[ -f "$PROJECT_MUTE_FILE" ]]; then
+  # Project explicitly muted
+  if [[ -f "$GLOBAL_MUTE_FILE" ]]; then
+    echo "🔇 TTS muted (project + global)"
+  else
+    echo "🔇 TTS muted (project)"
+  fi
+  exit 0
+elif [[ -f "$GLOBAL_MUTE_FILE" ]]; then
+  # Global mute and no project-level override
+  echo "🔇 TTS muted (global)"
   exit 0
 fi
 
@@ -72,10 +89,14 @@ if [[ -n "$VOICE_OVERRIDE" ]] && [[ "$VOICE_OVERRIDE" =~ [';|&$`<>(){}'] ]]; the
   exit 1
 fi
 
-# Remove backslash escaping that Claude might add for special chars like ! and $
-# In single quotes these don't need escaping, but Claude sometimes adds \! anyway
-TEXT="${TEXT//\\!/!}"
-TEXT="${TEXT//\\\$/\$}"
+# Remove backslash escaping that Claude might add for special chars
+# In single quotes these don't need escaping, but Claude sometimes adds backslashes
+TEXT="${TEXT//\\!/!}"        # Remove \!
+TEXT="${TEXT//\\\$/\$}"      # Remove \$
+TEXT="${TEXT//\\?/?}"        # Remove \?
+TEXT="${TEXT//\\,/,}"        # Remove \,
+TEXT="${TEXT//\\./.}"        # Remove \. (keep the period)
+TEXT="${TEXT//\\\\/\\}"      # Remove \\ (escaped backslash)
 
 # Source provider manager to get active provider
 source "$SCRIPT_DIR/provider-manager.sh"

@@ -104,59 +104,67 @@ case "$1" in
 
     CURRENT_VOICE=$(cat "$VOICE_FILE" 2>/dev/null || get_default_voice)
 
-    if [[ "$ACTIVE_PROVIDER" == "piper" ]]; then
-      echo "🎤 Available Piper TTS Voices:"
-      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    # Use Node.js formatter for beautiful boxen display
+    PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+    FORMATTER="$PROJECT_ROOT/src/cli/list-voices.js"
 
-      # List downloaded Piper voices
+    if [[ "$ACTIVE_PROVIDER" == "piper" ]]; then
+      # Get voice directory for Piper
       if [[ -f "$SCRIPT_DIR/piper-voice-manager.sh" ]]; then
         source "$SCRIPT_DIR/piper-voice-manager.sh"
         VOICE_DIR=$(get_voice_storage_dir)
 
-        # Collect voices first to count them properly
-        VOICE_LIST=()
-        for onnx_file in "$VOICE_DIR"/*.onnx; do
-          if [[ -f "$onnx_file" ]]; then
-            voice=$(basename "$onnx_file" .onnx)
-            if [ "$voice" = "$CURRENT_VOICE" ]; then
-              VOICE_LIST+=("  ▶ $voice (current)")
-            else
-              VOICE_LIST+=("    $voice")
-            fi
-          fi
-        done
-
-        if [[ ${#VOICE_LIST[@]} -eq 0 ]]; then
-          echo "  (No Piper voices downloaded yet)"
-          echo ""
-          echo "Download voices with: /agent-vibes:provider download <voice-name>"
-          echo "Examples: en_US-lessac-medium, en_GB-alba-medium"
+        # Use Node.js formatter if available
+        if [[ -f "$FORMATTER" ]] && command -v node &> /dev/null; then
+          node "$FORMATTER" "piper" "$CURRENT_VOICE" "$VOICE_DIR"
         else
-          # Sort and display voices
-          printf "%s\n" "${VOICE_LIST[@]}" | sort
+          # Fallback to plain text display
+          echo "🎤 Available Piper TTS Voices:"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+          VOICE_LIST=()
+          for onnx_file in "$VOICE_DIR"/*.onnx; do
+            if [[ -f "$onnx_file" ]]; then
+              voice=$(basename "$onnx_file" .onnx)
+              if [ "$voice" = "$CURRENT_VOICE" ]; then
+                VOICE_LIST+=("  ▶ $voice (current)")
+              else
+                VOICE_LIST+=("    $voice")
+              fi
+            fi
+          done
+
+          if [[ ${#VOICE_LIST[@]} -eq 0 ]]; then
+            echo "  (No Piper voices downloaded yet)"
+          else
+            printf "%s\n" "${VOICE_LIST[@]}" | sort
+          fi
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         fi
       fi
     elif [[ "$ACTIVE_PROVIDER" == "macos" ]]; then
-      echo "🎤 Available macOS TTS Voices:"
-      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-      # Check if we're on macOS
-      if [[ "$(uname -s)" == "Darwin" ]]; then
-        # List macOS voices using say -v ?
-        say -v ? 2>/dev/null | while read -r line; do
-          voice=$(echo "$line" | awk '{print $1}')
-          lang=$(echo "$line" | awk '{print $2}')
-          if [ "$voice" = "$CURRENT_VOICE" ]; then
-            printf "  ▶ %-15s %s (current)\n" "$voice" "$lang"
-          else
-            printf "    %-15s %s\n" "$voice" "$lang"
-          fi
-        done
+      # Use Node.js formatter if available
+      if [[ -f "$FORMATTER" ]] && command -v node &> /dev/null; then
+        node "$FORMATTER" "macos" "$CURRENT_VOICE"
       else
-        echo "  (macOS voices only available on macOS)"
-        echo ""
-        echo "Switch to Piper provider:"
-        echo "  /agent-vibes:provider switch piper"
+        # Fallback to plain text display
+        echo "🎤 Available macOS TTS Voices:"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+        if [[ "$(uname -s)" == "Darwin" ]]; then
+          say -v ? 2>/dev/null | while read -r line; do
+            voice=$(echo "$line" | awk '{print $1}')
+            lang=$(echo "$line" | awk '{print $2}')
+            if [ "$voice" = "$CURRENT_VOICE" ]; then
+              printf "  ▶ %-15s %s (current)\n" "$voice" "$lang"
+            else
+              printf "    %-15s %s\n" "$voice" "$lang"
+            fi
+          done
+        else
+          echo "  (macOS voices only available on macOS)"
+        fi
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
       fi
     else
       echo "❌ Unknown provider: $ACTIVE_PROVIDER"
@@ -167,11 +175,6 @@ case "$1" in
       echo ""
       echo "Switch provider with: /agent-vibes:provider switch piper"
     fi
-
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo ""
-    echo "Usage: voice-manager.sh switch <name>"
-    echo "       voice-manager.sh preview"
     ;;
 
   preview)
@@ -309,7 +312,8 @@ case "$1" in
         fi
       fi
 
-      if [[ -z "$FOUND" ]]; then
+      # In test mode, allow switching to any voice name without file validation
+      if [[ -z "$FOUND" ]] && [[ "${AGENTVIBES_TEST_MODE:-false}" != "true" ]]; then
         echo "❌ Piper voice not found: $VOICE_NAME"
         echo ""
         echo "Available Piper voices:"
@@ -344,15 +348,17 @@ case "$1" in
       exit 1
     fi
 
-    echo "$FOUND" > "$VOICE_FILE"
-    echo "✅ Voice switched to: $FOUND"
+    # In test mode, use the requested voice name even if not found
+    VOICE_TO_SAVE="${FOUND:-$VOICE_NAME}"
+    echo "$VOICE_TO_SAVE" > "$VOICE_FILE"
+    echo "✅ Voice switched to: $VOICE_TO_SAVE"
 
     # Have the new voice introduce itself (unless silent mode)
-    if [[ "$SILENT_MODE" != "true" ]]; then
+    if [[ "$SILENT_MODE" != "true" ]] && [[ "${AGENTVIBES_TEST_MODE:-false}" != "true" ]]; then
       SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
       PLAY_TTS="$SCRIPT_DIR/play-tts.sh"
       if [ -x "$PLAY_TTS" ]; then
-        "$PLAY_TTS" "Hi, I'm $FOUND. I'll be your voice assistant moving forward." "$FOUND" > /dev/null 2>&1 &
+        "$PLAY_TTS" "Hi, I'm $VOICE_TO_SAVE. I'll be your voice assistant moving forward." "$VOICE_TO_SAVE" > /dev/null 2>&1 &
       fi
 
       echo ""
