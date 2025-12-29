@@ -12,8 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with in
 ### 核心项目
 1. **AgentSdkTest/** - Claude Agent SDK整合项目，多模型统一接口
 2. **Research/** - 技术调研专业代理系统
-3. **_bmad/** - BMAD企业级开发框架（隐藏目录）
-4. **.claude/** - Claude技能系统和配置
+3. **.claude/** - Claude技能系统和配置
 
 ## 快速开始
 
@@ -51,18 +50,6 @@ pip install -r requirements.txt
 python example_usage.py
 ```
 
-### BMAD框架
-```bash
-# 安装BMAD（需要Node.js）
-npx bmad-method@alpha install
-
-# 初始化项目
-*workflow-init
-
-# 创建工作流
-*bmad:bmb:workflows:create-workflow
-```
-
 ## 核心架构
 
 ### 系统架构模式
@@ -71,11 +58,6 @@ Claude Code (主环境)
     ├── 技能生态系统 (.claude/skills/)
     ├── MCP服务器 (文件系统集成)
     └── 多模型支持 (Claude/OpenAI/DeepSeek)
-
-BMAD框架 (企业开发)
-    ├── BMB (Builder Module) - 创建/编辑/审计
-    ├── BMM (Model Module) - 代理和团队管理
-    └── BMGD (Game Development) - 游戏开发专用
 
 AI代理系统
     ├── AgentSdkTest - 多模型统一接口
@@ -125,21 +107,6 @@ Research/
 └── test/                          # 测试用例
 ```
 
-### BMAD框架结构
-```
-_bmad/
-├── bmm/                           # Model Module
-│   ├── agents/                    # 代理定义 (YAML)
-│   ├── workflows/                 # 工作流定义
-│   └── teams/                     # 团队配置
-├── bmb/                           # Builder Module
-│   └── workflows/                 # 创建/编辑/审计工作流
-├── bmgd/                          # Game Development Module
-│   ├── agents/                    # 游戏开发代理
-│   └── gametest/                  # 游戏测试
-└── core/                          # 框架核心组件
-```
-
 ## 常用命令
 
 ### AgentSdkTest
@@ -177,20 +144,6 @@ pytest test/
 
 # 执行调研
 python -c "from research_agent import ResearchAgent; ..."
-```
-
-### BMAD框架
-```bash
-# 初始化
-*workflow-init
-
-# 创建工作流
-*bmad:bmb:workflows:create-workflow
-*bmad:bmm:workflows:create-agent
-*bmad:bmb:workflows:audit-workflow
-
-# 游戏开发
-*bmad:bmgd:gametest:create-test
 ```
 
 ### Claude技能系统
@@ -324,4 +277,4 @@ cat .claude/settings.local.json
 
 ---
 
-*多项目技术试验仓库 - 专注AI应用开发、智能代理系统和企业级开发框架*
+*多项目技术试验仓库 - 专注AI应用开发、智能代理系统*
