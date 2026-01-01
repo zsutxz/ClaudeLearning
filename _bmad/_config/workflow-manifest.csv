@@ -1,7 +1,7 @@
 name,description,module,path
 "brainstorming","Facilitate interactive brainstorming sessions using diverse creative techniques and ideation methods","core","_bmad/core/workflows/brainstorming/workflow.md"
 "party-mode","Orchestrates group discussions between all installed BMAD agents, enabling natural multi-agent conversations","core","_bmad/core/workflows/party-mode/workflow.md"
-"Meal Prep & Nutrition Plan","Creates personalized meal plans through collaborative nutrition planning between an expert facilitator and individual seeking to improve their nutrition habits.","bmb","_bmad/bmb/workflows/create-agent/data/reference/workflows/meal-prep-nutrition/workflow.md"
+"Meal Prep & Nutrition Plan","Creates personalized meal plans through collaborative nutrition planning between an expert facilitator and individual seeking to improve their nutrition habits.","bmb","_bmad/bmb/workflows/create-workflow/data/examples/meal-prep-nutrition/workflow.md"
 "create-agent","Interactive workflow to build BMAD Core compliant agents with optional brainstorming, persona development, and command structure","bmb","_bmad/bmb/workflows/create-agent/workflow.md"
 "create-module","Interactive workflow to build complete BMAD modules with agents, workflows, and installation infrastructure","bmb","_bmad/bmb/workflows/create-module/workflow.md"
 "create-workflow","Create structured standalone workflows using markdown-based step architecture","bmb","_bmad/bmb/workflows/create-workflow/workflow.md"
@@ -48,7 +48,7 @@ name,description,module,path
 "retrospective","Run after epic completion to review overall success, extract lessons learned, and explore if new information emerged that might impact the next epic","bmm","_bmad/bmm/workflows/4-implementation/retrospective/workflow.yaml"
 "sprint-planning","Generate and manage the sprint status tracking file for Phase 4 implementation, extracting all epics and stories from epic files and tracking their status through the development lifecycle","bmm","_bmad/bmm/workflows/4-implementation/sprint-planning/workflow.yaml"
 "sprint-status","Summarize sprint-status.yaml, surface risks, and route to the right implementation workflow.","bmm","_bmad/bmm/workflows/4-implementation/sprint-status/workflow.yaml"
-"create-tech-spec","Conversational spec engineering - ask questions, investigate code, produce implementation-ready tech-spec.","bmm","_bmad/bmm/workflows/bmad-quick-flow/create-tech-spec/workflow.yaml"
+"create-tech-spec","Conversational spec engineering - ask questions, investigate code, produce implementation-ready tech-spec.","bmm","_bmad/bmm/workflows/bmad-quick-flow/create-tech-spec/workflow.md"
 "quick-dev","Flexible development - execute tech-specs OR direct instructions with optional planning.","bmm","_bmad/bmm/workflows/bmad-quick-flow/quick-dev/workflow.md"
 "document-project","Analyzes and documents brownfield projects by scanning codebase, architecture, and patterns to create comprehensive reference documentation for AI-assisted development","bmm","_bmad/bmm/workflows/document-project/workflow.yaml"
 "create-excalidraw-dataflow","Create data flow diagrams (DFD) in Excalidraw format","bmm","_bmad/bmm/workflows/excalidraw-diagrams/create-dataflow/workflow.yaml"
@@ -66,3 +66,4 @@ name,description,module,path
 "testarch-trace","Generate requirements-to-tests traceability matrix, analyze coverage, and make quality gate decision (PASS/CONCERNS/FAIL/WAIVED)","bmm","_bmad/bmm/workflows/testarch/trace/workflow.yaml"
 "workflow-init","Initialize a new BMM project by determining level, type, and creating workflow path","bmm","_bmad/bmm/workflows/workflow-status/init/workflow.yaml"
 "workflow-status","Lightweight status checker - answers """"what should I do now?"""" for any agent. Reads YAML status file for workflow tracking. Use workflow-init for new projects.","bmm","_bmad/bmm/workflows/workflow-status/workflow.yaml"
+"agent","Tri-modal workflow for creating, editing, and validating BMAD Core compliant agents","bmb","_bmad/bmb/workflows/agent/workflow.md"
