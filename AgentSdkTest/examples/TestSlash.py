@@ -126,11 +126,11 @@ async def test_slash_variations():
     )
 
     test_cases = [
-        ("普通调用", "/todos"),
-        ("带空格", " /todos"),
-        ("完整格式", "Please run /todos"),
-        ("嵌入式", "Can you show me /todos?"),
-        ("明确指令", "Execute the command: /todos")
+        ("普通调用", "/cost"),
+        ("带空格", " /context"),
+        ("完整格式", "Please run /cost"),
+        ("嵌入式", "Can you show me /context?"),
+        ("明确指令", "Execute the command: /cost")
     ]
 
     for name, prompt in test_cases:

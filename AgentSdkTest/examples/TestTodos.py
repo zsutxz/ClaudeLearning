@@ -122,7 +122,7 @@ async def test_todo_functionality():
         print("📝 提示Claude使用TodoWrite工具创建任务列表...")
 
         async for message in query(
-            prompt="请使用TodoWrite工具创建一个学习游戏开发的完整任务列表，包含至少5个具体任务",
+            prompt="请使用TodoWrite工具创建一个学习游戏开发的完整任务列表，包含5个具体任务",
             options=options
         ):
             tracker.process_message(message)

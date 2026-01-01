@@ -1,115 +1,305 @@
-import os
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+自定义工具示例
+
+展示如何创建和使用自定义工具扩展 Claude Agent SDK 功能。
+
+功能演示：
+- 使用 @tool 装饰器创建自定义工具
+- 创建 MCP 服务器并注册自定义工具
+- 使用 ClaudeSDKClient 进行交互式对话
+- 多工具协同使用
+"""
+
+import sys
+import anyio
 from pathlib import Path
+from typing import Any
+
+# 添加项目根目录到 Python 路径
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
 from claude_agent_sdk import (
     ClaudeSDKClient,
     ClaudeAgentOptions,
     tool,
     create_sdk_mcp_server,
     AssistantMessage,
-    TextBlock
+    TextBlock,
 )
-import asyncio
-from typing import Any
 
-# 获取项目根目录
-project_root = Path(__file__).parent.parent.resolve()
+from lib.config import get_config
+from lib.utils import print_example_header
 
-# 加载.env文件中的环境变量
-try:
-    from dotenv import load_dotenv
-    # 尝试从config目录加载.env文件
-    env_file = project_root / "config" / ".env"
-    if env_file.exists():
-        load_dotenv(env_file)
-    else:
-        load_dotenv()
-except ImportError:
-    # 如果没有python-dotenv，手动读取.env文件
-    env_paths = [
-        project_root / "config" / ".env",
-        project_root / ".env",
-    ]
-    for env_file in env_paths:
-        if env_file.exists():
-            with open(env_file, 'r') as f:
-                for line in f:
-                    if '=' in line and not line.strip().startswith('#'):
-                        key, value = line.strip().split('=', 1)
-                        os.environ[key] = value
-            break
 
-# 确保API密钥存在
-if not os.getenv('ANTHROPIC_API_KEY'):
-    raise ValueError(f"请设置ANTHROPIC_API_KEY环境变量或在以下位置配置.env文件:\n{project_root / 'config' / '.env'}")
+# ============================================================
+# 自定义工具定义
+# ============================================================
 
-# Define custom tools with @tool decorator
-@tool("calculate", "Perform mathematical calculations", {"expression": str})
+@tool(
+    name="calculate",
+    description="执行数学计算，支持基本运算符（+, -, *, /, **, % 等）",
+    input_schema={
+        "expression": str
+    }
+)
 async def calculate(args: dict[str, Any]) -> dict[str, Any]:
+    """
+    数学计算工具
+
+    Args:
+        args: 包含 expression 字段的字典，值为数学表达式字符串
+
+    Returns:
+        包含计算结果的字典
+    """
     try:
-        result = eval(args["expression"], {"__builtins__": {}})
+        # 安全地评估数学表达式
+        expression = args["expression"]
+        result = eval(expression, {"__builtins__": {}}, {})
+
         return {
             "content": [{
                 "type": "text",
-                "text": f"{result}"
+                "text": f"计算结果: {result}"
             }]
+        }
+    except ZeroDivisionError:
+        return {
+            "content": [{
+                "type": "text",
+                "text": "错误: 除数不能为零"
+            }],
+            "is_error": True
         }
     except Exception as e:
         return {
             "content": [{
                 "type": "text",
-                "text": f"Error: {str(e)}"
+                "text": f"计算错误: {str(e)}"
             }],
             "is_error": True
         }
 
-@tool("get_time", "Get current time", {})
+
+@tool(
+    name="get_time",
+    description="获取当前日期和时间",
+    input_schema={}
+)
 async def get_time(args: dict[str, Any]) -> dict[str, Any]:
+    """
+    获取当前时间工具
+
+    Returns:
+        包含格式化当前时间的字典
+    """
     from datetime import datetime
-    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    current_time = datetime.now()
+    formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
+    weekday = current_time.strftime("%A")
+
     return {
         "content": [{
             "type": "text",
-            # "text": f"abc Current time: {current_time}"
-            "text": f"abc Current time: {current_time}"
+            "text": f"当前时间: {formatted_time} ({weekday})"
         }]
     }
 
-async def main():
-    # Create SDK MCP server with custom tools
-    my_server = create_sdk_mcp_server(
-        # name="utilities",
-        name="test",
+
+@tool(
+    name="string_operations",
+    description="执行字符串操作（转换大小写、反转、统计长度等）",
+    input_schema={
+        "text": str,
+        "operation": str
+    }
+)
+async def string_operations(args: dict[str, Any]) -> dict[str, Any]:
+    """
+    字符串操作工具
+
+    Args:
+        args: 包含 text 和 operation 字段的字典
+            - text: 要操作的文本
+            - operation: 操作类型（upper, lower, reverse, length）
+
+    Returns:
+        包含操作结果的字典
+    """
+    text = args["text"]
+    operation = args["operation"].lower()
+
+    operations = {
+        "upper": lambda t: t.upper(),
+        "lower": lambda t: t.lower(),
+        "reverse": lambda t: t[::-1],
+        "length": lambda t: str(len(t)),
+        "title": lambda t: t.title(),
+    }
+
+    if operation not in operations:
+        return {
+            "content": [{
+                "type": "text",
+                "text": f"错误: 不支持的操作 '{operation}'。支持的操作: {', '.join(operations.keys())}"
+            }],
+            "is_error": True
+        }
+
+    result = operations[operation](text)
+    return {
+        "content": [{
+            "type": "text",
+            "text": f"操作结果 ({operation}): {result}"
+        }]
+    }
+
+
+# ============================================================
+# 示例函数
+# ============================================================
+
+async def basic_calculations_example():
+    """示例 1: 基本数学计算"""
+    print("\n📝 示例 1: 数学计算工具")
+    print("-" * 40)
+
+    # 创建自定义工具服务器
+    calc_server = create_sdk_mcp_server(
+        name="math_utils",
         version="1.0.0",
         tools=[calculate, get_time]
     )
 
-    # Configure options with the server
     options = ClaudeAgentOptions(
-        mcp_servers={"utils": my_server},
+        mcp_servers={"math": calc_server},
         allowed_tools=[
-            "mcp__utils__calculate",
-            "mcp__utils__get_time"
+            "mcp__math__calculate",
+            "mcp__math__get_time"
         ]
     )
 
-    # Use ClaudeSDKClient for interactive tool usage
     async with ClaudeSDKClient(options=options) as client:
-        await client.query("What's 123 * 456?")
-
-        # Process calculation response
-        async for message in client.receive_response():
-            if isinstance(message, AssistantMessage):
-                for block in message.content:
-                    if isinstance(block, TextBlock):
-                        print(f"Calculation: {block.text}")
-
-        # Follow up with time query
-        await client.query("What time is it now?")
+        # 测试计算功能
+        print("计算: 123 * 456")
+        await client.query("请计算 123 乘以 456")
 
         async for message in client.receive_response():
             if isinstance(message, AssistantMessage):
                 for block in message.content:
                     if isinstance(block, TextBlock):
-                        print(f"Time: {block.text}")
+                        print(f"  {block.text}")
 
-asyncio.run(main())
+        # 测试时间功能
+        print("\n获取当前时间")
+        await client.query("现在几点了？")
+
+        async for message in client.receive_response():
+            if isinstance(message, AssistantMessage):
+                for block in message.content:
+                    if isinstance(block, TextBlock):
+                        print(f"  {block.text}")
+
+
+async def advanced_tools_example():
+    """示例 2: 高级工具组合"""
+    print("\n📝 示例 2: 高级工具组合")
+    print("-" * 40)
+
+    # 创建包含所有工具的服务器
+    full_server = create_sdk_mcp_server(
+        name="custom_tools",
+        version="1.0.0",
+        tools=[calculate, get_time, string_operations]
+    )
+
+    options = ClaudeAgentOptions(
+        mcp_servers={"custom": full_server},
+        allowed_tools=[
+            "mcp__custom__calculate",
+            "mcp__custom__get_time",
+            "mcp__custom__string_operations"
+        ]
+    )
+
+    async with ClaudeSDKClient(options=options) as client:
+        # 组合使用多个工具
+        print("执行复杂任务: 计算平方根后对结果字符串进行操作")
+        await client.query("请计算 16 的平方根，然后把结果转换成大写形式")
+
+        async for message in client.receive_response():
+            if isinstance(message, AssistantMessage):
+                for block in message.content:
+                    if isinstance(block, TextBlock):
+                        print(f"{block.text}", end="", flush=True)
+        print()
+
+
+async def error_handling_example():
+    """示例 3: 错误处理"""
+    print("\n📝 示例 3: 错误处理")
+    print("-" * 40)
+
+    calc_server = create_sdk_mcp_server(
+        name="math_utils",
+        version="1.0.0",
+        tools=[calculate]
+    )
+
+    options = ClaudeAgentOptions(
+        mcp_servers={"math": calc_server},
+        allowed_tools=["mcp__math__calculate"]
+    )
+
+    async with ClaudeSDKClient(options=options) as client:
+        # 测试除零错误
+        print("测试除零错误")
+        await client.query("请计算 10 除以 0")
+
+        async for message in client.receive_response():
+            if isinstance(message, AssistantMessage):
+                for block in message.content:
+                    if isinstance(block, TextBlock):
+                        print(f"  {block.text}")
+
+
+# ============================================================
+# 主函数
+# ============================================================
+
+async def main():
+    """运行所有自定义工具示例"""
+    print_example_header(
+        "自定义工具示例",
+        "展示如何创建和使用自定义工具扩展 Claude Agent SDK"
+    )
+
+    # 验证配置
+    config = get_config()
+    if not config.anthropic_api_key:
+        print("❌ 错误: 未设置 ANTHROPIC_API_KEY")
+        print("请在 .env 文件中配置 API 密钥")
+        return
+
+    try:
+        # 运行示例
+        await basic_calculations_example()
+        await advanced_tools_example()
+        await error_handling_example()
+
+        print("\n" + "=" * 50)
+        print("✅ 所有自定义工具示例完成!")
+        print("=" * 50)
+
+    except Exception as e:
+        print(f"\n❌ 发生错误: {e}")
+        import traceback
+        traceback.print_exc()
+
+
+if __name__ == "__main__":
+    anyio.run(main)
