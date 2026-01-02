@@ -8,12 +8,13 @@
         "agentvibes-mcp-server"
       ]
     },
-    "doc_processor": {
+    "agent-sdk-bridge": {
       "command": "python",
       "args": [
         "-m",
-        "mcp_servers.doc_processor_server"
+        "mcp_servers.agent_bridge"
       ],
+      "cwd": "D:\\work\\AI\\ClaudeLearning",
       "env": {
         "PYTHONPATH": "D:\\work\\AI\\ClaudeLearning;D:\\work\\AI\\ClaudeLearning\\AgentSdkTest"
       }
