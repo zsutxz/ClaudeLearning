@@ -257,11 +257,8 @@ class MarkdownProcessor(BaseDocumentProcessor):
     def read(self, file_path: str) -> Dict[str, Any]:
         """读取 Markdown 内容"""
         try:
-            # 检测编码
-            encoding = self._detect_encoding(file_path)
-
-            with open(file_path, 'r', encoding=encoding) as f:
-                content = f.read()
+            # 使用备用编码机制读取
+            content = self._read_with_fallback(file_path)
 
             # 统计信息
             lines = content.split('\n')
@@ -282,10 +279,11 @@ class MarkdownProcessor(BaseDocumentProcessor):
     def get_metadata(self, file_path: str) -> Dict[str, Any]:
         """获取 Markdown 元数据"""
         try:
-            encoding = self._detect_encoding(file_path)
+            # 使用备用编码机制读取
+            content = self._read_with_fallback(file_path)
 
-            with open(file_path, 'r', encoding=encoding) as f:
-                content = f.read()
+            # 获取实际使用的编码
+            encoding = self._get_actual_encoding(file_path)
 
             lines = content.split('\n')
             file_stat = os.stat(file_path)
@@ -313,7 +311,46 @@ class MarkdownProcessor(BaseDocumentProcessor):
             with open(file_path, 'rb') as f:
                 raw_data = f.read()
                 result = chardet.detect(raw_data)
-                return result['encoding'] or DEFAULT_ENCODING
+                detected = result['encoding'] or DEFAULT_ENCODING
+                # 验证检测的编码是否可用
+                try:
+                    raw_data.decode(detected)
+                    return detected
+                except (UnicodeDecodeError, LookupError):
+                    pass  # 检测失败，使用默认编码
+        return DEFAULT_ENCODING
+
+    def _read_with_fallback(self, file_path: str) -> str:
+        """使用备用编码列表读取文件"""
+        # 获取检测到的编码
+        detected_encoding = self._detect_encoding(file_path)
+
+        # 编码尝试顺序：检测编码 -> 默认编码 -> 备用编码列表
+        encodings_to_try = [detected_encoding, DEFAULT_ENCODING] + ['utf-8', 'gbk', 'gb2312', 'latin1']
+
+        for encoding in encodings_to_try:
+            try:
+                with open(file_path, 'r', encoding=encoding) as f:
+                    return f.read()
+            except (UnicodeDecodeError, LookupError):
+                continue
+
+        # 如果所有编码都失败，返回错误
+        raise ValueError(f"无法解码文件，尝试的编码: {encodings_to_try}")
+
+    def _get_actual_encoding(self, file_path: str) -> str:
+        """获取实际可用的编码"""
+        detected_encoding = self._detect_encoding(file_path)
+        encodings_to_try = [detected_encoding, DEFAULT_ENCODING, 'utf-8', 'gbk', 'gb2312', 'latin1']
+
+        for encoding in encodings_to_try:
+            try:
+                with open(file_path, 'r', encoding=encoding) as f:
+                    f.read(1)  # 尝试读取一个字符
+                return encoding
+            except (UnicodeDecodeError, LookupError):
+                continue
+
         return DEFAULT_ENCODING
 
 
