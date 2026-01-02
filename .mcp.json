@@ -7,6 +7,16 @@
         "--package=agentvibes",
         "agentvibes-mcp-server"
       ]
+    },
+    "doc_processor": {
+      "command": "python",
+      "args": [
+        "-m",
+        "mcp_servers.doc_processor_server"
+      ],
+      "env": {
+        "PYTHONPATH": "D:\\work\\AI\\ClaudeLearning;D:\\work\\AI\\ClaudeLearning\\AgentSdkTest"
+      }
     }
   }
 }

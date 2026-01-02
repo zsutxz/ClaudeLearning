@@ -38,14 +38,23 @@
       "Bash(python:*)",
       "Bash(for file in *.py)",
       "Bash(do echo \"Checking $file...\")",
-      "Bash(done)"
+      "Bash(done)",
+      "mcp__doc_processor__read_document",
+      "mcp__doc_processor__extract_metadata",
+      "mcp__doc_processor__search_in_document",
+      "mcp__doc_processor__batch_process",
+      "mcp__doc_processor__get_supported_formats",
+      "mcp__doc_processor__validate_document",
+      "mcp__doc_processor__convert_to_markdown",
+      "mcp__doc_processor__get_document_stats"
     ],
     "deny": [],
     "ask": []
   },
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
-    "agentvibes"
+    "agentvibes",
+    "doc_processor"
   ],
   "outputStyle": "default"
 }
