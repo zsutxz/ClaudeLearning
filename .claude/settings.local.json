@@ -39,14 +39,9 @@
       "Bash(for file in *.py)",
       "Bash(do echo \"Checking $file...\")",
       "Bash(done)",
-      "mcp__doc_processor__read_document",
-      "mcp__doc_processor__extract_metadata",
-      "mcp__doc_processor__search_in_document",
-      "mcp__doc_processor__batch_process",
-      "mcp__doc_processor__get_supported_formats",
-      "mcp__doc_processor__validate_document",
-      "mcp__doc_processor__convert_to_markdown",
-      "mcp__doc_processor__get_document_stats"
+      "mcp__agent-sdk-bridge__official_sdk_create_agent",
+      "mcp__agent-sdk-bridge__list_providers",
+      "mcp__agent-sdk-bridge__official_sdk_chat"
     ],
     "deny": [],
     "ask": []
@@ -54,7 +49,7 @@
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "agentvibes",
-    "doc_processor"
+    "agent-sdk-bridge"
   ],
   "outputStyle": "default"
 }

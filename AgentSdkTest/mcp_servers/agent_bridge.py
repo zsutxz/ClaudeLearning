@@ -23,7 +23,15 @@ from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import Tool, TextContent
 
-# 导入 Agent SDK
+# 导入官方 Claude Agent SDK
+try:
+    from claude_agent_sdk import ClaudeSDKClient, ClaudeAgentOptions
+    HAS_OFFICIAL_SDK = True
+except ImportError as e:
+    print(f"警告: 无法导入官方 Claude Agent SDK: {e}")
+    HAS_OFFICIAL_SDK = False
+
+# 导入项目自定义 Agent SDK
 try:
     from lib.multi_agent import (
         UniversalAIAgent,
@@ -62,6 +70,9 @@ class AgentBridgeState:
         self.conversations = {}  # 存储对话历史
         self.config = None
 
+        # 官方 SDK Agent 存储区
+        self.official_agents = {}  # 存储官方 SDK Agent 实例
+
         # 尝试加载配置
         if HAS_CONFIG:
             try:
@@ -69,9 +80,9 @@ class AgentBridgeState:
             except Exception as e:
                 print(f"警告: 加载配置失败: {e}")
 
-    def get_agent(self, agent_id: str) -> Optional[UniversalAIAgent]:
-        """获取代理实例"""
-        return self.agents.get(agent_id)
+    def get_official_agent(self, agent_id: str):
+        """获取官方 SDK Agent 实例"""
+        return self.official_agents.get(agent_id)
 
     def create_agent_id(self, provider: str, agent_type: str) -> str:
         """创建唯一的代理 ID"""
@@ -79,22 +90,9 @@ class AgentBridgeState:
         timestamp = int(time.time() * 1000)
         return f"{agent_type}_{provider}_{timestamp}"
 
-    def store_agent(self, agent_id: str, agent: UniversalAIAgent):
-        """存储代理实例"""
-        self.agents[agent_id] = agent
-
-    def get_conversation(self, agent_id: str) -> List[dict]:
-        """获取对话历史"""
-        return self.conversations.get(agent_id, [])
-
-    def add_to_conversation(self, agent_id: str, role: str, content: str):
-        """添加到对话历史"""
-        if agent_id not in self.conversations:
-            self.conversations[agent_id] = []
-        self.conversations[agent_id].append({
-            "role": role,
-            "content": content
-        })
+    def store_official_agent(self, agent_id: str, agent):
+        """存储官方 SDK Agent 实例"""
+        self.official_agents[agent_id] = agent
 
 
 # 全局状态实例
@@ -130,206 +128,120 @@ async def handle_list_providers() -> List[TextContent]:
         return [TextContent(type="text", text=f"错误: {str(e)}")]
 
 
-async def handle_create_agent(
-    provider: str,
-    agent_type: str,
-    model: Optional[str] = None
+# ============================================================
+# 官方 Claude Agent SDK 工具处理函数
+# ============================================================
+
+async def handle_official_sdk_chat(
+    message: str,
+    system_prompt: Optional[str] = None,
+    agent_id: Optional[str] = None,
+    max_turns: int = 1
 ) -> List[TextContent]:
-    """创建新的代理实例"""
-    if not HAS_AGENT_SDK:
-        return [TextContent(type="text", text="Agent SDK 未安装")]
+    """使用官方 Claude Agent SDK 进行对话"""
+    if not HAS_OFFICIAL_SDK:
+        return [TextContent(type="text", text="官方 Claude Agent SDK 未安装")]
 
     try:
-        # 根据 agent_type 创建代理
-        if agent_type == "code":
-            agent = UniversalCodeAgent(provider=provider, model=model)
-        elif agent_type == "task":
-            agent = UniversalTaskAgent(provider=provider, model=model)
-        else:
-            agent = UniversalAIAgent(provider=provider, model=model)
+        # 设置环境变量（如果配置存在）
+        if state.config:
+            if state.config.anthropic_api_key:
+                os.environ['ANTHROPIC_API_KEY'] = state.config.anthropic_api_key
+            if state.config.anthropic_base_url:
+                os.environ['ANTHROPIC_BASE_URL'] = state.config.anthropic_base_url
 
-        # 生成并存储代理 ID
-        agent_id = state.create_agent_id(provider, agent_type)
-        state.store_agent(agent_id, agent)
+        # 创建或获取 Agent
+        if agent_id:
+            client = state.get_official_agent(agent_id)
+            if not client:
+                return [TextContent(type="text", text=f"官方 SDK Agent 不存在: {agent_id}")]
+        else:
+            # 创建新的 Client
+            options = ClaudeAgentOptions(
+                system_prompt=system_prompt or "你是一个有用的 AI 助手。",
+                max_turns=max_turns
+            )
+
+            client = ClaudeSDKClient(options=options)
+
+        # 官方 SDK 使用异步流式接口
+        # 1. 先连接客户端
+        await client.connect()
+
+        # 2. 发送查询
+        await client.query(message)
+
+        # 3. 接收响应
+        response_text = ""
+        async for msg in client.receive_response():
+            # 处理 AssistantMessage (包含响应内容)
+            if type(msg).__name__ == 'AssistantMessage':
+                if hasattr(msg, 'content') and len(msg.content) > 0:
+                    first_block = msg.content[0]
+                    if hasattr(first_block, 'text'):
+                        response_text += first_block.text
+
+            # 处理 ResultMessage (包含最终结果)
+            elif type(msg).__name__ == 'ResultMessage':
+                if hasattr(msg, 'result') and msg.result:
+                    # 如果之前没有输出，这里使用结果
+                    if not response_text:
+                        response_text = msg.result
+                break
+
+        # 断开连接
+        await client.disconnect()
+
+        return [
+            TextContent(type="text", text="官方 Claude Agent SDK 回复:"),
+            TextContent(type="text", text=response_text)
+        ]
+
+    except Exception as e:
+        import traceback
+        return [TextContent(type="text", text=f"官方 SDK 调用失败: {str(e)}\n类型: {type(e).__name__}\n详情:\n{traceback.format_exc()}")]
+
+
+async def handle_official_sdk_create_agent(
+    system_prompt: str,
+    max_turns: int = 1
+) -> List[TextContent]:
+    """使用官方 Claude Agent SDK 创建 Agent"""
+    if not HAS_OFFICIAL_SDK:
+        return [TextContent(type="text", text="官方 Claude Agent SDK 未安装")]
+
+    try:
+        # 设置环境变量（如果配置存在）
+        if state.config:
+            if state.config.anthropic_api_key:
+                os.environ['ANTHROPIC_API_KEY'] = state.config.anthropic_api_key
+            if state.config.anthropic_base_url:
+                os.environ['ANTHROPIC_BASE_URL'] = state.config.anthropic_base_url
+
+        # 创建 Client
+        options = ClaudeAgentOptions(
+            system_prompt=system_prompt,
+            max_turns=max_turns
+        )
+
+        client = ClaudeSDKClient(options=options)
+
+        # 生成并存储 Agent ID
+        agent_id = state.create_agent_id("official", "claude")
+        state.store_official_agent(agent_id, client)
 
         import json
         return [
-            TextContent(type="text", text=f"代理创建成功: {agent_id}"),
+            TextContent(type="text", text=f"官方 SDK Agent 创建成功: {agent_id}"),
             TextContent(type="text", text=json.dumps({
                 "agent_id": agent_id,
-                "provider": provider,
-                "type": agent_type,
-                "model": agent.model
+                "system_prompt": system_prompt,
+                "max_turns": max_turns
             }, indent=2, ensure_ascii=False))
         ]
+
     except Exception as e:
-        return [TextContent(type="text", text=f"创建代理失败: {str(e)}")]
-
-
-async def handle_chat(
-    message: str,
-    provider: str = "claude",
-    agent_id: Optional[str] = None,
-    model: Optional[str] = None
-) -> List[TextContent]:
-    """发送消息给代理"""
-    if not HAS_AGENT_SDK:
-        return [TextContent(type="text", text="Agent SDK 未安装")]
-
-    try:
-        # 获取或创建代理
-        if agent_id:
-            agent = state.get_agent(agent_id)
-            if not agent:
-                return [TextContent(type="text", text=f"代理不存在: {agent_id}")]
-        else:
-            # 创建临时代理
-            agent = UniversalAIAgent(provider=provider, model=model)
-
-        # 发送消息
-        response = agent.chat(message)
-
-        # 保存对话历史
-        if agent_id:
-            state.add_to_conversation(agent_id, "user", message)
-            state.add_to_conversation(agent_id, "assistant", response)
-
-        return [
-            TextContent(type="text", text=f"回复 ({agent.provider}/{agent.model}):"),
-            TextContent(type="text", text=response)
-        ]
-    except Exception as e:
-        return [TextContent(type="text", text=f"对话失败: {str(e)}")]
-
-
-async def handle_code_assistant(
-    code: str,
-    language: str = "Python",
-    task: str = "explain",
-    provider: str = "claude"
-) -> List[TextContent]:
-    """代码助手工具"""
-    if not HAS_AGENT_SDK:
-        return [TextContent(type="text", text="Agent SDK 未安装")]
-
-    try:
-        agent = UniversalCodeAgent(provider=provider)
-
-        # 根据任务类型构建提示
-        prompts = {
-            "explain": f"请解释以下 {language} 代码:\n\n{code}",
-            "review": f"请审查以下 {language} 代码，提供改进建议:\n\n{code}",
-            "debug": f"请检查以下 {language} 代码中的潜在错误:\n\n{code}",
-            "optimize": f"请优化以下 {language} 代码的性能:\n\n{code}",
-        }
-
-        prompt = prompts.get(task, prompts["explain"])
-        response = agent.chat(prompt)
-
-        return [
-            TextContent(type="text", text=f"代码助手 - {task} ({language}):"),
-            TextContent(type="text", text=response)
-        ]
-    except Exception as e:
-        return [TextContent(type="text", text=f"代码助手失败: {str(e)}")]
-
-
-async def handle_task_agent(
-    task: str,
-    provider: str = "claude"
-) -> List[TextContent]:
-    """任务执行代理"""
-    if not HAS_AGENT_SDK:
-        return [TextContent(type="text", text="Agent SDK 未安装")]
-
-    try:
-        agent = UniversalTaskAgent(provider=provider)
-        response = agent.chat(task)
-
-        return [
-            TextContent(type="text", text=f"任务执行完成:"),
-            TextContent(type="text", text=response)
-        ]
-    except Exception as e:
-        return [TextContent(type="text", text=f"任务执行失败: {str(e)}")]
-
-
-async def handle_list_agents() -> List[TextContent]:
-    """列出所有活跃的代理"""
-    import json
-
-    agents_info = []
-    for agent_id, agent in state.agents.items():
-        agents_info.append({
-            "agent_id": agent_id,
-            "provider": agent.provider,
-            "model": agent.model,
-            "conversation_length": len(state.get_conversation(agent_id))
-        })
-
-    return [
-        TextContent(type="text", text=f"活跃代理数量: {len(state.agents)}"),
-        TextContent(type="text", text=json.dumps(agents_info, indent=2, ensure_ascii=False))
-    ]
-
-
-async def handle_get_conversation(agent_id: str) -> List[TextContent]:
-    """获取代理的对话历史"""
-    conversation = state.get_conversation(agent_id)
-
-    if not conversation:
-        return [TextContent(type="text", text=f"代理 {agent_id} 没有对话历史")]
-
-    import json
-    return [
-        TextContent(type="text", text=f"对话历史 ({len(conversation)} 条):"),
-        TextContent(type="text", text=json.dumps(conversation, indent=2, ensure_ascii=False))
-    ]
-
-
-async def handle_delete_agent(agent_id: str) -> List[TextContent]:
-    """删除代理实例"""
-    if agent_id in state.agents:
-        del state.agents[agent_id]
-        if agent_id in state.conversations:
-            del state.conversations[agent_id]
-        return [TextContent(type="text", text=f"代理已删除: {agent_id}")]
-    else:
-        return [TextContent(type="text", text=f"代理不存在: {agent_id}")]
-
-
-async def handle_multi_model_compare(
-    message: str,
-    providers: Optional[List[str]] = None
-) -> List[TextContent]:
-    """多模型对比"""
-    if not HAS_AGENT_SDK:
-        return [TextContent(type="text", text="Agent SDK 未安装")]
-
-    if providers is None:
-        providers = ["claude", "mock"]  # 默认对比
-
-    results = []
-    for provider in providers:
-        try:
-            agent = UniversalAIAgent(provider=provider)
-            response = agent.chat(message)
-            results.append({
-                "provider": provider,
-                "model": agent.model,
-                "response": response[:200] + "..." if len(response) > 200 else response
-            })
-        except Exception as e:
-            results.append({
-                "provider": provider,
-                "error": str(e)
-            })
-
-    import json
-    return [
-        TextContent(type="text", text=f"多模型对比结果:"),
-        TextContent(type="text", text=json.dumps(results, indent=2, ensure_ascii=False))
-    ]
+        return [TextContent(type="text", text=f"创建官方 SDK Agent 失败: {str(e)}\n类型: {type(e).__name__}")]
 
 
 # ============================================================
@@ -351,32 +263,8 @@ TOOLS = [
         }
     ),
     Tool(
-        name="create_agent",
-        description="创建新的代理实例",
-        inputSchema={
-            "type": "object",
-            "properties": {
-                "provider": {
-                    "type": "string",
-                    "description": "模型提供商 (claude, openai, deepseek, ollama, mock)",
-                    "default": "claude"
-                },
-                "agent_type": {
-                    "type": "string",
-                    "description": "代理类型 (chat, code, task)",
-                    "default": "chat"
-                },
-                "model": {
-                    "type": "string",
-                    "description": "模型名称（可选）"
-                }
-            },
-            "required": []
-        }
-    ),
-    Tool(
-        name="chat",
-        description="发送消息给代理并获取回复",
+        name="official_sdk_chat",
+        description="使用官方 Claude Agent SDK 进行对话",
         inputSchema={
             "type": "object",
             "properties": {
@@ -384,127 +272,40 @@ TOOLS = [
                     "type": "string",
                     "description": "要发送的消息"
                 },
-                "provider": {
+                "system_prompt": {
                     "type": "string",
-                    "description": "模型提供商",
-                    "default": "claude"
+                    "description": "系统提示词（可选）"
                 },
                 "agent_id": {
                     "type": "string",
-                    "description": "代理ID（如果使用已有代理）"
+                    "description": "官方 SDK Agent ID（如果使用已有 Agent）"
                 },
-                "model": {
-                    "type": "string",
-                    "description": "模型名称（可选）"
+                "max_turns": {
+                    "type": "integer",
+                    "description": "最大对话轮次",
+                    "default": 1
                 }
             },
             "required": ["message"]
         }
     ),
     Tool(
-        name="code_assistant",
-        description="代码助手 - 解释、审查、调试、优化代码",
+        name="official_sdk_create_agent",
+        description="使用官方 Claude Agent SDK 创建 Agent",
         inputSchema={
             "type": "object",
             "properties": {
-                "code": {
+                "system_prompt": {
                     "type": "string",
-                    "description": "代码内容"
+                    "description": "系统提示词"
                 },
-                "language": {
-                    "type": "string",
-                    "description": "编程语言",
-                    "default": "Python"
-                },
-                "task": {
-                    "type": "string",
-                    "description": "任务类型 (explain, review, debug, optimize)",
-                    "default": "explain",
-                    "enum": ["explain", "review", "debug", "optimize"]
-                },
-                "provider": {
-                    "type": "string",
-                    "description": "模型提供商",
-                    "default": "claude"
+                "max_turns": {
+                    "type": "integer",
+                    "description": "最大对话轮次",
+                    "default": 1
                 }
             },
-            "required": ["code"]
-        }
-    ),
-    Tool(
-        name="task_agent",
-        description="任务执行代理 - 专注于完成特定任务",
-        inputSchema={
-            "type": "object",
-            "properties": {
-                "task": {
-                    "type": "string",
-                    "description": "任务描述"
-                },
-                "provider": {
-                    "type": "string",
-                    "description": "模型提供商",
-                    "default": "claude"
-                }
-            },
-            "required": ["task"]
-        }
-    ),
-    Tool(
-        name="list_agents",
-        description="列出所有活跃的代理实例",
-        inputSchema={
-            "type": "object",
-            "properties": {},
-            "required": []
-        }
-    ),
-    Tool(
-        name="get_conversation",
-        description="获取指定代理的对话历史",
-        inputSchema={
-            "type": "object",
-            "properties": {
-                "agent_id": {
-                    "type": "string",
-                    "description": "代理ID"
-                }
-            },
-            "required": ["agent_id"]
-        }
-    ),
-    Tool(
-        name="delete_agent",
-        description="删除指定的代理实例",
-        inputSchema={
-            "type": "object",
-            "properties": {
-                "agent_id": {
-                    "type": "string",
-                    "description": "代理ID"
-                }
-            },
-            "required": ["agent_id"]
-        }
-    ),
-    Tool(
-        name="multi_model_compare",
-        description="使用多个模型对比同一问题的回答",
-        inputSchema={
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string",
-                    "description": "要发送的消息"
-                },
-                "providers": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "description": "要对比的提供商列表",
-                    "default": ["claude", "mock"]
-                }
-            },
-            "required": ["message"]
+            "required": ["system_prompt"]
         }
     ),
 ]
@@ -521,14 +322,8 @@ async def call_tool(name: str, arguments: Any) -> List[TextContent]:
     """调用工具"""
     handlers = {
         "list_providers": handle_list_providers,
-        "create_agent": handle_create_agent,
-        "chat": handle_chat,
-        "code_assistant": handle_code_assistant,
-        "task_agent": handle_task_agent,
-        "list_agents": handle_list_agents,
-        "get_conversation": handle_get_conversation,
-        "delete_agent": handle_delete_agent,
-        "multi_model_compare": handle_multi_model_compare,
+        "official_sdk_chat": handle_official_sdk_chat,
+        "official_sdk_create_agent": handle_official_sdk_create_agent,
     }
 
     handler = handlers.get(name)
@@ -551,9 +346,11 @@ if __name__ == "__main__":
         print("=" * 60)
         print()
 
-        print(f"Agent SDK: {'OK' if HAS_AGENT_SDK else 'MISSING'}")
-        print(f"配置模块: {'OK' if HAS_CONFIG else 'MISSING'}")
-        print(f"工厂模块: {'OK' if HAS_FACTORY else 'MISSING'}")
+        print("SDK 状态:")
+        print(f"  官方 Claude Agent SDK: {'OK' if HAS_OFFICIAL_SDK else 'MISSING'}")
+        print(f"  项目自定义 Agent SDK: {'OK' if HAS_AGENT_SDK else 'MISSING'}")
+        print(f"  配置模块: {'OK' if HAS_CONFIG else 'MISSING'}")
+        print(f"  工厂模块: {'OK' if HAS_FACTORY else 'MISSING'}")
         print()
 
         if HAS_CONFIG and state.config:
@@ -564,7 +361,7 @@ if __name__ == "__main__":
         print()
 
         print("已创建 MCP 服务器: agent-sdk-bridge")
-        print("支持的工具:")
+        print(f"支持的工具 ({len(TOOLS)} 个):")
         for tool in TOOLS:
             print(f"  - {tool.name}: {tool.description}")
         print()
