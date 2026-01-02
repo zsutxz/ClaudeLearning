@@ -28,11 +28,12 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'AgentSdkTest'))
 
 # 导入基础代理类
 try:
-    from MultiAIAgent import UniversalTaskAgent
-except ImportError:
-    print("Error: 无法导入MultiAIAgent，请确保AgentSdkTest目录存在且包含MultiAIAgent.py")
-    UniversalTaskAgent = object
-    UniversalAIAgent = object
+    from lib.multi_agent import UniversalTaskAgent
+except ImportError as e:
+    print(f"Error: 无法导入UniversalTaskAgent")
+    print(f"详细错误: {e}")
+    print("请确保AgentSdkTest/lib/multi_agent.py存在")
+    raise
 
 # 配置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -610,7 +611,7 @@ if __name__ == "__main__":
 
         # 执行研究
         result = await agent.conduct_research(
-            query="使用llm rag 进行客服系统构建的最新方法",
+            query="bmad使用方法",
             max_sources=10,
             output_format="markdown",
             save_to_file=True,  # 启用自动保存
