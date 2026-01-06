@@ -19,6 +19,9 @@ if sys.platform == "win32":
     except:
         pass
 
+import logging
+logging.getLogger("claude_agent_sdk").setLevel(logging.WARNING)
+  
 # 获取项目根目录
 project_root = Path(__file__).parent.parent.resolve()
 
@@ -138,7 +141,7 @@ async def agent_test_example():
     print("=== Agent Test Example ===")
 
     try:
-        # 使用代理配置进行代码审查测试，配置glm-4.6模型
+        # 使用代理配置进行代码审查测试，配置glm-4.7模型
         options = ClaudeAgentOptions(
             system_prompt="您是一位代码审查专家，具有安全、性能和最佳实践方面的专业知识。审查代码时：识别安全漏洞、检查性能问题、验证编码标准的遵守情况、建议具体改进。",
             allowed_tools=["Read", "Grep", "Glob", "Bash"],
@@ -188,8 +191,7 @@ async def main():
     logger.info("Starting Claude Agent SDK test suite")
 
     try:
-        print("=== 开始Claude Agent SDK测试套件 ===\n")
-
+        
         # 基础示例
         print("--- 基础功能测试 ---")
         await basic_example()

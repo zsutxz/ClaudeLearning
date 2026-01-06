@@ -97,7 +97,8 @@ async def main():
                 HookMatcher(matcher='Bash', hooks=[pre_tool_logger])
             ],
             'PostToolUse': [
-                HookMatcher(hooks=[post_tool_logger])
+                HookMatcher(hooks=[post_tool_logger]),
+                HookMatcher(matcher='Bash', hooks=[post_tool_logger])
             ],
             'UserPromptSubmit': [
                 HookMatcher(hooks=[user_prompt_modifier])

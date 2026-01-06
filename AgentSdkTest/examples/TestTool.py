@@ -24,15 +24,90 @@ sys.path.insert(0, str(project_root))
 from claude_agent_sdk import (
     ClaudeSDKClient,
     ClaudeAgentOptions,
+    query,
     tool,
     create_sdk_mcp_server,
     AssistantMessage,
+    ResultMessage,    
     TextBlock,
 )
 
 from lib.config import get_config
 from lib.utils import print_example_header
 
+
+async def read_file_example():
+    """示例 1: 读取文件"""
+    print("\n📝 示例 1: 读取文件内容")
+    print("-" * 40)
+
+    options = ClaudeAgentOptions(
+        allowed_tools=["Read"],
+        max_turns=5,
+    )
+
+    message_stream = query(
+        prompt="请读取 examples/01_basic_chat.py 文件的内容",
+        options=options,
+    )
+
+    async for message in message_stream:
+        if isinstance(message, AssistantMessage):
+            for block in message.content:
+                if isinstance(block, TextBlock):
+                    print(f"{block.text}", end="", flush=True)
+        elif isinstance(message, ResultMessage):
+            print()
+
+
+async def write_file_example():
+    """示例 2: 写入文件"""
+    print("\n📝 示例 2: 创建新文件")
+    print("-" * 40)
+
+    options = ClaudeAgentOptions(
+        allowed_tools=["Read", "Write"],
+        max_turns=5,
+    )
+
+    message_stream = query(
+        prompt="请在当前目录创建一个名为 test_output.txt 的文件，写入 'Hello from Claude Agent SDK!'",
+        options=options,
+    )
+
+    async for message in message_stream:
+        if isinstance(message, AssistantMessage):
+            for block in message.content:
+                if isinstance(block, TextBlock):
+                    print(f"{block.text}", end="", flush=True)
+        elif isinstance(message, ResultMessage):
+            print()
+
+
+async def search_code_example():
+    """示例 3: 搜索代码"""
+    print("\n📝 示例 3: 搜索代码中的特定模式")
+    print("-" * 40)
+
+    options = ClaudeAgentOptions(
+        allowed_tools=["Grep"],
+        max_turns=5,
+    )
+
+    message_stream = query(
+        prompt="请在 lib/ 目录中搜索所有包含 'UniversalAIAgent' 的文件",
+        options=options,
+    )
+
+    async for message in message_stream:
+        if isinstance(message, AssistantMessage):
+            for block in message.content:
+                if isinstance(block, TextBlock):
+                    print(f"{block.text}", end="", flush=True)
+        elif isinstance(message, ResultMessage):
+            print()
+            
+            
 
 # ============================================================
 # 自定义工具定义
@@ -229,7 +304,7 @@ async def advanced_tools_example():
     async with ClaudeSDKClient(options=options) as client:
         # 组合使用多个工具
         print("执行复杂任务: 计算平方根后对结果字符串进行操作")
-        await client.query("请计算 16 的平方根，然后把结果转换成大写形式")
+        await client.query("请计算 16 的平方根，然后把结果转换成中文的大写形式")
 
         async for message in client.receive_response():
             if isinstance(message, AssistantMessage):
@@ -286,6 +361,8 @@ async def main():
         return
 
     try:
+        await read_file_example()
+                
         # 运行示例
         await basic_calculations_example()
         await advanced_tools_example()

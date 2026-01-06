@@ -17,19 +17,7 @@ except ImportError:
                 if '=' in line and not line.strip().startswith('#'):
                     key, value = line.strip().split('=', 1)
                     os.environ[key] = value
-    
-async def main():
-    options = ClaudeAgentOptions(
-        setting_sources=["user", "project"],  # Load Skills from filesystem
-        allowed_tools=["Skill"]  # Restricted toolset
-    )
-
-    async for message in query(
-         prompt="What Skills are available?",
-        options=options
-    ):
-        print(message)
-    
+ 
 async def test_skill():
     # 获取项目根目录中的skills目录
     skills_dir = Path(__file__).parent.parent.parent / ".claude" / "skills"

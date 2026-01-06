@@ -217,14 +217,14 @@ async def main():
     try:
         print("开始高级Slash命令测试...\n")
 
-        # 1. 在对话上下文中测试
-        await test_slash_in_conversation()
+        # # 1. 在对话上下文中测试
+        # await test_slash_in_conversation()
 
-        # 2. 测试带参数的命令
-        await test_slash_with_context()
+        # # 2. 测试带参数的命令
+        # await test_slash_with_context()
 
-        # 3. 测试不同的调用方式
-        await test_slash_variations()
+        # # 3. 测试不同的调用方式
+        # await test_slash_variations()
 
         # 4. 调试模式
         await test_debug_mode()
