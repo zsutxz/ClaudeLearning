@@ -130,6 +130,20 @@ class UniversalAIAgent:
         """添加系统提示词"""
         self.conversation_history.insert(0, {"role": "system", "content": prompt})
 
+    def _separate_system_prompt(self, conversation_history: List[Dict[str, str]]) -> tuple[Optional[str], List[Dict[str, str]]]:
+        """
+        分离系统提示词和消息列表
+
+        Args:
+            conversation_history: 对话历史记录
+
+        Returns:
+            (system_prompt, messages): 系统提示词和过滤后的消息列表
+        """
+        system_prompt = next((msg["content"] for msg in conversation_history if msg["role"] == "system"), None)
+        messages = [msg for msg in conversation_history if msg["role"] != "system"]
+        return system_prompt, messages
+
     def chat(self, message: str, stream: bool = False) -> str:
         """
         与AI进行对话
@@ -188,8 +202,7 @@ class UniversalAIAgent:
 
     def _ollama_response(self) -> str:
         """Ollama本地模型响应"""
-        messages = [msg for msg in self.conversation_history if msg["role"] != "system"]
-        system_prompt = next((msg["content"] for msg in self.conversation_history if msg["role"] == "system"), None)
+        system_prompt, messages = self._separate_system_prompt(self.conversation_history)
 
         payload = {
             "model": self.model,
@@ -213,8 +226,7 @@ class UniversalAIAgent:
 
     def _claude_response(self) -> str:
         """Claude API响应"""
-        messages = [msg for msg in self.conversation_history if msg["role"] != "system"]
-        system_prompt = next((msg["content"] for msg in self.conversation_history if msg["role"] == "system"), None)
+        system_prompt, messages = self._separate_system_prompt(self.conversation_history)
 
         response = self.client.messages.create(
             model=self.model,
@@ -271,8 +283,7 @@ class UniversalAIAgent:
 
     def _claude_stream_response(self) -> str:
         """Claude流式响应"""
-        messages = [msg for msg in self.conversation_history if msg["role"] != "system"]
-        system_prompt = next((msg["content"] for msg in self.conversation_history if msg["role"] == "system"), None)
+        system_prompt, messages = self._separate_system_prompt(self.conversation_history)
 
         full_response = ""
         print("Claude: ", end="", flush=True)

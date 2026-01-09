@@ -22,7 +22,7 @@ if sys.platform == "win32":
             sys.stdout.reconfigure(encoding='utf-8')
         if sys.stderr.encoding != 'utf-8':
             sys.stderr.reconfigure(encoding='utf-8')
-    except:
+    except Exception:
         pass  # 如果设置失败，忽略错误
 
 
