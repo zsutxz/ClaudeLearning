@@ -36,6 +36,9 @@ Thumbs.db
 .claude/hook-test.log
 .claude/settings.local.json
 
+# Claude Code skills cache
+claude-code-tips/
+
 # Python
 __pycache__/
 *.pyc
