@@ -1,12 +1,12 @@
 ---
 name: claude-code-tips
-description: 自动从网络收集 Claude Code 的最新使用技巧、功能更新和最佳实践。当用户需要了解 Claude Code 的新功能、使用技巧或高级用法时使用此skill。支持本地缓存，避免重复搜索。
+description: 自动从网络收集 Claude Code 的最新使用技巧、功能更新和最佳实践。当用户需要了解 Claude Code 的新功能、使用技巧、高级用法或 Claude Agent SDK 开发时使用此skill。支持本地缓存，避免重复搜索。
 license: MIT
 allowed-tools: [WebSearch, WebFetch, mcp__fetch__fetch, Read, Write]
 metadata:
-  version: "2.0.0"
+  version: "2.1.0"
   category: development
-  tags: claude-code,tips,tricks,best-practices,cache
+  tags: claude-code,tips,tricks,best-practices,cache,agent-sdk
 ---
 
 # Claude Code 使用技巧收集器
@@ -28,6 +28,10 @@ metadata:
 - "Claude Code 最佳实践"
 - "Claude Code 高级用法"
 - "Claude Code 快捷键和命令"
+- "Claude Agent SDK 怎么用"
+- "Agent SDK 开发范例"
+- "如何创建自定义 Agent"
+- "Claude Agent SDK 文档"
 - 类似的 Claude Code 学习需求
 
 ## 目录结构
@@ -45,6 +49,7 @@ metadata:
 │   │   ├── shortcuts.md      # 快捷命令
 │   │   ├── skills_plugins.md # 技能和插件
 │   │   ├── mcp_servers.md    # MCP 服务器
+│   │   ├── agent_sdk.md      # Agent SDK 开发
 │   │   └── troubleshooting.md # 故障排除
 │   └── archive/               # 归档目录
 │       └── {year}/           # 按年份归档
@@ -73,6 +78,7 @@ metadata:
 - `shortcuts`: 30天（快捷命令很少变化）
 - `skills_plugins`: 7天（插件更新频率中等）
 - `mcp_servers`: 7天（MCP 服务器更新频率中等）
+- `agent_sdk`: 7天（SDK 文档更新频率中等）
 - `troubleshooting`: 30天（故障排除内容相对稳定）
 
 **示例缓存检查逻辑**：
@@ -101,6 +107,7 @@ if index["categories"][category]["last_search"]:
 - "快捷键"、"命令"、"别名" → `shortcuts`
 - "技能"、"插件"、"skill" → `skills_plugins`
 - "MCP"、"服务器" → `mcp_servers`
+- "Agent SDK"、"agent"、"SDK 开发"、"自定义 Agent" → `agent_sdk`
 - "问题"、"错误"、"故障" → `troubleshooting`
 
 ### 步骤 2: 搜索最新信息（仅在缓存过期时）
@@ -139,6 +146,15 @@ anthropic claude-code release notes
 "Claude Code" MCP servers list
 "Claude Code" MCP best practices
 Model Context Protocol claude-code
+
+# Agent SDK 开发
+"Claude Agent SDK" documentation 2025
+"Claude Agent SDK" examples tutorial
+"Claude Agent SDK" custom agent development
+Anthropic agent SDK guide
+"Claude Agent SDK" quickstart
+"Claude Agent SDK" Python examples
+"Claude Agent SDK" TypeScript examples
 
 # 故障排除
 "Claude Code" troubleshooting
@@ -200,6 +216,8 @@ write_file(f"{DATA_DIR}/index.json", json.dumps(index, indent=2))
 ### 官方资源
 - Anthropic 官方文档: https://docs.anthropic.com/claude/docs/claude-code
 - Claude Code GitHub: https://github.com/anthropics/claude-code
+- Claude Agent SDK 文档: https://docs.anthropic.com/en/docs/build-with-claude/agents
+- Claude Agent SDK GitHub: https://github.com/anthropics/anthropic-sdk-python
 - Anthropic 官方博客
 - Claude Code 发布说明
 
@@ -228,6 +246,11 @@ write_file(f"{DATA_DIR}/index.json", json.dumps(index, indent=2))
       "last_search": "2025-01-09T10:30:00",
       "count": 15
     },
+    "agent_sdk": {
+      "file": "agent_sdk.md",
+      "last_search": "2025-01-09T10:30:00",
+      "count": 20
+    },
     ...
   },
   "search_history": [
@@ -238,6 +261,202 @@ write_file(f"{DATA_DIR}/index.json", json.dumps(index, indent=2))
     }
   ]
 }
+```
+
+### 内容文件格式示例 (new_features.md)
+```markdown
+# Claude Code 新功能
+
+*最后更新：2025-01-09*
+*数据来源：网络搜索*
+
+---
+
+## 最新功能
+
+### 功能名称
+**发现日期**：2025-01-08
+**来源**：Anthropic 官方博客
+
+#### 功能描述
+简明的功能描述（2-3句话）
+
+#### 使用方法
+具体的步骤或命令示例
+
+#### 示例
+```bash
+# 示例命令
+claude-code new-feature-example
+```
+
+#### 注意事项
+使用时需要注意的点
+
+---
+
+## 历史功能
+（归档的功能列表）
+```
+
+### 内容文件格式示例 (agent_sdk.md)
+```markdown
+# Claude Agent SDK 开发指南
+
+*最后更新：2025-01-09*
+*数据来源：网络搜索*
+
+---
+
+## 快速开始
+
+### 安装 SDK
+**来源**：官方文档
+
+#### Python 安装
+```bash
+pip install anthropic
+```
+
+#### TypeScript 安装
+```bash
+npm install @anthropic-ai/sdk
+```
+
+---
+
+## 核心概念
+
+### Agent 架构
+- Agent 基础结构
+- Loop 处理流程
+- 工具集成
+
+### 关键组件
+- **Agent**: 核心代理类
+- **Loop**: 执行循环控制器
+- **Tool**: 工具函数接口
+- **RunConfig**: 运行配置
+
+---
+
+## 开发范例
+
+### 基础 Agent 示例
+**语言**：Python
+**难度**：入门
+
+```python
+from anthropic import Anthropic
+
+client = Anthropic(api_key="your-api-key")
+
+response = client.messages.create(
+    model="claude-3-5-sonnet-20241022",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "Hello!"}]
+)
+```
+
+### 自定义 Agent 示例
+**语言**：Python
+**难度**：中级
+
+```python
+from anthropic_loop import Agent, Loop, Tool
+
+# 自定义工具
+def my_tool(input: str) -> str:
+    return f"处理结果: {input}"
+
+# 创建 Agent
+agent = Agent(
+    model="claude-3-5-sonnet-20241022",
+    tools=[my_tool]
+)
+
+# 运行 Loop
+loop = Loop(agent)
+result = loop.run("请使用工具处理这个请求")
+```
+
+### 高级 Agent 架构
+**语言**：TypeScript
+**难度**：高级
+
+```typescript
+import { Agent, Tool, LoopConfig } from '@anthropic-ai/sdk';
+
+// 多工具 Agent
+const agent = new Agent({
+  model: 'claude-3-5-sonnet-20241022',
+  tools: [
+    new Tool({ name: 'search', execute: searchHandler }),
+    new Tool({ name: 'calculate', execute: calcHandler })
+  ],
+  config: {
+    maxIterations: 10,
+    timeout: 30000
+  }
+});
+```
+
+---
+
+## 常见用例
+
+### 1. 任务型 Agent
+处理特定任务的 Agent 设计模式
+
+### 2. 对话型 Agent
+对话管理和上下文保持
+
+### 3. 代码助手 Agent
+代码生成和审查工具
+
+### 4. 研究型 Agent
+信息收集和分析工具
+
+---
+
+## 最佳实践
+
+### 错误处理
+```python
+try:
+    response = agent.run(user_input)
+except APIError as e:
+    logger.error(f"API 错误: {e}")
+except ToolError as e:
+    logger.error(f"工具错误: {e}")
+```
+
+### 性能优化
+- 批量处理请求
+- 缓存常用响应
+- 异步执行工具
+
+### 安全考虑
+- API 密钥管理
+- 输入验证
+- 输出过滤
+
+---
+
+## 参考资源
+
+- [官方文档](https://docs.anthropic.com/en/docs/build-with-claude/agents)
+- [GitHub 仓库](https://github.com/anthropics/anthropic-sdk-python)
+- [API 参考](https://docs.anthropic.com/en/api/messages)
+
+---
+
+## 更新日志
+
+### 2025-01-09
+- 添加 Loop 架构文档
+- 新增 TypeScript 示例
+- 更新最佳实践指南
 ```
 
 ### 内容文件格式示例 (new_features.md)
@@ -417,6 +636,26 @@ claude-code new-feature-example
 3. 更新项目根目录下的 `claude-code-tips/data/new_features.md`
 4. 更新 `claude-code-tips/data/index.json`
 5. 返回最新内容
+
+**用户**: "Claude Agent SDK 怎么用？有什么开发范例？"
+
+**执行流程**：
+1. 检查项目根目录下的 `claude-code-tips/data/index.json`
+2. 发现 `agent_sdk` 上次更新是 10 天前
+3. 缓存过期（超过7天），执行网络搜索
+4. 搜索关键词："Claude Agent SDK" documentation 2025, "Claude Agent SDK" examples tutorial
+5. 访问官方文档：https://docs.anthropic.com/en/docs/build-with-claude/agents
+6. 整理搜索结果，更新 `claude-code-tips/data/agent_sdk.md`
+7. 更新 `claude-code-tips/data/index.json`
+8. 返回最新内容，包括安装指南、核心概念、开发范例等
+
+**用户**: "如何创建一个自定义的 Claude Agent？"
+
+**执行流程**：
+1. 确定类别为 `agent_sdk`
+2. 检查缓存，发现是 3 天前更新的
+3. 缓存有效，直接返回 `claude-code-tips/data/agent_sdk.md` 中关于自定义 Agent 的部分
+4. 重点展示「自定义 Agent 示例」和「高级 Agent 架构」部分
 
 ---
 

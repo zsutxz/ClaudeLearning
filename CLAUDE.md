@@ -28,12 +28,17 @@ pip install -r requirements.txt
 # ANTHROPIC_BASE_URL=https://open.bigmodel.cn/api/anthropic
 # ANTHROPIC_MODEL=glm-4.7
 
+# 或使用 python-dotenv 加载环境变量
+
 # 运行交互式菜单
 python quick_start.py
 
 # 或直接运行示例
 python examples/01_basic_chat.py
 python examples/02_multi_model.py
+
+# 运行测试文件
+python examples/TestAgentSdk.py
 ```
 
 ### Research (技术调研代理)
@@ -66,12 +71,14 @@ AI代理系统
 
 ### 代理继承体系
 ```
-UniversalAIAgent (基础AI代理)
+UniversalAIAgent (基础AI代理) - lib/multi_agent.py
     ├── UniversalTaskAgent (任务型)
-    │   └── ResearchAgent (调研代理)
+    │   └── ResearchAgent (调研代理) - Research/research_agent.py
     ├── UniversalCodeAgent (代码助手)
-    └── UniversalTalkAgent (对话型)
+    └── UniversalTalkAgent (对话型，未实现)
 ```
+
+**关键设计**：所有代理类都支持同步和异步调用，通过 `provider` 参数切换不同的AI模型。
 
 ### AgentSdkTest 核心架构
 ```
@@ -81,43 +88,49 @@ AgentSdkTest/
 │   ├── agent_factory.py           # AgentFactory - 工厂模式
 │   ├── config.py                  # Config - 配置管理 (支持config/.env)
 │   └── utils.py                   # 工具函数
-├── examples/                      # 渐进式示例 (01-07)
-├── Test/                          # 测试文件集合
+├── examples/                      # 示例和测试文件
+│   ├── 01_basic_chat.py           # 基础对话
+│   ├── 02_multi_model.py          # 多模型支持
+│   ├── 04_mcp_integration.py      # MCP集成
+│   ├── 05_session_management.py   # 会话管理
+│   ├── 06_stream_response.py      # 流式响应
+│   ├── 07_advanced_agent.py       # 高级代理
+│   └── Test*.py                   # 各类测试文件
 ├── config/
-│   ├── .env                       # 环境变量配置 (优先加载)
-│   └── .env.example               # 配置模板
+│   └── .env                       # 环境变量配置 (优先加载，通过python-dotenv)
 ├── quick_start.py                 # 交互式菜单
-└── run_all_examples.py            # 批量运行
+└── run_all_examples.py            # 批量运行所有示例
 ```
 
 ### Research 核心架构
 ```
 Research/
-├── research_agent.py              # ResearchAgent主类
-├── modules/
+├── research_agent.py              # ResearchAgent主类（继承UniversalTaskAgent）
+├── example_usage.py               # 使用示例
+├── modules/                       # 核心功能模块
 │   ├── literature_retriever/      # 文献检索模块
+│   │   ├── __init__.py
+│   │   └── literature_retriever.py
 │   ├── data_processor.py          # 数据处理
 │   ├── report_generator.py        # 报告生成
 │   └── quality_checker.py         # 质量检查
-├── mcp_servers/                   # 研究工具MCP服务器
-│   ├── search_literature
-│   ├── analyze_repository
-│   ├── fetch_paper
-│   └── generate_report
-└── test/                          # 测试用例
+├── test/                          # 测试用例
+│   ├── __init__.py
+│   └── test_research_agent.py
+├── reports/                       # 生成的报告目录
+└── requirements.txt               # 86个专业依赖包
 ```
 
 ## 常用命令
 
 ### AgentSdkTest
 ```bash
-# 快速开始
+# 快速开始（交互式菜单）
 python quick_start.py
 
 # 运行特定示例
 python examples/01_basic_chat.py        # 基础对话
 python examples/02_multi_model.py       # 多模型支持
-python examples/03_tools_usage.py       # 工具使用
 python examples/04_mcp_integration.py    # MCP集成
 python examples/05_session_management.py # 会话管理
 python examples/06_stream_response.py   # 流式响应
@@ -126,12 +139,11 @@ python examples/07_advanced_agent.py    # 高级代理
 # 运行所有示例
 python run_all_examples.py
 
-# 测试文件
-cd Test
-python TestAgentSdk.py                 # SDK基础测试
-python TestMultiLlm.py                  # 多模型测试
-python TestMcp.py                       # MCP服务器测试
-python TestTool.py                      # 自定义工具测试
+# 测试文件（在examples/目录下）
+python examples/TestAgentSdk.py         # SDK基础测试
+python examples/TestDeepseek.py         # DeepSeek测试
+python examples/TestMcp.py              # MCP服务器测试
+python examples/TestTool.py             # 自定义工具测试
 ```
 
 ### Research
@@ -142,8 +154,20 @@ python example_usage.py
 # 运行测试
 pytest test/
 
-# 执行调研
-python -c "from research_agent import ResearchAgent; ..."
+# 直接运行Research Agent（内置测试）
+python research_agent.py
+```
+
+**注意**：Research Agent 使用异步函数，需要使用 `await` 或 `asyncio.run()` 调用：
+```python
+import asyncio
+from research_agent import ResearchAgent
+
+async def main():
+    agent = ResearchAgent(research_domain="人工智能")
+    result = await agent.conduct_research("查询主题")
+
+asyncio.run(main())
 ```
 
 ### Claude技能系统
@@ -178,7 +202,10 @@ DEEPSEEK_BASE_URL=https://api.deepseek.com/v1
 
 ### Research (.env)
 ```bash
-# 继承Claude配置
+# Research 依赖 AgentSdkTest 的配置
+# 需要先配置 AgentSdkTest/config/.env 中的 Claude API
+
+# 额外的研究专用配置
 GITHUB_TOKEN=your_github_token
 KAGGLE_USERNAME=your_kaggle_username
 KAGGLE_KEY=your_kaggle_key
@@ -192,7 +219,7 @@ DATABASE_URL=sqlite:///research_data.db
 - **OpenAI**: gpt-4o-mini, gpt-4
 - **DeepSeek**: deepseek-chat, deepseek-coder
 - **Ollama**: llama2, mistral, codellama (本地)
-- **Mock**: mock-model (测试)
+- **Mock**: mock-model (测试，无需API密钥)
 
 ### UniversalAIAgent 使用
 ```python
@@ -206,6 +233,9 @@ agent = UniversalAIAgent(
 )
 
 response = agent.chat("你好")
+
+# 支持流式响应
+response = agent.chat("写一个故事", stream=True)
 ```
 
 ## MCP服务器集成
@@ -219,6 +249,9 @@ response = agent.chat("你好")
 - **filesystem** - 文件系统访问
 - **playwright** - 浏览器自动化
 - **fetch** - 网页抓取
+- **web_reader** - 网页内容提取和转换
+
+注意：MCP服务器配置文件位于根目录 `.mcp.json` 和 `.claude/settings.local.json`
 
 ## 技能系统
 
@@ -233,9 +266,11 @@ response = agent.chat("你好")
 ## 重要注意事项
 
 ### 环境变量加载优先级
-`lib/config.py` 按以下顺序查找 `.env`:
+`lib/config.py` 使用 `python-dotenv` 按以下顺序加载 `.env`:
 1. `AgentSdkTest/config/.env` (优先)
 2. `AgentSdkTest/.env` (备用)
+
+如果 `python-dotenv` 未安装，则使用内置的 `load_env_file()` 函数按相同顺序查找。
 
 ### Git工作流
 1. **不自动提交**: 所有代码更改需手动确认后提交
@@ -243,8 +278,14 @@ response = agent.chat("你好")
 3. **中文提交信息**: 使用清晰的中文描述更改
 
 ### 测试文件位置
-- **AgentSdkTest/Test/** - 所有测试文件已移至此目录
-- **examples/** - 渐进式学习示例 (01-07)
+- **AgentSdkTest/examples/** - 所有测试文件和示例都在此目录
+  - 渐进式学习示例 (01-07)
+  - Test*.py 测试文件
+
+### 导入路径说明
+- **AgentSdkTest**: 使用 `from lib.multi_agent import UniversalAIAgent`（需要在 AgentSdkTest 目录下运行）
+- **Research**: 使用 `from research_agent import ResearchAgent`（需要在 Research 目录下运行）
+- Research Agent 会自动添加 AgentSdkTest 到路径：`sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'AgentSdkTest'))`
 
 ### 安全性
 - 所有 `.env` 文件已在 `.gitignore` 中排除
@@ -260,12 +301,18 @@ cat AgentSdkTest/config/.env | grep ANTHROPIC_API_KEY
 
 # 智谱AI密钥格式: id.secret
 # 例如: 406db45f77c9cf.a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d8
+
+# 验证环境变量是否加载
+python -c "from lib.config import get_config; c = get_config(); print(c.anthropic_api_key)"
 ```
 
-### 环境变量未加载
+### Research导入错误
 ```bash
-# 验证配置加载
-python -c "from lib.config import get_config; c = get_config(); print(c.anthropic_api_key)"
+# 如果出现 ImportError: No module named 'lib.multi_agent'
+# 确保在正确的目录运行
+
+cd Research  # 必须在Research目录下运行
+python example_usage.py
 ```
 
 ### MCP服务器问题
@@ -273,8 +320,12 @@ python -c "from lib.config import get_config; c = get_config(); print(c.anthropi
 # 检查MCP配置
 cat .mcp.json
 cat .claude/settings.local.json
+
+# 重启Claude Code以重新加载MCP配置
 ```
 
 ---
 
 *多项目技术试验仓库 - 专注AI应用开发、智能代理系统*
+
+*最后更新: 2025-01-12*
