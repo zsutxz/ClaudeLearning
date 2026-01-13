@@ -16,9 +16,11 @@
 import sys
 from pathlib import Path
 
-# 使用共享的路径设置函数
-from lib.example_helpers import setup_project_root, create_agent_selector
-setup_project_root()
+# 添加项目根目录到 Python 路径
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+from lib.example_helpers import create_agent_selector
 
 from lib.multi_agent import (
     UniversalAIAgent,

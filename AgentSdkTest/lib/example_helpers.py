@@ -71,3 +71,18 @@ def print_example_summary(example_name: str, success: bool, details: str = ""):
     print(f"\n{example_name}: {status}")
     if details:
         print(f"详情: {details}")
+
+
+def create_agent_selector(config) -> str:
+    """
+    根据配置创建代理选择器
+
+    这是 select_provider 的别名，保持向后兼容。
+
+    Args:
+        config: 配置对象
+
+    Returns:
+        str: 提供商名称
+    """
+    return select_provider(config)
