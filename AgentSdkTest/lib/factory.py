@@ -54,12 +54,7 @@ class AgentFactory:
         Returns:
             UniversalAIAgent: 多模型代理实例
         """
-        return UniversalAIAgent(
-            provider=provider,
-            model=model,
-            api_key=api_key,
-            base_url=base_url
-        )
+        return UniversalAIAgent(provider=provider, model=model, api_key=api_key, base_url=base_url)
 
     def create_code_agent_multi(
         self,
@@ -208,37 +203,9 @@ class AgentFactory:
         ))
 
 
-# 预设代理类型
-
-def create_chat_agent(config: Optional[Config] = None) -> AgentFactory:
-    """
-    创建聊天代理
-
-    适合日常对话和问答场景。
-
-    Args:
-        config: 配置对象
-
-    Returns:
-        AgentFactory: 代理工厂实例
-    """
-    return AgentFactory(config)
-
-
-def create_code_agent(config: Optional[Config] = None) -> AgentFactory:
-    """
-    创建代码助手代理
-
-    专门用于代码编写、审查和调试。
-
-    Args:
-        config: 配置对象
-
-    Returns:
-        AgentFactory: 代理工厂实例
-    """
-    factory = AgentFactory(config)
-    factory.code_system_prompt = """你是一个专业的编程助手，精通多种编程语言。
+# 预设的系统提示词模板
+SYSTEM_PROMPTS = {
+    "code": """你是一个专业的编程助手，精通多种编程语言。
 
 你的能力包括：
 - 编写高质量的代码，遵循最佳实践
@@ -251,24 +218,9 @@ def create_code_agent(config: Optional[Config] = None) -> AgentFactory:
 1. 语法正确，符合语言规范
 2. 逻辑清晰，易于理解
 3. 包含必要的注释
-4. 遵循安全原则"""
-    return factory
+4. 遵循安全原则""",
 
-
-def create_task_agent(config: Optional[Config] = None) -> AgentFactory:
-    """
-    创建任务执行代理
-
-    专注于完成特定任务，支持工具调用。
-
-    Args:
-        config: 配置对象
-
-    Returns:
-        AgentFactory: 代理工厂实例
-    """
-    factory = AgentFactory(config)
-    factory.task_system_prompt = """你是一个专业的任务执行助手。
+    "task": """你是一个专业的任务执行助手。
 
 你的职责：
 1. 准确理解用户需求
@@ -279,24 +231,9 @@ def create_task_agent(config: Optional[Config] = None) -> AgentFactory:
 请遵循以下原则：
 - 优先使用工具而非猜测
 - 确认操作后再执行
-- 提供详细的执行结果"""
-    return factory
+- 提供详细的执行结果""",
 
-
-def create_file_agent(config: Optional[Config] = None) -> AgentFactory:
-    """
-    创建文件操作代理
-
-    专门用于文件系统操作，支持读写、搜索等。
-
-    Args:
-        config: 配置对象
-
-    Returns:
-        AgentFactory: 代理工厂实例
-    """
-    factory = AgentFactory(config)
-    factory.file_system_prompt = """你是一个专业的文件操作助手。
+    "file": """你是一个专业的文件操作助手。
 
 你可以使用的工具：
 - Read: 读取文件内容
@@ -310,6 +247,32 @@ def create_file_agent(config: Optional[Config] = None) -> AgentFactory:
 2. 写入文件前确认目录存在
 3. 危险操作前请求用户确认
 4. 提供清晰的操作结果说明"""
+}
+
+
+def create_chat_agent(config: Optional[Config] = None) -> AgentFactory:
+    """创建聊天代理，适合日常对话和问答场景"""
+    return AgentFactory(config)
+
+
+def create_code_agent(config: Optional[Config] = None) -> AgentFactory:
+    """创建代码助手代理，专门用于代码编写、审查和调试"""
+    factory = AgentFactory(config)
+    factory.code_system_prompt = SYSTEM_PROMPTS["code"]
+    return factory
+
+
+def create_task_agent(config: Optional[Config] = None) -> AgentFactory:
+    """创建任务执行代理，专注于完成特定任务，支持工具调用"""
+    factory = AgentFactory(config)
+    factory.task_system_prompt = SYSTEM_PROMPTS["task"]
+    return factory
+
+
+def create_file_agent(config: Optional[Config] = None) -> AgentFactory:
+    """创建文件操作代理，专门用于文件系统操作，支持读写、搜索等"""
+    factory = AgentFactory(config)
+    factory.file_system_prompt = SYSTEM_PROMPTS["file"]
     return factory
 
 

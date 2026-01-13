@@ -14,9 +14,10 @@
 import sys
 import asyncio
 from pathlib import Path
+from typing import Dict, List, Optional
 
 # 添加项目根目录到 Python 路径
-project_root = Path(__file__).parent.parent
+project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from lib.multi_agent_system import (
@@ -29,6 +30,63 @@ from lib.config import get_config
 from lib.utils import print_example_header
 
 
+# ==================== 辅助函数 ====================
+
+def get_provider():
+    """获取可用的模型提供商"""
+    config = get_config()
+    return "claude" if config.anthropic_api_key else "mock"
+
+
+def create_team(
+    system: MultiAgentSystem,
+    team_members: Dict[str, Dict[str, str]],
+    provider: str
+) -> None:
+    """
+    创建团队
+
+    Args:
+        system: 多智能体系统实例
+        team_members: 团队成员配置
+        provider: 模型提供商
+    """
+    for agent_id, info in team_members.items():
+        system.create_agent(
+            agent_id,
+            provider=provider,
+            capabilities=[info["capability"]],
+            system_prompt=info["prompt"]
+        )
+
+
+def print_result_preview(result, max_length: int = 150) -> None:
+    """
+    打印结果预览
+
+    Args:
+        result: 任务结果
+        max_length: 最大显示长度
+    """
+    if result and result.success:
+        preview = result.result[:max_length] + "..." if len(result.result) > max_length else result.result
+        print(f"{preview}")
+
+
+def print_team_status(system: MultiAgentSystem, team_members: Optional[Dict[str, Dict[str, str]]] = None) -> None:
+    """
+    打印团队状态
+
+    Args:
+        system: 多智能体系统实例
+        team_members: 团队成员配置（可选）
+    """
+    status = system.get_system_status()
+    for agent_id, agent_info in status["agents"].items():
+        role = f" ({team_members[agent_id]['capability']})" if team_members and agent_id in team_members else ""
+        print(f"  {agent_id}{role}: 完成任务 {agent_info['completed_tasks']} 个")
+
+
 # ==================== 示例 1: 基础多智能体 ====================
 
 async def example_basic_multi_agent():
@@ -36,33 +94,27 @@ async def example_basic_multi_agent():
     print("\n📝 示例 1: 基础多智能体系统")
     print("-" * 50)
 
-    config = get_config()
-    provider = "claude" if config.anthropic_api_key else "mock"
-
-    # 创建多智能体系统
+    provider = get_provider()
     system = MultiAgentSystem()
 
-    # 创建并注册多个智能体
-    system.create_agent(
-        "coder",
-        provider=provider,
-        capabilities=["编程", "代码开发"],
-        system_prompt="你是一个专业的程序员，擅长编写高质量代码。"
-    )
+    # 定义团队成员
+    team_members = {
+        "coder": {
+            "capability": "编程",
+            "prompt": "你是一个专业的程序员，擅长编写高质量代码。"
+        },
+        "analyst": {
+            "capability": "分析",
+            "prompt": "你是一个数据分析师，擅长分析问题和数据。"
+        },
+        "writer": {
+            "capability": "写作",
+            "prompt": "你是一个技术文档撰写专家。"
+        }
+    }
 
-    system.create_agent(
-        "analyst",
-        provider=provider,
-        capabilities=["分析", "数据处理"],
-        system_prompt="你是一个数据分析师，擅长分析问题和数据。"
-    )
-
-    system.create_agent(
-        "writer",
-        provider=provider,
-        capabilities=["写作", "文档"],
-        system_prompt="你是一个技术文档撰写专家。"
-    )
+    # 创建团队
+    create_team(system, team_members, provider)
 
     # 显示系统状态
     print("\n📊 系统状态:")
@@ -100,32 +152,26 @@ async def example_collaborative_workflow():
     print("\n\n📝 示例 2: 协作工作流")
     print("-" * 50)
 
-    config = get_config()
-    provider = "claude" if config.anthropic_api_key else "mock"
-
+    provider = get_provider()
     system = MultiAgentSystem()
 
-    # 创建专业化团队
-    system.create_agent(
-        "developer",
-        provider=provider,
-        capabilities=["开发"],
-        system_prompt="你是软件开发专家，专注于编写高质量代码。"
-    )
+    # 定义专业化团队
+    team_members = {
+        "developer": {
+            "capability": "开发",
+            "prompt": "你是软件开发专家，专注于编写高质量代码。"
+        },
+        "reviewer": {
+            "capability": "审查",
+            "prompt": "你是代码审查专家，专注于代码质量、安全性和最佳实践。"
+        },
+        "qa_engineer": {
+            "capability": "测试",
+            "prompt": "你是QA工程师，专注于编写全面的测试用例。"
+        }
+    }
 
-    system.create_agent(
-        "reviewer",
-        provider=provider,
-        capabilities=["审查"],
-        system_prompt="你是代码审查专家，专注于代码质量、安全性和最佳实践。"
-    )
-
-    system.create_agent(
-        "qa_engineer",
-        provider=provider,
-        capabilities=["测试"],
-        system_prompt="你是QA工程师，专注于编写全面的测试用例。"
-    )
+    create_team(system, team_members, provider)
 
     # 定义协作工作流
     workflow = [
@@ -159,15 +205,11 @@ async def example_collaborative_workflow():
         if result:
             status_icon = "✅" if result.success else "❌"
             print(f"\n{status_icon} {step_key}:")
-            if result.success:
-                preview = result.result[:150] + "..." if len(result.result) > 150 else result.result
-                print(f"{preview}")
+            print_result_preview(result)
 
     # 最终统计
-    final_status = system.get_system_status()
     print(f"\n📊 任务完成统计:")
-    for agent_id, info in final_status["agents"].items():
-        print(f"  {agent_id}: 完成任务 {info['completed_tasks']} 个")
+    print_team_status(system)
 
 
 # ==================== 示例 3: 智能体辩论 ====================
@@ -177,43 +219,37 @@ async def example_agent_debate():
     print("\n\n📝 示例 3: 智能体辩论")
     print("-" * 50)
 
-    config = get_config()
-    provider = "claude" if config.anthropic_api_key else "mock"
-
+    provider = get_provider()
     system = MultiAgentSystem()
 
-    # 创建具有不同观点的智能体
-    system.create_agent(
-        "optimist",
-        provider=provider,
-        capabilities=["辩论"],
-        system_prompt="你是一个乐观主义者，总是看到事物的积极面和机会。"
-    )
+    # 定义具有不同观点的智能体
+    debaters = {
+        "optimist": {
+            "capability": "辩论",
+            "prompt": "你是一个乐观主义者，总是看到事物的积极面和机会。"
+        },
+        "realist": {
+            "capability": "辩论",
+            "prompt": "你是一个现实主义者，注重事实和实际情况。"
+        },
+        "pessimist": {
+            "capability": "辩论",
+            "prompt": "你是一个谨慎主义者，关注风险和潜在问题。"
+        }
+    }
 
-    system.create_agent(
-        "realist",
-        provider=provider,
-        capabilities=["辩论"],
-        system_prompt="你是一个现实主义者，注重事实和实际情况。"
-    )
-
-    system.create_agent(
-        "pessimist",
-        provider=provider,
-        capabilities=["辩论"],
-        system_prompt="你是一个谨慎主义者，关注风险和潜在问题。"
-    )
+    create_team(system, debaters, provider)
 
     # 辩论主题
     topic = "人工智能对未来工作的影响"
 
     print(f"\n🎤 辩论主题: {topic}")
-    print(f"👥 参与者: optimist, realist, pessimist")
+    print(f"👥 参与者: {', '.join(debaters.keys())}")
     print(f"🔄 辩论轮数: 2\n")
 
     debate_history = await system.debate(
         topic=topic,
-        participants=["optimist", "realist", "pessimist"],
+        participants=list(debaters.keys()),
         rounds=2
     )
 
@@ -233,19 +269,19 @@ async def example_parallel_execution():
     print("\n\n📝 示例 4: 并行任务执行")
     print("-" * 50)
 
-    config = get_config()
-    provider = "claude" if config.anthropic_api_key else "mock"
-
+    provider = get_provider()
     system = MultiAgentSystem()
 
     # 创建多个工作智能体
-    for i in range(3):
-        system.create_agent(
-            f"worker_{i+1}",
-            provider=provider,
-            capabilities=["处理"],
-            system_prompt="你是一个高效的任务处理助手。"
-        )
+    workers = {
+        f"worker_{i+1}": {
+            "capability": "处理",
+            "prompt": "你是一个高效的任务处理助手。"
+        }
+        for i in range(3)
+    }
+
+    create_team(system, workers, provider)
 
     # 定义并行任务
     parallel_tasks = [
@@ -279,8 +315,7 @@ async def example_parallel_execution():
     for i, result in enumerate(results, 1):
         if result and result.success:
             print(f"\n任务 {i} (由 {result.agent_id} 执行):")
-            preview = result.result[:100] + "..." if len(result.result) > 100 else result.result
-            print(f"{preview}")
+            print_result_preview(result, max_length=100)
 
 
 # ==================== 示例 5: 软件开发团队模拟 ====================
@@ -290,43 +325,34 @@ async def example_dev_team_simulation():
     print("\n\n📝 示例 5: 软件开发团队模拟")
     print("-" * 50)
 
-    config = get_config()
-    provider = "claude" if config.anthropic_api_key else "mock"
-
-    # 创建完整的开发团队
+    provider = get_provider()
     system = MultiAgentSystem()
 
+    # 定义完整的开发团队
     team_members = {
         "product_manager": {
-            "role": "产品经理",
+            "capability": "产品经理",
             "prompt": "你是产品经理，负责需求分析和项目规划。"
         },
         "architect": {
-            "role": "架构师",
+            "capability": "架构师",
             "prompt": "你是技术架构师，负责系统设计和技术选型。"
         },
         "developer": {
-            "role": "开发工程师",
+            "capability": "开发工程师",
             "prompt": "你是全栈开发工程师，负责代码实现。"
         },
         "tester": {
-            "role": "测试工程师",
+            "capability": "测试工程师",
             "prompt": "你是QA工程师，负责质量保证和测试。"
         }
     }
 
-    # 注册团队成员
-    for agent_id, info in team_members.items():
-        system.create_agent(
-            agent_id,
-            provider=provider,
-            capabilities=[info["role"]],
-            system_prompt=info["prompt"]
-        )
+    create_team(system, team_members, provider)
 
     print("\n👥 开发团队成员:")
     for agent_id, info in team_members.items():
-        print(f"  {agent_id}: {info['role']}")
+        print(f"  {agent_id}: {info['capability']}")
 
     # 模拟开发流程
     project = "开发一个待办事项管理应用"
@@ -360,18 +386,13 @@ async def example_dev_team_simulation():
     print(f"\n🚀 项目: {project}")
     print("📋 开发流程: 需求 -> 架构 -> 开发 -> 测试\n")
 
-    results = await system.collaborative_workflow(workflow)
+    await system.collaborative_workflow(workflow)
 
     # 项目总结
     print("\n📊 项目完成总结:")
     final_status = system.get_system_status()
-
-    total_tasks = final_status["total_completed_tasks"]
-    print(f"  总完成任务数: {total_tasks}")
-
-    for agent_id, info in final_status["agents"].items():
-        role = team_members[agent_id]["role"]
-        print(f"  {agent_id} ({role}): 完成任务 {info['completed_tasks']} 个")
+    print(f"  总完成任务数: {final_status['total_completed_tasks']}")
+    print_team_status(system, team_members)
 
 
 # ==================== 主函数 ====================

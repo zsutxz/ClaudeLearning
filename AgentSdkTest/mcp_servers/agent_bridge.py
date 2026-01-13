@@ -52,7 +52,7 @@ except ImportError:
 
 # 尝试导入工厂
 try:
-    from lib.agent_factory import AgentFactory, create_multi_agent
+    from lib.factory import AgentFactory, create_multi_agent
     HAS_FACTORY = True
 except ImportError:
     HAS_FACTORY = False

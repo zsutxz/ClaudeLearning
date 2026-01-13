@@ -47,35 +47,27 @@ class Config:
 
     def __post_init__(self):
         """初始化后处理，从环境变量加载配置"""
-        # 加载 Claude API 配置
-        if not self.anthropic_api_key:
-            self.anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
-        if base_url := os.getenv("ANTHROPIC_BASE_URL"):
-            self.anthropic_base_url = base_url
-        if model := os.getenv("ANTHROPIC_MODEL"):
-            self.anthropic_model = model
+        providers = [
+            ("anthropic", "ANTHROPIC", True),
+            ("openai", "OPENAI", True),
+            ("deepseek", "DEEPSEEK", True),
+            ("ollama", "OLLAMA", False),
+        ]
 
-        # 加载 OpenAI 配置
-        if not self.openai_api_key:
-            self.openai_api_key = os.getenv("OPENAI_API_KEY")
-        if base_url := os.getenv("OPENAI_BASE_URL"):
-            self.openai_base_url = base_url
-        if model := os.getenv("OPENAI_MODEL"):
-            self.openai_model = model
+        for attr_name, env_prefix, has_api_key in providers:
+            # API密钥
+            if has_api_key:
+                api_key = getattr(self, f"{attr_name}_api_key")
+                if not api_key:
+                    setattr(self, f"{attr_name}_api_key", os.getenv(f"{env_prefix}_API_KEY"))
 
-        # 加载 DeepSeek 配置
-        if not self.deepseek_api_key:
-            self.deepseek_api_key = os.getenv("DEEPSEEK_API_KEY")
-        if base_url := os.getenv("DEEPSEEK_BASE_URL"):
-            self.deepseek_base_url = base_url
-        if model := os.getenv("DEEPSEEK_MODEL"):
-            self.deepseek_model = model
+            # Base URL
+            if base_url := os.getenv(f"{env_prefix}_BASE_URL"):
+                setattr(self, f"{attr_name}_base_url", base_url)
 
-        # 加载 Ollama 配置
-        if base_url := os.getenv("OLLAMA_BASE_URL"):
-            self.ollama_base_url = base_url
-        if model := os.getenv("OLLAMA_MODEL"):
-            self.ollama_model = model
+            # Model
+            if model := os.getenv(f"{env_prefix}_MODEL"):
+                setattr(self, f"{attr_name}_model", model)
 
     def validate(self) -> tuple[bool, list[str]]:
         """
@@ -156,14 +148,8 @@ def load_env_file(env_path: Optional[str] = None) -> None:
         env_path: .env 文件路径，默认按优先级查找 config/.env -> .env
     """
     if env_path is None:
-        # 按优先级查找 .env 文件
         project_root = Path(__file__).parent.parent
-        possible_paths = [
-            project_root / "config" / ".env",  # 优先使用 config/.env
-            project_root / ".env",              # 备用：根目录 .env
-        ]
-
-        for path in possible_paths:
+        for path in [project_root / "config" / ".env", project_root / ".env"]:
             if path.exists():
                 env_path = str(path)
                 break
@@ -171,17 +157,11 @@ def load_env_file(env_path: Optional[str] = None) -> None:
     if env_path is None:
         return
 
-    env_file = Path(env_path)
-    if not env_file.exists():
-        return
-
     try:
-        with open(env_file, "r", encoding="utf-8") as f:
+        with open(env_path, "r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
-                if not line or line.startswith("#"):
-                    continue
-                if "=" in line:
+                if line and not line.startswith("#") and "=" in line:
                     key, value = line.split("=", 1)
                     os.environ[key.strip()] = value.strip()
     except Exception as e:
@@ -191,12 +171,8 @@ def load_env_file(env_path: Optional[str] = None) -> None:
 # 模块加载时自动加载 .env 文件
 try:
     import dotenv
-    # 优先从 config 目录加载 .env
     project_root = Path(__file__).parent.parent
-    env_file = project_root / "config" / ".env"
-    if env_file.exists():
-        dotenv.load_dotenv(env_file)
-    else:
-        dotenv.load_dotenv()
+    dotenv.load_dotenv(project_root / "config" / ".env")
+    dotenv.load_dotenv()
 except ImportError:
     load_env_file()

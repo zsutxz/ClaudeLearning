@@ -86,45 +86,42 @@ class UniversalAIAgent:
             )
 
         provider_config = self.SUPPORTED_PROVIDERS[self.provider]
-
-        # 设置默认模型
-        if model is None:
-            model = provider_config["models"][0]
-
-        self.model = model
+        self.model = model or provider_config["models"][0]
         self.conversation_history: List[Dict[str, str]] = []
 
         # 初始化客户端
         if self.provider == "mock":
             self.client = None
-            print(f"[Mock] 使用模拟模型: {model} (无需API密钥)")
-        elif self.provider == "ollama":
+            print(f"[Mock] 使用模拟模型: {self.model} (无需API密钥)")
+            return
+
+        if self.provider == "ollama":
             self.client = None
             self.base_url = base_url or os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-            print(f"[Ollama] 使用本地模型: {model} (端点: {self.base_url})")
-        else:
-            # 设置API密钥
-            self.api_key = api_key or os.getenv(provider_config["env_key"])
+            print(f"[Ollama] 使用本地模型: {self.model} (端点: {self.base_url})")
+            return
 
-            if not self.api_key:
-                print(f"[Warning] 未设置{provider_config['env_key']}环境变量，将使用模拟模式")
-                self.provider = "mock"
-                self.client = None
-                return
+        # 设置API密钥
+        self.api_key = api_key or os.getenv(provider_config["env_key"])
+        if not self.api_key:
+            print(f"[Warning] 未设置{provider_config['env_key']}环境变量，将使用模拟模式")
+            self.provider = "mock"
+            self.client = None
+            return
 
-            # 初始化客户端
-            if self.provider == "claude":
-                default_base_url = os.getenv("ANTHROPIC_BASE_URL", "https://open.bigmodel.cn/api/anthropic")
-                self.client = anthropic.Anthropic(api_key=self.api_key, base_url=base_url or default_base_url)
-                print(f"[Claude] 使用Claude模型: {model}")
-            elif self.provider == "openai":
-                default_base_url = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
-                self.client = openai.OpenAI(api_key=self.api_key, base_url=base_url or default_base_url)
-                print(f"[OpenAI] 使用OpenAI模型: {model}")
-            elif self.provider == "deepseek":
-                default_base_url = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1")
-                self.client = openai.OpenAI(api_key=self.api_key, base_url=base_url or default_base_url)
-                print(f"[DeepSeek] 使用DeepSeek模型: {model} (端点: {base_url or default_base_url})")
+        # 初始化客户端
+        if self.provider == "claude":
+            default_base_url = os.getenv("ANTHROPIC_BASE_URL", "https://open.bigmodel.cn/api/anthropic")
+            self.client = anthropic.Anthropic(api_key=self.api_key, base_url=base_url or default_base_url)
+            print(f"[Claude] 使用Claude模型: {self.model}")
+        elif self.provider == "openai":
+            default_base_url = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
+            self.client = openai.OpenAI(api_key=self.api_key, base_url=base_url or default_base_url)
+            print(f"[OpenAI] 使用OpenAI模型: {self.model}")
+        elif self.provider == "deepseek":
+            default_base_url = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1")
+            self.client = openai.OpenAI(api_key=self.api_key, base_url=base_url or default_base_url)
+            print(f"[DeepSeek] 使用DeepSeek模型: {self.model} (端点: {base_url or default_base_url})")
 
     def add_system_prompt(self, prompt: str):
         """添加系统提示词"""
@@ -143,6 +140,11 @@ class UniversalAIAgent:
         system_prompt = next((msg["content"] for msg in conversation_history if msg["role"] == "system"), None)
         messages = [msg for msg in conversation_history if msg["role"] != "system"]
         return system_prompt, messages
+
+    def _add_assistant_message(self, content: str) -> str:
+        """添加助手消息并返回内容"""
+        self.conversation_history.append({"role": "assistant", "content": content})
+        return content
 
     def chat(self, message: str, stream: bool = False) -> str:
         """
@@ -170,18 +172,20 @@ class UniversalAIAgent:
 
     def _get_sync_response(self) -> str:
         """获取同步响应"""
-        if self.provider == "mock":
-            return self._mock_response()
-        elif self.provider == "ollama":
-            return self._ollama_response()
-        elif self.provider == "claude":
-            return self._claude_response()
-        elif self.provider == "openai":
-            return self._openai_response()
-        elif self.provider == "deepseek":
-            return self._openai_response()
-        else:
+        # 使用映射表简化分支逻辑
+        response_handlers = {
+            "mock": self._mock_response,
+            "ollama": self._ollama_response,
+            "claude": self._claude_response,
+            "openai": self._openai_response,
+            "deepseek": self._openai_response,  # DeepSeek 使用 OpenAI 兼容接口
+        }
+
+        handler = response_handlers.get(self.provider)
+        if not handler:
             raise ValueError(f"不支持的提供商: {self.provider}")
+
+        return handler()
 
     def _mock_response(self) -> str:
         """模拟响应 - 用于测试"""
@@ -197,8 +201,7 @@ class UniversalAIAgent:
         else:
             response = f"这是一个模拟回复。你的问题是: {user_message}\n在实际使用中，这里会是真实AI模型的回复。"
 
-        self.conversation_history.append({"role": "assistant", "content": response})
-        return response
+        return self._add_assistant_message(response)
 
     def _ollama_response(self) -> str:
         """Ollama本地模型响应"""
@@ -216,11 +219,8 @@ class UniversalAIAgent:
         try:
             response = requests.post(f"{self.base_url}/api/chat", json=payload, timeout=30)
             response.raise_for_status()
-            result = response.json()
-            assistant_message = result["message"]["content"]
-
-            self.conversation_history.append({"role": "assistant", "content": assistant_message})
-            return assistant_message
+            assistant_message = response.json()["message"]["content"]
+            return self._add_assistant_message(assistant_message)
         except Exception as e:
             return f"Ollama API调用失败: {str(e)}。请确保Ollama服务正在运行。"
 
@@ -236,38 +236,35 @@ class UniversalAIAgent:
             messages=messages
         )
 
-        assistant_message = response.content[0].text
-        self.conversation_history.append({"role": "assistant", "content": assistant_message})
-        return assistant_message
+        return self._add_assistant_message(response.content[0].text)
 
     def _openai_response(self) -> str:
         """OpenAI API响应"""
-        messages = self.conversation_history.copy()
-
         response = self.client.chat.completions.create(
             model=self.model,
-            messages=messages,
+            messages=self.conversation_history.copy(),
             max_tokens=4000,
             temperature=0.7
         )
 
-        assistant_message = response.choices[0].message.content
-        self.conversation_history.append({"role": "assistant", "content": assistant_message})
-        return assistant_message
+        return self._add_assistant_message(response.choices[0].message.content)
 
     def _stream_response(self) -> str:
         """获取流式响应"""
-        if self.provider == "mock":
-            return self._mock_stream_response()
-        elif self.provider == "claude":
-            return self._claude_stream_response()
-        elif self.provider == "openai":
-            return self._openai_stream_response()
-        elif self.provider == "deepseek":
-            return self._openai_stream_response()
-        else:
+        # 使用映射表简化分支逻辑
+        stream_handlers = {
+            "mock": self._mock_stream_response,
+            "claude": self._claude_stream_response,
+            "openai": self._openai_stream_response,
+            "deepseek": self._openai_stream_response,  # DeepSeek 使用 OpenAI 兼容接口
+        }
+
+        handler = stream_handlers.get(self.provider)
+        if not handler:
             print(f"[Warning] {self.provider} 暂不支持流式响应，使用同步响应")
             return self._get_sync_response()
+
+        return handler()
 
     def _mock_stream_response(self) -> str:
         """模拟流式响应"""
@@ -304,20 +301,17 @@ class UniversalAIAgent:
                 full_response += content
 
         print()
-        self.conversation_history.append({"role": "assistant", "content": full_response})
-        return full_response
+        return self._add_assistant_message(full_response)
 
     def _openai_stream_response(self) -> str:
         """OpenAI流式响应"""
-        messages = self.conversation_history.copy()
-
         full_response = ""
         provider_name = "OpenAI" if self.provider == "openai" else "DeepSeek"
         print(f"{provider_name}: ", end="", flush=True)
 
         stream = self.client.chat.completions.create(
             model=self.model,
-            messages=messages,
+            messages=self.conversation_history.copy(),
             max_tokens=4000,
             temperature=0.7,
             stream=True
@@ -330,8 +324,7 @@ class UniversalAIAgent:
                 full_response += content
 
         print()
-        self.conversation_history.append({"role": "assistant", "content": full_response})
-        return full_response
+        return self._add_assistant_message(full_response)
 
     def clear_history(self):
         """清空对话历史（保留系统提示词）"""

@@ -101,17 +101,21 @@ class AgentCommunicationBus:
         """发布消息"""
         self._message_history.append(message)
 
+        # 确定目标订阅者
         if message.receiver:
-            # 发送给特定接收者
-            if message.receiver in self._subscribers:
-                for callback in self._subscribers[message.receiver]:
-                    await self._safe_callback(callback, message)
+            target_subscribers = self._subscribers.get(message.receiver, [])
         else:
-            # 广播给所有订阅者
-            for agent_id, callbacks in self._subscribers.items():
-                if agent_id != message.sender:  # 不发送给自己
-                    for callback in callbacks:
-                        await self._safe_callback(callback, message)
+            # 广播给所有订阅者（除了发送者）
+            target_subscribers = [
+                callback
+                for agent_id, callbacks in self._subscribers.items()
+                for callback in callbacks
+                if agent_id != message.sender
+            ]
+
+        # 执行回调
+        for callback in target_subscribers:
+            await self._safe_callback(callback, message)
 
     async def _safe_callback(self, callback: Callable[[AgentMessage], None], message: AgentMessage):
         """安全执行回调"""
@@ -168,9 +172,10 @@ class AgentCoordinator:
 
     def _handle_message(self, message: AgentMessage):
         """处理接收到的消息"""
-        # 更新消息计数
-        if message.receiver in self.agents:
-            self.agents[message.receiver].message_count += 1
+        # 更新消息计数（仅当接收者存在时）
+        receiver = self.agents.get(message.receiver)
+        if receiver:
+            receiver.message_count += 1
 
     async def send_message(
         self,
@@ -200,7 +205,6 @@ class AgentCoordinator:
 
     def get_idle_agent(self, capability: Optional[str] = None) -> Optional[str]:
         """获取空闲智能体"""
-        # 优先找已完成任务多的
         idle_agents = [
             (agent_id, info.completed_tasks)
             for agent_id, info in self.agents.items()
@@ -274,28 +278,14 @@ class AgentCoordinator:
         input_data: Optional[str]
     ) -> TaskResult:
         """执行任务"""
-        agent_info = self.agents[agent_id]
-        agent = agent_info.agent
+        agent = self.agents[agent_id].agent
 
         try:
-            if input_data:
-                prompt = f"{task_description}\n\n输入数据:\n{input_data}"
-            else:
-                prompt = task_description
-
+            prompt = f"{task_description}\n\n输入数据:\n{input_data}" if input_data else task_description
             response = agent.chat(prompt)
-            return TaskResult(
-                success=True,
-                agent_id=agent_id,
-                result=response
-            )
-
+            return TaskResult(success=True, agent_id=agent_id, result=response)
         except Exception as e:
-            return TaskResult(
-                success=False,
-                agent_id=agent_id,
-                error=str(e)
-            )
+            return TaskResult(success=False, agent_id=agent_id, error=str(e))
 
     async def parallel_execute(
         self,
@@ -314,7 +304,6 @@ class AgentCoordinator:
             return_exceptions=True
         )
 
-        # 过滤异常结果
         return [r for r in results if isinstance(r, TaskResult)]
 
 
@@ -392,8 +381,7 @@ class MultiAgentSystem:
                 input_data=input_data
             )
 
-            step_key = f"step_{i+1}_{agent_id}"
-            results[step_key] = result
+            results[f"step_{i+1}_{agent_id}"] = result
             previous_result = result
 
         return results
@@ -421,11 +409,12 @@ class MultiAgentSystem:
             print(f"\n🔥 第 {round_num} 轮辩论")
 
             for agent_id in participants:
-                # 获取其他智能体的观点
-                others_views = []
-                for other_id in participants:
-                    if other_id != agent_id and debate_history[other_id]:
-                        others_views.append(f"{other_id}: {debate_history[other_id][-1]}")
+                # 收集其他智能体的最新观点
+                others_views = [
+                    f"{other_id}: {debate_history[other_id][-1]}"
+                    for other_id in participants
+                    if other_id != agent_id and debate_history[other_id]
+                ]
 
                 # 构建提示词
                 prompt = f"辩论主题: {topic}\n\n"
@@ -434,10 +423,7 @@ class MultiAgentSystem:
                 prompt += f"请给出你的观点 (第{round_num}轮):"
 
                 # 执行辩论
-                result = await self.coordinator.distribute_task(
-                    task_description=prompt,
-                    input_data=None
-                )
+                result = await self.coordinator.distribute_task(prompt, None)
 
                 if result and result.success:
                     debate_history[agent_id].append(result.result)

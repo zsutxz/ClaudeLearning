@@ -45,7 +45,6 @@ def setup_logging(
     if format_string is None:
         format_string = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
-    # 配置根日志记录器
     logging.basicConfig(
         level=getattr(logging, level.upper()),
         format=format_string,
@@ -53,17 +52,10 @@ def setup_logging(
     )
 
     logger = logging.getLogger("AgentSdkTest")
+    logger.addHandler(logging.StreamHandler(sys.stdout))
 
-    # 控制台处理器
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(logging.Formatter(format_string))
-    logger.addHandler(console_handler)
-
-    # 文件处理器（可选）
     if log_file:
-        file_handler = logging.FileHandler(log_file, encoding="utf-8")
-        file_handler.setFormatter(logging.Formatter(format_string))
-        logger.addHandler(file_handler)
+        logger.addHandler(logging.FileHandler(log_file, encoding="utf-8"))
 
     return logger
 
@@ -78,23 +70,15 @@ def print_message(role: str, content: str, timestamp: bool = True) -> None:
         timestamp: 是否显示时间戳
     """
     icons = {
-        "user": "👤",
-        "assistant": "🤖",
-        "system": "⚙️",
-        "tool": "🔧",
-        "error": "❌",
-        "warning": "⚠️",
-        "info": "ℹ️",
-        "success": "✅",
+        "user": "👤", "assistant": "🤖", "system": "⚙️",
+        "tool": "🔧", "error": "❌", "warning": "⚠️",
+        "info": "ℹ️", "success": "✅",
     }
 
     icon = icons.get(role.lower(), "💬")
+    time_prefix = f"[{datetime.now().strftime('%H:%M:%S')}] " if timestamp else ""
 
-    if timestamp:
-        time_str = datetime.now().strftime("%H:%M:%S")
-        print(f"[{time_str}] {icon} {role.capitalize()}: {content}")
-    else:
-        print(f"{icon} {role.capitalize()}: {content}")
+    print(f"{time_prefix}{icon} {role.capitalize()}: {content}")
 
 
 def print_cost(cost_usd: float, tokens_used: Optional[int] = None) -> None:

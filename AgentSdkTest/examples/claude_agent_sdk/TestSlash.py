@@ -16,7 +16,7 @@ if sys.platform == 'win32':
     sys.stderr = codecs.getwriter('utf-8')(sys.stderr.detach())
 
 # 获取项目根目录
-project_root = Path(__file__).parent.parent.resolve()
+project_root = Path(__file__).parent.parent.parent.resolve()
 
 # 加载.env文件中的环境变量
 try:

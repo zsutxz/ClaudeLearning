@@ -16,9 +16,9 @@
 import sys
 from pathlib import Path
 
-# 添加项目根目录到 Python 路径
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# 使用共享的路径设置函数
+from lib.example_helpers import setup_project_root, create_agent_selector
+setup_project_root()
 
 from lib.multi_agent import (
     UniversalAIAgent,
@@ -75,7 +75,7 @@ def test_code_agent():
     print("-" * 40)
 
     config = get_config()
-    provider = "claude" if config.anthropic_api_key else "mock"
+    provider = create_agent_selector(config)
 
     agent = UniversalCodeAgent(provider=provider, language="Python")
     response = agent.write_code("实现一个计算斐波那契数列的函数")
@@ -88,7 +88,7 @@ def test_task_agent():
     print("-" * 40)
 
     config = get_config()
-    provider = "claude" if config.anthropic_api_key else "mock"
+    provider = create_agent_selector(config)
 
     agent = UniversalTaskAgent(
         provider=provider,

@@ -23,7 +23,7 @@ import logging
 logging.getLogger("claude_agent_sdk").setLevel(logging.WARNING)
   
 # 获取项目根目录
-project_root = Path(__file__).parent.parent.resolve()
+project_root = Path(__file__).parent.parent.parent.resolve()
 
 # 加载.env文件中的环境变量
 try:
@@ -156,25 +156,7 @@ async def agent_test_example():
 
         # 使用详细的消息处理逻辑
         async for message in message_stream:
-            message_type = type(message).__name__
-            print(f"Message type: {message_type}")
-
-            if message_type == "ResultMessage":
-                print(f"Result: {message.result}")
-                if hasattr(message, 'total_cost_usd') and message.total_cost_usd > 0:
-                    print(f"Cost: ${message.total_cost_usd:.4f}")
-            elif message_type == "AssistantMessage":
-                for block in message.content:
-                    if hasattr(block, 'text'):
-                        print(f"Assistant: {block.text}")
-                    else:
-                        print(f"Assistant: {block}")
-            elif message_type == "SystemMessage":
-                print(f"System: {getattr(message, 'content', str(message))}")
-            elif message_type == "UserMessage":
-                print(f"User: {getattr(message, 'content', str(message))}")
-            else:
-                print(f"Other: {str(message)}")
+            await process_detailed_message(message)
 
     except Exception as e:
         logger.error(f"Agent test failed: {e}")
@@ -184,6 +166,31 @@ async def agent_test_example():
         else:
             raise
     print()
+
+
+async def process_detailed_message(message) -> None:
+    """处理详细的消息类型并打印"""
+    message_type = type(message).__name__
+    print(f"Message type: {message_type}")
+
+    # 定义消息类型处理器
+    message_handlers = {
+        "ResultMessage": lambda m: print(f"Result: {m.result}") or (
+            print(f"Cost: ${m.total_cost_usd:.4f}") if hasattr(m, 'total_cost_usd') and m.total_cost_usd > 0 else None
+        ),
+        "AssistantMessage": lambda m: [
+            print(f"Assistant: {block.text}") if hasattr(block, 'text') else print(f"Assistant: {block}")
+            for block in m.content
+        ],
+        "SystemMessage": lambda m: print(f"System: {getattr(m, 'content', str(m))}"),
+        "UserMessage": lambda m: print(f"User: {getattr(m, 'content', str(m))}"),
+    }
+
+    handler = message_handlers.get(message_type)
+    if handler:
+        handler(message)
+    else:
+        print(f"Other: {str(message)}")
 
 
 async def main():

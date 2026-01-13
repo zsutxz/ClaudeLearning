@@ -15,12 +15,12 @@
 import sys
 from pathlib import Path
 
-# 添加项目根目录到 Python 路径
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# 使用共享的路径设置函数
+from lib.example_helpers import setup_project_root, create_agent_selector
+setup_project_root()
 
 from lib.multi_agent import UniversalAIAgent, UniversalCodeAgent, UniversalTaskAgent
-from lib.agent_factory import AgentFactory, create_multi_agent
+from lib.factory import AgentFactory, create_multi_agent
 from lib.config import get_config
 from lib.utils import print_example_header
 
@@ -31,7 +31,7 @@ def code_agent_example():
     print("-" * 40)
 
     config = get_config()
-    provider = "claude" if config.anthropic_api_key else "mock"
+    provider = create_agent_selector(config)
 
     agent = UniversalCodeAgent(provider=provider, language="Python")
 
@@ -61,7 +61,7 @@ def task_agent_example():
     print("-" * 40)
 
     config = get_config()
-    provider = "claude" if config.anthropic_api_key else "mock"
+    provider = create_agent_selector(config)
 
     agent = UniversalTaskAgent(
         provider=provider,
