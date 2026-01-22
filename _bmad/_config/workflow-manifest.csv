@@ -67,3 +67,8 @@ name,description,module,path
 "workflow-init","Initialize a new BMM project by determining level, type, and creating workflow path","bmm","_bmad/bmm/workflows/workflow-status/init/workflow.yaml"
 "workflow-status","Lightweight status checker - answers """"what should I do now?"""" for any agent. Reads YAML status file for workflow tracking. Use workflow-init for new projects.","bmm","_bmad/bmm/workflows/workflow-status/workflow.yaml"
 "agent","Tri-modal workflow for creating, editing, and validating BMAD Core compliant agents","bmb","_bmad/bmb/workflows/agent/workflow.md"
+"module","Quad-modal workflow for creating BMAD modules (Brief + Create + Edit + Validate)","bmb","_bmad/bmb/workflows/module/workflow.md"
+"workflow","Create structured standalone workflows using markdown-based step architecture (tri-modal: create, validate, edit)","bmb","_bmad/bmb/workflows/workflow/workflow.md"
+"quick-spec","Conversational spec engineering for games - ask questions, investigate code, produce implementation-ready tech-spec.","bmgd","_bmad/bmgd/workflows/bmgd-quick-flow/quick-spec/workflow.yaml"
+"prd","PRD tri-modal workflow - Create, Validate, or Edit comprehensive PRDs","bmm","_bmad/bmm/workflows/2-plan-workflows/prd/workflow.md"
+"quick-spec","Conversational spec engineering - ask questions, investigate code, produce implementation-ready tech-spec.","bmm","_bmad/bmm/workflows/bmad-quick-flow/quick-spec/workflow.md"

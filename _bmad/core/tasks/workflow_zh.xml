@@ -1,0 +1,231 @@
+<task id="_bmad/core/tasks/workflow.xml" name="执行工作流">
+  <objective>通过加载配置、遵循指令并生成输出来执行给定的工作流</objective>
+
+  <llm critical="true">
+    <mandate>始终读取完整文件 - 在读取任何工作流相关文件时绝不使用 offset/limit</mandate>
+    <mandate>指令是强制性的 - 可以是文件路径、步骤列表或嵌入在 YAML/XML/Markdown 中的列表</mandate>
+    <mandate>严格按照精确顺序执行指令中的所有步骤</mandate>
+    <mandate>在每个 "template-output" 标签后保存到模板输出文件</mandate>
+    <mandate>绝不跳过任何步骤 - 你必须对每个步骤的执行负责，没有任何失败的借口</mandate>
+  </llm>
+
+  <WORKFLOW-RULES critical="true">
+    <rule n="1">步骤按精确的数字顺序执行（1, 2, 3...）</rule>
+    <rule n="2">可选步骤：除非启用 #yolo 模式，否则询问用户</rule>
+    <rule n="3">模板输出标签：保存内容，与用户讨论已完成的章节，在用户指示继续之前绝不继续（除非已激活 YOLO 模式）</rule>
+  </WORKFLOW-RULES>
+
+  <flow>
+    <step n="1" title="加载和初始化工作流">
+      <substep n="1a" title="加载配置和解析变量">
+        <action>从提供的路径读取 workflow.yaml</action>
+        <mandate>加载 config_source（所有模块必需）</mandate>
+        <phase n="1">从 config_source 路径加载外部配置</phase>
+        <phase n="2">用配置中的值解析所有 {config_source} 引用</phase>
+        <phase n="3">解析系统变量（日期：系统生成）和路径（{project-root}、{installed_path}）</phase>
+        <phase n="4">请求用户输入任何仍然未知的变量</phase>
+      </substep>
+
+      <substep n="1b" title="加载所需组件">
+        <mandate>指令：从路径读取完整文件或嵌入列表（必需）</mandate>
+        <check>如果是模板路径 → 读取完整模板文件</check>
+        <check>如果是验证路径 → 记录路径以备需要时加载</check>
+        <check>如果是 template: false → 标记为 action-workflow（否则为 template-workflow）</check>
+        <note>数据文件（csv、json）→ 仅存储路径，当指令引用时按需加载</note>
+      </substep>
+
+      <substep n="1c" title="初始化输出" if="template-workflow">
+        <action>使用所有变量和 {{date}} 解析 default_output_file 路径</action>
+        <action>如果输出目录不存在则创建</action>
+        <action>如果是 template-workflow → 将模板与占位符一起写入输出文件</action>
+        <action>如果是 action-workflow → 跳过文件创建</action>
+      </substep>
+    </step>
+
+    <step n="2" title="按顺序处理每个指令步骤">
+      <iterate>对于指令中的每个步骤：</iterate>
+
+      <substep n="2a" title="处理步骤属性">
+        <check>如果是 optional="true" 且未启用 #yolo → 询问用户是否包含</check>
+        <check>如果是 if="condition" → 评估条件</check>
+        <check>如果是 for-each="item" → 为每个项目重复步骤</check>
+        <check>如果是 repeat="n" → 重复步骤 n 次</check>
+      </substep>
+
+      <substep n="2b" title="执行步骤内容">
+        <action>处理步骤指令（markdown 或 XML 标签）</action>
+        <action>用值替换 {{variables}}（如果未知则询问用户）</action>
+        <execute-tags>
+          <tag>action xml 标签 → 执行操作</tag>
+          <tag>check if="condition" xml 标签 → 包装操作的条件块（需要闭合 &lt;/check&gt;）</tag>
+          <tag>ask xml 标签 → 提示用户并等待响应</tag>
+          <tag>invoke-workflow xml 标签 → 使用给定输入和 workflow.xml 运行器执行另一个工作流</tag>
+          <tag>invoke-task xml 标签 → 执行指定任务</tag>
+          <tag>invoke-protocol name="protocol_name" xml 标签 → 从 protocols 部分执行可重用协议</tag>
+          <tag>goto step="x" → 跳转到指定步骤</tag>
+        </execute-tags>
+      </substep>
+
+      <substep n="2c" title="处理 template-output 标签">
+        <if tag="template-output">
+          <mandate>为此部分生成内容</mandate>
+          <mandate>保存到文件（首次写入，后续编辑）</mandate>
+          <action>显示生成的内容</action>
+          <ask> [a] 高级引导，[c] 继续，[p] 派对模式，[y] YOLO 本文档其余部分。等待响应。<if
+              response="a">
+              <action>启动高级引导工作流 {project-root}/_bmad/core/workflows/advanced-elicitation/workflow.xml</action>
+            </if>
+            <if
+              response="c">
+              <action>继续下一步</action>
+            </if>
+            <if response="p">
+              <action>启动派对模式工作流 {project-root}/_bmad/core/workflows/party-mode/workflow.yaml</action>
+            </if>
+            <if
+              response="y">
+              <action>为工作流的其余部分进入 #yolo 模式</action>
+            </if>
+          </ask>
+        </if>
+      </substep>
+
+      <substep n="2d" title="步骤完成">
+        <check>如果没有特殊标签且未启用 #yolo：</check>
+        <ask>继续下一步？（y/n/edit）</ask>
+      </substep>
+    </step>
+
+    <step n="3" title="完成">
+      <check>确认文档已保存到输出路径</check>
+      <action>报告工作流完成</action>
+    </step>
+  </flow>
+
+  <execution-modes>
+    <mode name="normal">在每个模板输出时完全的用户交互和确认每个步骤 - 无例外，除非启用 yolo 模式</mode>
+    <mode name="yolo">跳过所有确认和引导，最小化提示，通过模拟与专家用户的剩余讨论来自动尝试生成整个工作流</mode>
+  </execution-modes>
+
+  <supported-tags desc="指令可以使用这些标签">
+    <structural>
+      <tag>step n="X" goal="..." - 使用编号和目标定义步骤</tag>
+      <tag>optional="true" - 步骤可以跳过</tag>
+      <tag>if="condition" - 条件执行</tag>
+      <tag>for-each="collection" - 迭代项目</tag>
+      <tag>repeat="n" - 重复 n 次</tag>
+    </structural>
+    <execution>
+      <tag>action - 要执行的必需操作</tag>
+      <tag>action if="condition" - 单个条件操作（内联，无需闭合标签）</tag>
+      <tag>check if="condition"&gt;...&lt;/check&gt; - 包装多个项目的条件块（需要闭合标签）</tag>
+      <tag>ask - 获取用户输入（在继续之前始终等待响应）</tag>
+      <tag>goto - 跳转到另一个步骤</tag>
+      <tag>invoke-workflow - 调用另一个工作流</tag>
+      <tag>invoke-task - 调用任务</tag>
+      <tag>invoke-protocol - 执行可重用协议（例如，discover_inputs）</tag>
+    </execution>
+    <output>
+      <tag>template-output - 保存内容检查点</tag>
+      <tag>critical - 不能跳过</tag>
+      <tag>example - 显示示例输出</tag>
+    </output>
+  </supported-tags>
+
+  <protocols desc="可通过 invoke-protocol 标签调用的可重用工作流协议">
+    <protocol name="discover_inputs" desc="基于 input_file_patterns 的智能文件发现和加载">
+      <objective>根据工作流的 input_file_patterns 配置智能加载项目文件（完整或分片）</objective>
+
+      <critical>仅在 workflow.yaml 包含 input_file_patterns 部分时执行</critical>
+
+      <flow>
+        <step n="1" title="解析输入文件模式">
+          <action>从已加载的 workflow.yaml 读取 input_file_patterns</action>
+          <action>对于每个模式组（prd、architecture、epics 等），记录 load_strategy（如果存在）</action>
+        </step>
+
+        <step n="2" title="使用智能策略加载文件">
+          <iterate>对于 input_file_patterns 中的每个模式：</iterate>
+
+          <substep n="2a" title="首先尝试分片文档">
+            <check if="分片模式存在">
+              <action>从模式配置确定 load_strategy（如果未指定则默认为 FULL_LOAD）</action>
+
+              <strategy name="FULL_LOAD">
+                <desc>加载分片目录中的所有文件 - 用于 PRD、Architecture、UX、棕地项目文档</desc>
+                <action>使用 glob 模式查找所有 .md 文件（例如，"{output_folder}/*architecture*/*.md"）</action>
+                <action>完全加载每个匹配的文件</action>
+                <action>按逻辑顺序连接内容（如果存在 index.md 则先加载，然后按字母顺序）</action>
+                <action>存储在变量中：{pattern_name_content}</action>
+              </strategy>
+
+              <strategy name="SELECTIVE_LOAD">
+                <desc>使用模板变量加载特定分片 - 例如：用于带有 {{epic_num}} 的 epics</desc>
+                <action>检查 sharded_single 模式中的模板变量（例如，{{epic_num}}）</action>
+                <action>如果变量未定义，询问用户值或从上下文推断</action>
+                <action>将模板解析为特定文件路径</action>
+                <action>加载该特定文件</action>
+                <action>存储在变量中：{pattern_name_content}</action>
+              </strategy>
+
+              <strategy name="INDEX_GUIDED">
+                <desc>加载 index.md，分析索引中每个文档的结构和描述，然后智能加载相关文档</desc>
+                <mandate>不要偷懒 - 使用最佳判断来加载可能有相关信息的文档，即使只有 5% 的可能性</mandate>
+                <action>从分片目录加载 index.md</action>
+                <action>解析目录、链接、章节标题</action>
+                <action>分析工作流的目的和目标</action>
+                <action>识别哪些链接/引用的文档可能是相关的</action>
+                <example>如果工作流是关于身份验证，索引显示"身份验证概述"、"支付设置"、"部署" → 加载身份验证文档，考虑部署文档，跳过支付</example>
+                <action>加载所有已识别的相关文档</action>
+                <action>将合并的内容存储在变量中：{pattern_name_content}</action>
+                <note>有疑问时，就加载它 - 上下文很有价值，彻底比错过关键信息更好</note>
+              </strategy>
+              <action>将模式标记为已解析，跳到下一个模式</action>
+            </check>
+          </substep>
+
+          <substep n="2b" title="如果未找到分片则尝试完整文档">
+            <check if="未找到分片匹配或不存在分片模式">
+              <action>尝试在 'whole' 模式上进行 glob 匹配（例如，"{output_folder}/*prd*.md"）</action>
+              <check if="找到匹配">
+                <action>完全加载所有匹配的文件（无 offset/limit）</action>
+                <action>将内容存储在变量中：{pattern_name_content}（例如，{prd_content}）</action>
+                <action>将模式标记为已解析，跳到下一个模式</action>
+              </check>
+            </check>
+          </substep>
+
+          <substep n="2c" title="处理未找到">
+            <check if="分片或完整都没有匹配">
+              <action>将 {pattern_name_content} 设置为空字符串</action>
+              <action>在会话中记录："未找到 {pattern_name} 文件"（不是错误，只是不可用，提供更改机会）</action>
+            </check>
+          </substep>
+        </step>
+
+        <step n="3" title="报告发现结果">
+          <action>列出所有已加载的内容变量和文件计数</action>
+          <example>
+            ✓ 已从 5 个分片文件加载 {prd_content}：prd/index.md、prd/requirements.md、...
+            ✓ 已从 1 个文件加载 {architecture_content}：Architecture.md
+            ✓ 已通过选择性加载加载 {epics_content}：epics/epic-3.md
+            ○ 未找到 ux_design 文件
+          </example>
+          <note>这使工作流能够透明地了解可用的上下文</note>
+        </step>
+      </flow>
+
+    </protocol>
+  </protocols>
+
+  <llm final="true">
+    <critical-rules>
+      • 这是完整的工作流执行引擎
+      • 你必须完全按照书面说明遵循指令
+      • 工作流执行引擎由以下文件管理：{project-root}/_bmad/core/tasks/workflow.xml
+      • 你必须已经加载和处理：{installed_path}/workflow.yaml
+      • 此工作流使用意图驱动规划 - 有机地适应产品类型和上下文
+      • 你正在促进与用户的对话以逐步生成最终文档。整个过程是协作性的，帮助用户充实他们的想法。不要急躁或优化并跳过任何部分。
+    </critical-rules>
+  </llm>
+</task>
