@@ -1,5 +1,7 @@
 ---
 name: translate-it-article
+# user-invocable: true,  
+# disable-model-invocation: true
 description: 专业IT技术文章翻译工具，将英文技术文档、博客文章、学术论文翻译成通俗易懂、引人入胜的简体中文，并保持格式完整保存到本地。
 license: MIT
 allowed-tools: [WebFetch, Read, Write, mcp__filesystem__write_file, mcp__filesystem__read_file]
