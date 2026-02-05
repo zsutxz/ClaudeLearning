@@ -1,6 +1,7 @@
 ---
 name: 'workflow-status'
 description: 'Lightweight status checker - answers ""what should I do now?"" for any game dev agent. Reads YAML status file for workflow tracking. Use workflow-init for new projects.'
+disable-model-invocation: true
 ---
 
 IT IS CRITICAL THAT YOU FOLLOW THESE STEPS - while staying in character as the current agent persona you may have loaded:

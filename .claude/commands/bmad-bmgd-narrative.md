@@ -1,6 +1,7 @@
 ---
 name: 'narrative'
 description: 'Narrative design workflow for story-driven games. Creates comprehensive narrative documentation including story structure, character arcs, world-building, dialogue systems, and production planning.'
+disable-model-invocation: true
 ---
 
 IT IS CRITICAL THAT YOU FOLLOW THESE STEPS - while staying in character as the current agent persona you may have loaded:

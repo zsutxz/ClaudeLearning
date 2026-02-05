@@ -1,6 +1,7 @@
 ---
 name: 'create-story'
 description: 'Create the next user story markdown from epics/PRD and architecture, using a standard template and saving to the stories folder'
+disable-model-invocation: true
 ---
 
 IT IS CRITICAL THAT YOU FOLLOW THESE STEPS - while staying in character as the current agent persona you may have loaded:

@@ -1,6 +1,7 @@
 ---
 name: 'quick-prototype'
 description: 'Rapid game prototyping - quickly test gameplay ideas, mechanics, or features with minimal setup.'
+disable-model-invocation: true
 ---
 
 IT IS CRITICAL THAT YOU FOLLOW THESE STEPS - while staying in character as the current agent persona you may have loaded:

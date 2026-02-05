@@ -1,6 +1,7 @@
 ---
 name: 'brainstorm-game'
 description: 'Facilitate game brainstorming sessions with game-specific context, guidance, and game design techniques.'
+disable-model-invocation: true
 ---
 
 IT IS CRITICAL THAT YOU FOLLOW THESE STEPS - while staying in character as the current agent persona you may have loaded:

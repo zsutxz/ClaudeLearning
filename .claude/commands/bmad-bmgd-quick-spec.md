@@ -1,6 +1,7 @@
 ---
 name: 'quick-spec'
 description: 'Conversational spec engineering for games - ask questions, investigate code, produce implementation-ready tech-spec.'
+disable-model-invocation: true
 ---
 
 IT IS CRITICAL THAT YOU FOLLOW THESE STEPS - while staying in character as the current agent persona you may have loaded:

@@ -1,6 +1,7 @@
 ---
 name: 'workflow-init'
 description: 'Initialize a new BMGD game project by determining level, type, and creating workflow path'
+disable-model-invocation: true
 ---
 
 IT IS CRITICAL THAT YOU FOLLOW THESE STEPS - while staying in character as the current agent persona you may have loaded:
