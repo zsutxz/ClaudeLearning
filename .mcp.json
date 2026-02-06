@@ -1,13 +1,5 @@
 {
   "mcpServers": {
-    "agentvibes": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "--package=agentvibes",
-        "agentvibes-mcp-server"
-      ]
-    },
     "agent-sdk-bridge": {
       "command": "python",
       "args": [

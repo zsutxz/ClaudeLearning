@@ -48,7 +48,6 @@
   },
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
-    "agentvibes",
     "agent-sdk-bridge"
   ],
   "outputStyle": "default"
