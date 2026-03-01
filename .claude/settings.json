@@ -1,5 +1,7 @@
 {
   "hooks": {
+    "Stop": [],
+    "SessionEnd": [],
     "PostToolUse": [
       {
         "matcher": "mcp__filesystem__write_file",
@@ -18,16 +20,6 @@
           {
             "type": "command",
             "command": "echo PreToolUse hook triggered for mcp__filesystem__write_file >> .claude\\pre-hook-test.log"
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session-start-tts.sh"
           }
         ]
       }
