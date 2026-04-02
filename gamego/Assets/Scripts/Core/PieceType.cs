@@ -29,4 +29,24 @@ namespace Gomoku
         PvAI,       // 人机对战
         PvP         // 本地双人
     }
+
+    /// <summary>
+    /// AI 类型枚举
+    /// </summary>
+    public enum AIType
+    {
+        Simple,     // 规则型 AI（快速但简单）
+        Minimax,    // Minimax + Alpha-Beta 剪枝
+        Mcts        // 蒙特卡洛树搜索
+    }
+
+    /// <summary>
+    /// AI 难度等级
+    /// </summary>
+    public enum Difficulty
+    {
+        Easy,       // 简单
+        Medium,     // 中等
+        Hard        // 困难
+    }
 }

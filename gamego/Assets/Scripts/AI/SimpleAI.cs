@@ -14,6 +14,17 @@ namespace Gomoku
         private const int THREE_SCORE = 1000;
         private const int TWO_SCORE = 100;
 
+        private readonly float _randomFactor;  // 随机因子（0-1），控制 AI 随机程度
+
+        /// <summary>
+        /// 创建 SimpleAI 实例
+        /// </summary>
+        /// <param name="randomFactor">随机因子 (0=完全最优, 1=完全随机)</param>
+        public SimpleAI(float randomFactor = 0.0f)
+        {
+            _randomFactor = Mathf.Clamp01(randomFactor);
+        }
+
         public (int x, int y) GetMove(Board board, PieceType myPiece)
         {
             PieceType opponentPiece = myPiece == PieceType.Black ? PieceType.White : PieceType.Black;
@@ -80,6 +91,14 @@ namespace Gomoku
 
             if (candidates.Count == 0)
                 return null;
+
+            // 根据随机因子决定是选择最优还是随机
+            if (Random.value < _randomFactor && candidates.Count > 1)
+            {
+                // 随机选择一个候选位置（增加不确定性，降低难度）
+                int index = Random.Range(0, candidates.Count);
+                return (candidates[index].x, candidates[index].y);
+            }
 
             // 返回得分最高的位置
             candidates.Sort((a, b) => b.score.CompareTo(a.score));

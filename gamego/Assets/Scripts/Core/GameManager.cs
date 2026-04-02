@@ -12,6 +12,10 @@ namespace Gomoku
         [SerializeField] private GameMode gameMode = GameMode.PvAI;
         [SerializeField] private bool aiFirst = false;  // AI 是否先手
 
+        [Header("AI Settings")]
+        [SerializeField] private AIType aiType = AIType.Minimax;  // AI 类型
+        [SerializeField] private Difficulty difficulty = Difficulty.Medium;  // AI 难度
+
         [Header("References")]
         [SerializeField] private BoardView boardView;
 
@@ -55,7 +59,7 @@ namespace Gomoku
             // 初始化 AI
             if (gameMode == GameMode.PvAI)
             {
-                _aiPlayer = new SimpleAI();
+                _aiPlayer = AIFactory.CreateAI(aiType, difficulty);
             }
 
             // 触发游戏重置事件（清空棋盘显示）
@@ -167,6 +171,22 @@ namespace Gomoku
         public void SetAIFirst(bool first)
         {
             aiFirst = first;
+        }
+
+        /// <summary>
+        /// 设置 AI 类型（下次 StartNewGame 时生效）
+        /// </summary>
+        public void SetAIType(AIType type)
+        {
+            aiType = type;
+        }
+
+        /// <summary>
+        /// 设置 AI 难度（下次 StartNewGame 时生效）
+        /// </summary>
+        public void SetDifficulty(Difficulty diff)
+        {
+            difficulty = diff;
         }
     }
 }
