@@ -70,3 +70,5 @@ AgentSdkTest/env.rar
 Research/reports/
 Rag/.env
 Rag/test_sentence_transformers_store/
+.claude/skills/gstack/
+.gstack/
