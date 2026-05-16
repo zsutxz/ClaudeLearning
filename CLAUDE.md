@@ -68,3 +68,30 @@ MCP 服务器配置在根目录 `.mcp.json`（agent-sdk-bridge 桥接 MCP 协议
 - **环境变量**：`.env` 文件已在 `.gitignore` 排除，通过 `python-dotenv` 加载
 - **文档目录**：`docs/` 包含 BMAD 生成的 PRD、架构文档、故事文件和 sprint 状态
 - **scripts/**：包含 codex 等辅助脚本
+
+## gstack
+所有网页浏览使用 gstack 的 /browse 技能，禁止使用 mcp__claude-in-chrome__* 工具。
+可用技能：/office-hours, /plan-ceo-review, /plan-eng-review, /plan-design-review,
+/design-consultation, /design-shotgun, /design-html, /review, /ship, /land-and-deploy,
+/canary, /benchmark, /browse, /open-gstack-browser, /qa, /qa-only, /design-review,
+/setup-browser-cookies, /setup-deploy, /setup-gbrain, /sync-gbrain, /retro, /investigate,
+/document-release, /document-generate, /codex, /cso, /autoplan, /pair-agent, /careful, /freeze,
+/guard, /unfreeze, /gstack-upgrade, /learn.
+
+## 技能路由
+
+当用户的请求匹配到可用技能时，通过 Skill 工具调用。不确定时优先调用技能。
+
+路由规则：
+- 产品创意/头脑风暴 → 调用 /office-hours
+- 战略/范围讨论 → 调用 /plan-ceo-review
+- 架构设计 → 调用 /plan-eng-review
+- 设计系统/方案评审 → 调用 /design-consultation 或 /plan-design-review
+- 完整评审流程 → 调用 /autoplan
+- Bug/报错 → 调用 /investigate
+- QA/测试网站 → 调用 /qa 或 /qa-only
+- 代码审查/diff 检查 → 调用 /review
+- 视觉优化 → 调用 /design-review
+- 发布/部署/PR → 调用 /ship 或 /land-and-deploy
+- 保存进度 → 调用 /context-save
+- 恢复上下文 → 调用 /context-restore
