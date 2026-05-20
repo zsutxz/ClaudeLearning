@@ -11,8 +11,8 @@
 # ─────────────────────────────────────────────────────────────────
 
 [core]
-document_output_language = "Chinese"
 project_name = "ClaudeLearning"
+document_output_language = "Chinese"
 output_folder = "{project-root}/_bmad-output"
 
 [modules.bmm]

@@ -67,7 +67,7 @@ MCP 服务器配置在根目录 `.mcp.json`（agent-sdk-bridge 桥接 MCP 协议
 - **运行目录**：AgentSdkTest 和 Research 各自必须在自己的目录下运行（导入路径依赖）
 - **环境变量**：`.env` 文件已在 `.gitignore` 排除，通过 `python-dotenv` 加载
 - **文档目录**：`docs/` 包含 BMAD 生成的 PRD、架构文档、故事文件和 sprint 状态
-- **scripts/**：包含 codex 等辅助脚本
+- **scripts/**：包含辅助脚本
 
 ## gstack
 所有网页浏览使用 gstack 的 /browse 技能，禁止使用 mcp__claude-in-chrome__* 工具。
@@ -75,7 +75,7 @@ MCP 服务器配置在根目录 `.mcp.json`（agent-sdk-bridge 桥接 MCP 协议
 /design-consultation, /design-shotgun, /design-html, /review, /ship, /land-and-deploy,
 /canary, /benchmark, /browse, /open-gstack-browser, /qa, /qa-only, /design-review,
 /setup-browser-cookies, /setup-deploy, /setup-gbrain, /sync-gbrain, /retro, /investigate,
-/document-release, /document-generate, /codex, /cso, /autoplan, /pair-agent, /careful, /freeze,
+/document-release, /document-generate, /cso, /autoplan, /pair-agent, /careful, /freeze,
 /guard, /unfreeze, /gstack-upgrade, /learn.
 
 ## 技能路由
