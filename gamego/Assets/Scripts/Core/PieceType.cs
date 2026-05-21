@@ -29,4 +29,14 @@ namespace Gomoku
         PvAI,       // 人机对战
         PvP         // 本地双人
     }
+
+    /// <summary>
+    /// AI 难度枚举
+    /// </summary>
+    public enum AIDifficulty
+    {
+        Simple,     // 规则优先级
+        Medium,     // Minimax depth=1
+        Hard        // Minimax depth=3 + Alpha-Beta 剪枝
+    }
 }

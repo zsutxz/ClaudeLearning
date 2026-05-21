@@ -10,7 +10,8 @@ namespace Gomoku
     {
         [Header("Game Settings")]
         [SerializeField] private GameMode gameMode = GameMode.PvAI;
-        [SerializeField] private bool aiFirst = false;  // AI 是否先手
+        [SerializeField] private bool aiFirst = false;
+        [SerializeField] private AIDifficulty aiDifficulty = AIDifficulty.Simple;
 
         [Header("References")]
         [SerializeField] private BoardView boardView;
@@ -32,6 +33,7 @@ namespace Gomoku
         public GameState GameState => _gameState;
         public Board Board => _board;
         public GameMode GameMode => gameMode;
+        public AIDifficulty AIDifficulty => aiDifficulty;
 
         private void Awake()
         {
@@ -55,7 +57,12 @@ namespace Gomoku
             // 初始化 AI
             if (gameMode == GameMode.PvAI)
             {
-                _aiPlayer = new SimpleAI();
+                _aiPlayer = aiDifficulty switch
+                {
+                    AIDifficulty.Medium => new MinimaxAI(1),
+                    AIDifficulty.Hard => new MinimaxAI(3),
+                    _ => new SimpleAI()
+                };
             }
 
             // 触发游戏重置事件（清空棋盘显示）
@@ -167,6 +174,11 @@ namespace Gomoku
         public void SetAIFirst(bool first)
         {
             aiFirst = first;
+        }
+
+        public void SetAIDifficulty(AIDifficulty difficulty)
+        {
+            aiDifficulty = difficulty;
         }
     }
 }

@@ -8,8 +8,13 @@ namespace Gomoku
     /// </summary>
     public class MinimaxAI : IAIPlayer
     {
-        private const int MAX_DEPTH = 2;  // 搜索深度，越大越强但越慢
+        private readonly int _maxDepth;
         private const int BOARD_SIZE = Board.BOARD_SIZE;
+
+        public MinimaxAI(int maxDepth = 3)
+        {
+            _maxDepth = maxDepth;
+        }
 
         private int _nodeCount;  // 用于调试
 
@@ -36,7 +41,7 @@ namespace Gomoku
                 board.PlacePiece(x, y, myPiece);
 
                 // Minimax 搜索
-                int score = Minimax(board, MAX_DEPTH - 1, int.MinValue, int.MaxValue, false, myPiece, opponentPiece);
+                int score = Minimax(board, _maxDepth - 1, int.MinValue, int.MaxValue, false, myPiece, opponentPiece);
 
                 // 撤销落子
                 board.RemovePiece(x, y);
