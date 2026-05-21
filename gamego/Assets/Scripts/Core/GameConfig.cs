@@ -38,6 +38,9 @@ namespace Gomoku
         [Tooltip("AI 是否先手")]
         public bool aiFirst = false;
 
+        [Tooltip("默认 AI 难度")]
+        public AIDifficulty defaultAIDifficulty = AIDifficulty.Simple;
+
         [Header("Audio Settings")]
         [Tooltip("是否启用音效")]
         public bool enableAudio = true;

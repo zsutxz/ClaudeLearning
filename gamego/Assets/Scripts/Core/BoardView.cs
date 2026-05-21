@@ -7,6 +7,9 @@ namespace Gomoku
     /// </summary>
     public class BoardView : MonoBehaviour
     {
+        [Header("Config")]
+        [SerializeField] private GameConfig gameConfig;
+
         [Header("Board Settings")]
         [SerializeField] private float cellSize = 1f;
         [SerializeField] private float pieceScale = 0.4f;
@@ -29,8 +32,15 @@ namespace Gomoku
 
         private void Awake()
         {
-            // 自动查找资源
+            ApplyGameConfig();
             AutoFindResources();
+        }
+
+        private void ApplyGameConfig()
+        {
+            if (gameConfig == null) return;
+            cellSize = gameConfig.cellSize;
+            pieceScale = gameConfig.pieceScale;
         }
 
         private void Start()
@@ -351,6 +361,28 @@ namespace Gomoku
                 }
             }
             _lastMove = null;
+        }
+
+        public void RemovePieceAt(int x, int y)
+        {
+            if (_cells == null) return;
+            _cells[x, y].ClearPiece();
+        }
+
+        public void RefreshLastMoveMarker((int x, int y) lastMove)
+        {
+            if (_lastMove.HasValue && _cells != null)
+                _cells[_lastMove.Value.x, _lastMove.Value.y].SetLastMove(false);
+
+            if (lastMove.x >= 0 && lastMove.y >= 0)
+            {
+                _lastMove = lastMove;
+                _cells[lastMove.x, lastMove.y].SetLastMove(true);
+            }
+            else
+            {
+                _lastMove = null;
+            }
         }
     }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -8,6 +9,9 @@ namespace Gomoku
     /// </summary>
     public class GameManager : MonoBehaviour
     {
+        [Header("Config")]
+        [SerializeField] private GameConfig gameConfig;
+
         [Header("Game Settings")]
         [SerializeField] private GameMode gameMode = GameMode.PvAI;
         [SerializeField] private bool aiFirst = false;
@@ -21,6 +25,7 @@ namespace Gomoku
         private PieceType _currentPlayer;
         private GameState _gameState;
         private IAIPlayer _aiPlayer;
+        private Stack<(int x, int y, PieceType piece)> _moveHistory;
 
         // 事件
         public UnityEvent<PieceType> OnTurnChanged;
@@ -34,10 +39,20 @@ namespace Gomoku
         public Board Board => _board;
         public GameMode GameMode => gameMode;
         public AIDifficulty AIDifficulty => aiDifficulty;
+        public bool CanUndo => _moveHistory != null && _moveHistory.Count > 0 && _gameState == GameState.Playing;
 
         private void Awake()
         {
             _board = new Board();
+            ApplyGameConfig();
+        }
+
+        private void ApplyGameConfig()
+        {
+            if (gameConfig == null) return;
+            gameMode = gameConfig.defaultGameMode;
+            aiFirst = gameConfig.aiFirst;
+            aiDifficulty = gameConfig.defaultAIDifficulty;
         }
 
         private void Start()
@@ -53,6 +68,7 @@ namespace Gomoku
             _board.Reset();
             _currentPlayer = PieceType.Black;
             _gameState = GameState.Playing;
+            _moveHistory = new Stack<(int x, int y, PieceType piece)>();
 
             // 初始化 AI
             if (gameMode == GameMode.PvAI)
@@ -94,10 +110,9 @@ namespace Gomoku
             if (!_board.PlacePiece(x, y, _currentPlayer))
                 return false;
 
-            // 触发落子事件
+            _moveHistory.Push((x, y, _currentPlayer));
             OnPiecePlaced?.Invoke(x, y, _currentPlayer);
 
-            // 检查游戏状态
             _gameState = WinChecker.CheckGameState(_board, x, y);
 
             if (_gameState != GameState.Playing)
@@ -146,6 +161,7 @@ namespace Gomoku
 
             if (_board.PlacePiece(x, y, _currentPlayer))
             {
+                _moveHistory.Push((x, y, _currentPlayer));
                 OnPiecePlaced?.Invoke(x, y, _currentPlayer);
 
                 _gameState = WinChecker.CheckGameState(_board, x, y);
@@ -179,6 +195,32 @@ namespace Gomoku
         public void SetAIDifficulty(AIDifficulty difficulty)
         {
             aiDifficulty = difficulty;
+        }
+
+        public bool Undo()
+        {
+            if (!CanUndo) return false;
+
+            int steps = gameMode == GameMode.PvAI ? 2 : 1;
+
+            for (int i = 0; i < steps && _moveHistory.Count > 0; i++)
+            {
+                var (x, y, _) = _moveHistory.Pop();
+                _board.RemovePiece(x, y);
+                boardView?.RemovePieceAt(x, y);
+            }
+
+            _currentPlayer = _moveHistory.Count > 0
+                ? (_moveHistory.Peek().piece == PieceType.Black ? PieceType.White : PieceType.Black)
+                : PieceType.Black;
+
+            OnTurnChanged?.Invoke(_currentPlayer);
+
+            boardView?.RefreshLastMoveMarker(_moveHistory.Count > 0
+                ? (_moveHistory.Peek().x, _moveHistory.Peek().y)
+                : (-1, -1));
+
+            return true;
         }
     }
 }

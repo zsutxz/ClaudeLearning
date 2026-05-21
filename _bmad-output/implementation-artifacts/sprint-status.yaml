@@ -35,12 +35,12 @@ development_status:
   epic-1: in-progress
   1-1-aidifficulty-enumeration-and-minimaxai-configurable-depth: review
   1-2-gamemanager-three-tier-ai-factory-logic: review
-  1-3-ai-difficulty-ui-selection-buttons: backlog
+  1-3-ai-difficulty-ui-selection-buttons: review
   epic-1-retrospective: optional
 
   # === Epic 2: 悔棋与配置统一 ===
-  epic-2: backlog
-  2-1-undo-logic-and-visual-restore: backlog
-  2-2-undo-ui-button: backlog
-  2-3-gameconfig-runtime-integration: backlog
+  epic-2: in-progress
+  2-1-undo-logic-and-visual-restore: review
+  2-2-undo-ui-button: review
+  2-3-gameconfig-runtime-integration: review
   epic-2-retrospective: optional

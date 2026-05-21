@@ -32,6 +32,7 @@ namespace Gomoku
         private bool _showDialog = false;
         private string _dialogMessage = "";
         private GameState _currentGameState;
+        private AIDifficulty _currentAIDifficulty = AIDifficulty.Simple;
 
         // 当前回合提示
         private string _currentTurnMessage = "黑棋回合";
@@ -80,6 +81,13 @@ namespace Gomoku
             if (!_showDialog)
             {
                 GUI.Label(new Rect(10, 10, 150, 30), _currentTurnMessage);
+
+                if (gameManager != null && gameManager.GameMode == GameMode.PvAI)
+                {
+                    DrawAIDifficultyButtons();
+                }
+
+                DrawUndoButton();
             }
 
             // 显示获胜弹框
@@ -200,6 +208,45 @@ namespace Gomoku
                 gameManager.StartNewGame();
                 _showDialog = false;
             }
+        }
+
+        private void DrawAIDifficultyButtons()
+        {
+            float y = 40;
+            GUIStyle style = new GUIStyle(GUI.skin.button) { fontSize = 14 };
+
+            string[] labels = new[]
+            {
+                _currentAIDifficulty == AIDifficulty.Simple ? "● 简单" : "  简单",
+                _currentAIDifficulty == AIDifficulty.Medium ? "● 中等" : "  中等",
+                _currentAIDifficulty == AIDifficulty.Hard  ? "● 困难" : "  困难"
+            };
+
+            AIDifficulty[] difficulties = { AIDifficulty.Simple, AIDifficulty.Medium, AIDifficulty.Hard };
+
+            for (int i = 0; i < 3; i++)
+            {
+                if (GUI.Button(new Rect(10 + i * 75, y, 70, 25), labels[i], style))
+                {
+                    _currentAIDifficulty = difficulties[i];
+                    gameManager.SetAIDifficulty(difficulties[i]);
+                    gameManager.StartNewGame();
+                    _showDialog = false;
+                }
+            }
+        }
+
+        private void DrawUndoButton()
+        {
+            bool canUndo = gameManager != null && gameManager.CanUndo;
+            GUI.enabled = canUndo;
+            GUIStyle style = new GUIStyle(GUI.skin.button) { fontSize = 14 };
+
+            if (GUI.Button(new Rect(240, 40, 70, 25), "悔棋", style))
+            {
+                gameManager.Undo();
+            }
+            GUI.enabled = true;
         }
     }
 }
