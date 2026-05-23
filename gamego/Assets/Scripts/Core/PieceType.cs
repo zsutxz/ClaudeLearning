@@ -27,7 +27,8 @@ namespace Gomoku
     public enum GameMode
     {
         PvAI,       // 人机对战
-        PvP         // 本地双人
+        PvP,        // 本地双人
+        AIvsAI      // AI 自对弈
     }
 
     /// <summary>

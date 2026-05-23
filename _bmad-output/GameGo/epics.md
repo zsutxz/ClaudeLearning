@@ -1,5 +1,5 @@
 ---
-stepsCompleted: [1, 2, 3]
+stepsCompleted: [1, 2, 3, 4]
 inputDocuments:
   - _bmad-output/GameGo/prd.md
   - _bmad-output/GameGo/architecture-五子棋.md
@@ -29,6 +29,18 @@ FR-6: GameManager 从 GameConfig 读取 defaultGameMode、aiFirst、defaultAIDif
 
 FR-7: BoardView 从 GameConfig 读取 cellSize、pieceScale、颜色参数。GameConfig 为 null 时使用现有 SerializeField 默认值。
 
+FR-8: Board 维护 64 位 Zobrist 哈希值，每次落子/移除时 O(1) 增量更新。起始空盘哈希值固定可复现。
+
+FR-9: MinimaxAI 使用 Dictionary 缓存已搜索的棋盘状态（哈希键 + 深度 + 分数 + 最佳走法）。命中时直接返回不进入递归。置换表大小可配置（默认 1M 条目），每次新对弈清空。
+
+FR-10: Hard AI 使用迭代加深：从深度 1 逐层加深，在时间预算内（默认 2 秒）返回当前最佳结果。上一深度最佳走法作为下一深度首选候选。搜索深度可达 5-6 层。
+
+FR-11: GameMode 枚举新增 AIvsAI。自对弈配置 UI：两个下拉框分别选择黑方/白方 AI 策略和难度。点击开始后自动对弈。
+
+FR-12: GameManager 支持自动交替调用双方 AI，每步落子后触发渲染和判定。每步之间可选延迟（默认 0.5 秒，可配 0 瞬时）。支持中途暂停/继续。
+
+FR-13: 每局自对弈记录并显示统计：总步数、耗时、双方 AI 策略名称。游戏结束时弹框显示结果+步数。
+
 ### NonFunctional Requirements
 
 NFR-1: Hard AI（MinimaxAI depth=3）落子时间不超过 2 秒。
@@ -36,6 +48,10 @@ NFR-1: Hard AI（MinimaxAI depth=3）落子时间不超过 2 秒。
 NFR-2: GameConfig 为 null 时优雅降级，各组件使用硬编码默认值，不报错。
 
 NFR-3: 保持现有 MVC + 策略模式架构，不引入新的设计模式。
+
+NFR-4: 置换表内存占用不超过 100MB。
+
+NFR-5: Hard AI 在 2 秒内搜索到深度 5+。
 
 ### Additional Requirements
 
@@ -57,6 +73,12 @@ FR-4: Epic 2 — 悔棋逻辑
 FR-5: Epic 2 — 悔棋 UI
 FR-6: Epic 2 — GameManager 接 GameConfig
 FR-7: Epic 2 — BoardView 接 GameConfig
+FR-8: Epic 3 — Zobrist 哈希
+FR-9: Epic 3 — 置换表
+FR-10: Epic 3 — 迭代加深 + 时间控制
+FR-11: Epic 4 — AIvsAI 模式入口
+FR-12: Epic 4 — 自对弈执行
+FR-13: Epic 4 — 对弈统计
 
 ## Epic List
 
@@ -67,6 +89,14 @@ FR-7: Epic 2 — BoardView 接 GameConfig
 ### Epic 2: 悔棋与配置统一
 玩家可悔棋撤回失误操作；开发者通过 GameConfig 统一管理游戏参数。
 **FRs covered:** FR-4, FR-5, FR-6, FR-7
+
+### Epic 3: 搜索算法优化
+通过 Zobrist 哈希、置换表和迭代加深，将 Hard AI 搜索深度从 3 提升到 5-6 层。
+**FRs covered:** FR-8, FR-9, FR-10
+
+### Epic 4: AI 自对弈模式
+新增 AI vs AI 模式，两个 AI 策略自动对弈，提供算法对比实验环境。
+**FRs covered:** FR-11, FR-12, FR-13
 
 ## Epic 1: AI 难度系统
 
@@ -219,3 +249,143 @@ So that 不用改代码就能调整游戏配置。
 **Given** 修改了 GameConfig asset 中的 cellSize 为 2.0
 **When** 重新运行游戏
 **Then** 棋盘格子间距变大
+
+## Epic 3: 搜索算法优化
+
+### Story 3.1: Board 添加 Zobrist 哈希
+
+As a 开发者,
+I want Board 维护 64 位 Zobrist 哈希值,
+So that MinimaxAI 可通过哈希快速判断棋盘状态是否重复。
+
+**Acceptance Criteria:**
+
+**Given** Board 类中已初始化 Zobrist 哈希随机表
+**When** 创建空棋盘
+**Then** ZobristKey 为固定的初始值，每次运行一致
+
+**Given** 空棋盘
+**When** 调用 PlacePiece(7, 7, PieceType.Black)
+**Then** ZobristKey 通过异或更新为新的哈希值
+
+**Given** 棋盘上有棋子
+**When** 调用 RemovePiece(7, 7)
+**Then** ZobristKey 通过异或恢复到落子前的值
+
+**Given** 两个棋盘经历不同的落子顺序到达相同状态
+**When** 比较它们的 ZobristKey
+**Then** 哈希值相同
+
+### Story 3.2: MinimaxAI 置换表缓存
+
+As a 开发者,
+I want MinimaxAI 使用置换表缓存已搜索的棋盘状态,
+So that 相同棋盘不重复搜索，提升性能。
+
+**Acceptance Criteria:**
+
+**Given** MinimaxAI 持有置换表 Dictionary
+**When** 搜索遇到已缓存的棋盘状态（哈希匹配 + 缓存深度 ≥ 当前搜索深度）
+**Then** 直接返回缓存结果，不进入递归
+
+**Given** 缓存条目包含节点类型（exact/alpha/beta）
+**When** 命中缓存
+**Then** 根据节点类型正确处理 alpha/beta 边界
+
+**Given** 置换表配置为 1M 条目
+**When** 内存占用测量
+**Then** 不超过 100MB（NFR-4）
+
+**Given** 新对弈开始
+**When** 调用 StartNewGame 或重新创建 MinimaxAI
+**Then** 置换表被清空
+
+### Story 3.3: 迭代加深与时间控制
+
+As a 开发者,
+I want Hard AI 使用迭代加深搜索在时间预算内返回最佳走法,
+So that 搜索深度可达 5-6 层而不超时。
+
+**Acceptance Criteria:**
+
+**Given** Hard AI 配置时间预算 2 秒
+**When** 开始搜索
+**Then** 从深度 1 开始，逐层加深
+
+**Given** 搜索进行中
+**When** 已用时间超过 2 秒
+**Then** 立即返回上一深度完成的最佳走法
+
+**Given** 上一深度搜索完成
+**When** 开始下一深度搜索
+**Then** 上一深度最佳走法作为第一个候选（提高剪枝效率）
+
+**Given** 标准开局场景
+**When** Hard AI 落子
+**Then** 搜索深度达到 5+ 且耗时不超过 2 秒（NFR-5）
+
+## Epic 4: AI 自对弈模式
+
+### Story 4.1: AIvsAI 游戏模式与 GameManager 支持
+
+As a 开发者,
+I want GameManager 支持 AI vs AI 自动对弈,
+So that 两个 AI 策略可以自动交替落子。
+
+**Acceptance Criteria:**
+
+**Given** PieceType.cs 中 GameMode 枚举
+**When** 添加 AIvsAI 值
+**Then** 编译通过，UI 可选择自对弈模式
+
+**Given** GameManager 设置为 AIvsAI 模式
+**When** StartNewGame() 执行
+**Then** 为黑方和白方分别创建 AI 实例
+
+**Given** AIvsAI 模式进行中
+**When** 当前 AI 返回落子位置
+**Then** 自动执行落子并触发下一方 AI 思考，无需人类操作
+
+### Story 4.2: 自对弈 UI 配置与执行
+
+As a 玩家,
+I want 选择双方 AI 配置并观看自动对弈,
+So that 我能直观对比不同 AI 策略的表现。
+
+**Acceptance Criteria:**
+
+**Given** 游戏模式选择区域
+**When** 选择 AIvsAI 模式
+**Then** 显示黑方/白方 AI 策略下拉框（Simple / Minimax-Medium / Minimax-Hard）
+
+**Given** AIvsAI 配置完成
+**When** 点击开始
+**Then** 自动对弈开始，每步之间有 0.5 秒延迟
+
+**Given** 自对弈进行中
+**When** 点击暂停按钮
+**Then** 对弈暂停，可点击继续恢复
+
+**Given** 自对弈进行中
+**When** 点击重置按钮
+**Then** 对弈终止，棋盘清空
+
+### Story 4.3: 对弈结果统计
+
+As a 玩家,
+I want 看到自对弈的统计数据,
+So that 我能量化对比不同 AI 策略的强度。
+
+**Acceptance Criteria:**
+
+**Given** 自对弈对局结束
+**When** 查看结果弹框
+**Then** 显示胜负结果（黑胜/白胜/平局）、总步数、双方 AI 名称
+
+**Given** 自对弈对局结束
+**When** 查看统计区域
+**Then** 显示本局耗时
+
+**Given** 结果弹框
+**When** 点击"再来一局"
+**Then** 以相同配置开始新的自对弈

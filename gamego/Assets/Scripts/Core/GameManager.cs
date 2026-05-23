@@ -1,12 +1,19 @@
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace Gomoku
 {
-    /// <summary>
-    /// 游戏管理器 - 控制游戏流程
-    /// </summary>
+    public struct GameStats
+    {
+        public int TotalMoves;
+        public float ElapsedSeconds;
+        public string BlackAIName;
+        public string WhiteAIName;
+    }
+
     public class GameManager : MonoBehaviour
     {
         [Header("Config")]
@@ -17,6 +24,11 @@ namespace Gomoku
         [SerializeField] private bool aiFirst = false;
         [SerializeField] private AIDifficulty aiDifficulty = AIDifficulty.Simple;
 
+        [Header("AI vs AI Settings")]
+        [SerializeField] private AIDifficulty blackAIDifficulty = AIDifficulty.Simple;
+        [SerializeField] private AIDifficulty whiteAIDifficulty = AIDifficulty.Hard;
+        [SerializeField] private float selfPlayStepDelay = 0.5f;
+
         [Header("References")]
         [SerializeField] private BoardView boardView;
 
@@ -25,13 +37,19 @@ namespace Gomoku
         private PieceType _currentPlayer;
         private GameState _gameState;
         private IAIPlayer _aiPlayer;
+        private IAIPlayer _blackAI;
+        private IAIPlayer _whiteAI;
         private Stack<(int x, int y, PieceType piece)> _moveHistory;
+        private Coroutine _selfPlayCoroutine;
+        private bool _selfPlayPaused;
+        private Stopwatch _gameStopwatch;
+        private int _totalMoveCount;
 
         // 事件
         public UnityEvent<PieceType> OnTurnChanged;
         public UnityEvent<GameState> OnGameEnded;
         public UnityEvent<int, int, PieceType> OnPiecePlaced;
-        public UnityEvent OnGameReset;  // 游戏重置事件
+        public UnityEvent OnGameReset;
 
         // 属性
         public PieceType CurrentPlayer => _currentPlayer;
@@ -39,7 +57,32 @@ namespace Gomoku
         public Board Board => _board;
         public GameMode GameMode => gameMode;
         public AIDifficulty AIDifficulty => aiDifficulty;
+        public AIDifficulty BlackAIDifficulty => blackAIDifficulty;
+        public AIDifficulty WhiteAIDifficulty => whiteAIDifficulty;
         public bool CanUndo => _moveHistory != null && _moveHistory.Count > 0 && _gameState == GameState.Playing;
+        public bool IsSelfPlaying => gameMode == GameMode.AIvsAI && _selfPlayCoroutine != null;
+        public bool IsSelfPlayPaused => _selfPlayPaused;
+        public int TotalMoves => _totalMoveCount;
+        public float ElapsedSeconds => _gameStopwatch?.IsRunning == true
+            ? (float)_gameStopwatch.Elapsed.TotalSeconds : 0f;
+
+        public GameStats GetGameStats()
+        {
+            return new GameStats
+            {
+                TotalMoves = _totalMoveCount,
+                ElapsedSeconds = _gameStopwatch != null ? (float)_gameStopwatch.Elapsed.TotalSeconds : 0f,
+                BlackAIName = DifficultyName(blackAIDifficulty),
+                WhiteAIName = DifficultyName(whiteAIDifficulty)
+            };
+        }
+
+        private static string DifficultyName(AIDifficulty d) => d switch
+        {
+            AIDifficulty.Medium => "Minimax(中)",
+            AIDifficulty.Hard => "Minimax(难)",
+            _ => "SimpleAI"
+        };
 
         private void Awake()
         {
@@ -60,71 +103,85 @@ namespace Gomoku
             StartNewGame();
         }
 
-        /// <summary>
-        /// 开始新游戏
-        /// </summary>
         public void StartNewGame()
         {
+            // 停止之前的自对弈协程
+            if (_selfPlayCoroutine != null)
+            {
+                StopCoroutine(_selfPlayCoroutine);
+                _selfPlayCoroutine = null;
+            }
+            _selfPlayPaused = false;
+
             _board.Reset();
             _currentPlayer = PieceType.Black;
             _gameState = GameState.Playing;
             _moveHistory = new Stack<(int x, int y, PieceType piece)>();
+            _totalMoveCount = 0;
+            _gameStopwatch = Stopwatch.StartNew();
 
-            // 初始化 AI
             if (gameMode == GameMode.PvAI)
             {
-                _aiPlayer = aiDifficulty switch
-                {
-                    AIDifficulty.Medium => new MinimaxAI(1),
-                    AIDifficulty.Hard => new MinimaxAI(3),
-                    _ => new SimpleAI()
-                };
+                _aiPlayer = CreateAI(aiDifficulty);
+            }
+            else if (gameMode == GameMode.AIvsAI)
+            {
+                _blackAI = CreateAI(blackAIDifficulty);
+                _whiteAI = CreateAI(whiteAIDifficulty);
             }
 
-            // 触发游戏重置事件（清空棋盘显示）
             OnGameReset?.Invoke();
-
             OnTurnChanged?.Invoke(_currentPlayer);
 
-            // 如果 AI 先手
             if (gameMode == GameMode.PvAI && aiFirst)
             {
                 MakeAIMove();
             }
+            else if (gameMode == GameMode.AIvsAI)
+            {
+                _selfPlayCoroutine = StartCoroutine(RunAIvsAI());
+            }
         }
 
-        /// <summary>
-        /// 尝试在指定位置落子
-        /// </summary>
+        private IAIPlayer CreateAI(AIDifficulty difficulty)
+        {
+            return difficulty switch
+            {
+                AIDifficulty.Medium => new MinimaxAI(1),
+                AIDifficulty.Hard => new MinimaxAI(6, useIterativeDeepening: true, timeLimitMs: 2000),
+                _ => new SimpleAI()
+            };
+        }
+
         public bool TryPlacePiece(int x, int y)
         {
-            // 检查游戏是否结束
             if (_gameState != GameState.Playing)
                 return false;
 
-            // 检查是否是玩家回合（人机模式下）
             if (gameMode == GameMode.PvAI && _currentPlayer == GetAIPiece())
                 return false;
 
-            // 尝试落子
+            if (gameMode == GameMode.AIvsAI)
+                return false;
+
             if (!_board.PlacePiece(x, y, _currentPlayer))
                 return false;
 
             _moveHistory.Push((x, y, _currentPlayer));
+            _totalMoveCount++;
             OnPiecePlaced?.Invoke(x, y, _currentPlayer);
 
             _gameState = WinChecker.CheckGameState(_board, x, y);
 
             if (_gameState != GameState.Playing)
             {
+                _gameStopwatch?.Stop();
                 OnGameEnded?.Invoke(_gameState);
                 return true;
             }
 
-            // 切换玩家
             SwitchPlayer();
 
-            // AI 回合
             if (gameMode == GameMode.PvAI && _currentPlayer == GetAIPiece())
             {
                 MakeAIMove();
@@ -133,26 +190,17 @@ namespace Gomoku
             return true;
         }
 
-        /// <summary>
-        /// 切换当前玩家
-        /// </summary>
         private void SwitchPlayer()
         {
             _currentPlayer = _currentPlayer == PieceType.Black ? PieceType.White : PieceType.Black;
             OnTurnChanged?.Invoke(_currentPlayer);
         }
 
-        /// <summary>
-        /// 获取 AI 的棋子颜色
-        /// </summary>
         private PieceType GetAIPiece()
         {
             return aiFirst ? PieceType.Black : PieceType.White;
         }
 
-        /// <summary>
-        /// AI 落子
-        /// </summary>
         private void MakeAIMove()
         {
             if (_aiPlayer == null) return;
@@ -162,12 +210,14 @@ namespace Gomoku
             if (_board.PlacePiece(x, y, _currentPlayer))
             {
                 _moveHistory.Push((x, y, _currentPlayer));
+                _totalMoveCount++;
                 OnPiecePlaced?.Invoke(x, y, _currentPlayer);
 
                 _gameState = WinChecker.CheckGameState(_board, x, y);
 
                 if (_gameState != GameState.Playing)
                 {
+                    _gameStopwatch?.Stop();
                     OnGameEnded?.Invoke(_gameState);
                     return;
                 }
@@ -176,17 +226,58 @@ namespace Gomoku
             }
         }
 
-        /// <summary>
-        /// 设置游戏模式
-        /// </summary>
+        private IEnumerator RunAIvsAI()
+        {
+            while (_gameState == GameState.Playing)
+            {
+                while (_selfPlayPaused)
+                    yield return null;
+
+                yield return new WaitForSeconds(selfPlayStepDelay);
+
+                if (_gameState != GameState.Playing) break;
+
+                IAIPlayer currentAI = _currentPlayer == PieceType.Black ? _blackAI : _whiteAI;
+                var (x, y) = currentAI.GetMove(_board, _currentPlayer);
+
+                if (_board.PlacePiece(x, y, _currentPlayer))
+                {
+                    _moveHistory.Push((x, y, _currentPlayer));
+                    _totalMoveCount++;
+                    OnPiecePlaced?.Invoke(x, y, _currentPlayer);
+
+                    _gameState = WinChecker.CheckGameState(_board, x, y);
+
+                    if (_gameState != GameState.Playing)
+                    {
+                        _gameStopwatch?.Stop();
+                        OnGameEnded?.Invoke(_gameState);
+                        break;
+                    }
+
+                    SwitchPlayer();
+                }
+            }
+
+            _selfPlayCoroutine = null;
+            _gameStopwatch?.Stop();
+        }
+
+        public void PauseSelfPlay()
+        {
+            _selfPlayPaused = true;
+        }
+
+        public void ResumeSelfPlay()
+        {
+            _selfPlayPaused = false;
+        }
+
         public void SetGameMode(GameMode mode)
         {
             gameMode = mode;
         }
 
-        /// <summary>
-        /// 设置 AI 是否先手
-        /// </summary>
         public void SetAIFirst(bool first)
         {
             aiFirst = first;
@@ -197,9 +288,25 @@ namespace Gomoku
             aiDifficulty = difficulty;
         }
 
+        public void SetBlackAIDifficulty(AIDifficulty difficulty)
+        {
+            blackAIDifficulty = difficulty;
+        }
+
+        public void SetWhiteAIDifficulty(AIDifficulty difficulty)
+        {
+            whiteAIDifficulty = difficulty;
+        }
+
+        public void SetSelfPlayStepDelay(float delay)
+        {
+            selfPlayStepDelay = delay;
+        }
+
         public bool Undo()
         {
             if (!CanUndo) return false;
+            if (gameMode == GameMode.AIvsAI) return false;
 
             int steps = gameMode == GameMode.PvAI ? 2 : 1;
 

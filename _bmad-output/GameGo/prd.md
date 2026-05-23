@@ -1,7 +1,7 @@
 ---
 title: 五子棋 — AI 加强与功能完善
 created: 2026-05-21
-updated: 2026-05-21
+updated: 2026-05-22
 status: draft
 ---
 
@@ -9,170 +9,150 @@ status: draft
 
 ## 0. 文档目的
 
-面向开发者本人，定义 v2 迭代的范围和需求。v1 MVP 已完成（棋盘、落子、胜负判定、PvP/PvAI、SimpleAI、MinimaxAI）。本迭代聚焦 AI 难度分级、GameConfig 运行时接入、悔棋功能。输入来源：`game-brief.md`、源码分析。
+面向开发者本人，定义迭代范围。v1 MVP 已完成（棋盘、落子、胜负判定、PvP/PvAI、SimpleAI、MinimaxAI）。v2（AI 三档难度 + 悔棋 + GameConfig）已实现。**v3 聚焦搜索算法优化和 AI 研究工具**——置换表提升 MinimaxAI 性能，AI 自对弈模式提供算法对比实验环境。
 
 ## 1. Vision
 
-v1 已实现可玩的五子棋。v2 要让它**值得反复对弈**——三档 AI 难度让新手到进阶都有挑战，悔棋降低挫败感，GameConfig 统一配置让后续迭代更快。核心目标：从"能玩"升级为"好玩"。
+v2 让游戏"好玩"。v3 让 AI **可研究**——通过置换表和迭代加深，Hard AI 搜索深度从 3 提升到 5-6 而不超时；AI 自对弈模式让两种算法自动对局并记录结果，直观对比策略强度。核心目标：从"有 AI 对手"升级为"有 AI 实验平台"。
 
 ## 2. Target User
 
 ### 2.1 Primary Persona
 
-**Tan** — 独立开发者，兼职开发。既是构建者也是主要玩家。用这个项目学习 Unity 和 AI 算法，同时享受策略对弈的乐趣。
+**Tan** — 独立开发者。用这个项目学习博弈 AI 算法，通过实验对比验证算法改进效果。
 
 ### 2.2 Jobs To Be Done
 
-- 对弈时找到合适难度的 AI 对手（不太弱也不碾压）
-- 下错一步时能撤回，继续探索策略
-- 快速调整游戏参数而不改代码
+- 观察不同 AI 算法对弈，直观感受策略差异
+- 量化对比算法强度（胜率、思考时间、搜索节点数）
+- 提升 Hard AI 强度而不牺牲响应速度
 
 ## 3. Glossary
 
-- **棋盘 (Board)** — 15×15 的 PieceType 二维数组，纯数据模型
-- **落子 (PlacePiece)** — 在空位放置黑棋或白棋
-- **悔棋 (Undo)** — 撤回最近一步落子，恢复棋盘和回合状态
-- **AI 难度 (AIDifficulty)** — Simple / Medium / Hard 三档
-- **GameConfig** — ScriptableObject，集中管理棋盘、视觉、游戏、音频、动画参数
-- **SimpleAI** — 规则优先级链 AI，贪心策略
-- **MediumAI** — 新增中等难度 AI（待设计）
-- **MinimaxAI** — Minimax + Alpha-Beta 剪枝 AI，搜索深度可调
-- **GameManager** — 游戏流程控制器，持有 Board、IAIPlayer、状态
-- **BoardView** — 棋盘视图，管理 CellView 网格
+- **Zobrist 哈希** — 将棋盘状态映射为 64 位哈希值的算法，O(1) 增量更新
+- **置换表 (Transposition Table)** — 哈希表缓存已评估棋盘的搜索结果，避免重复计算
+- **迭代加深 (Iterative Deepening)** — 从深度 1 逐步加深搜索，在时间限制内返回当前最佳结果
+- **AI 自对弈 (AI vs AI)** — 两个 AI 策略自动对弈，无需人类操作
+- **对弈记录 (GameRecord)** — 一局对弈的完整数据（双方策略、每步落子、耗时、结果）
 
 ## 4. Features
 
-### 4.1 AI 三档难度
+### 4.1 置换表优化
 
-**Description:** 游戏开始前和结束后，玩家可在 UI 上选择 AI 难度：简单、中等、困难。选择后立即生效并开始新一局。难度通过 `AIDifficulty` 枚举和 `IAIPlayer` 策略模式切换。Realizes UJ-1.
-
-**Functional Requirements:**
-
-#### FR-1: 三档 AI 策略实现
-
-系统提供 Simple、Medium、Hard 三种 AI 策略，通过 `IAIPlayer` 接口统一调度。
-
-**Consequences:**
-- Simple 策略与当前 SimpleAI 行为一致
-- Medium 策略对弈强度介于 Simple 和 Hard 之间
-- Hard 策略使用 MinimaxAI，搜索深度 ≥ 3
-
-**Out of Scope:** 在线 AI、机器学习 AI
-
-#### FR-2: AI 难度 UI 选择
-
-玩家可在游戏左上角通过按钮切换 AI 难度，当前选中项有明确标记。仅 PvAI 模式显示。切换后自动开始新一局。
-
-**Consequences:**
-- PvAI 模式下左上角显示"简单/中等/困难"三个按钮
-- 当前选中项有 ● 标记
-- 点击任意按钮立即重启游戏并使用对应 AI
-- PvP 模式下不显示难度按钮
-
-#### FR-3: MinimaxAI 搜索深度提升
-
-Hard 难度的 MinimaxAI 搜索深度从 2 提升到 3。
-
-**Consequences:**
-- Hard AI 在搜索深度 3 下仍能在 2 秒内返回落子
-- 落子质量显著高于 depth=2 的表现
-
-### 4.2 悔棋功能
-
-**Description:** PvAI 模式下，玩家可撤回最近一步（同时撤回 AI 的回应，共两步）。PvP 模式下撤回最近一步。悔棋恢复棋盘状态、回合和视觉。Realizes UJ-2.
+**Description:** 为 MinimaxAI 添加 Zobrist 哈希和置换表缓存。相同棋盘状态（不同落子顺序到达）不重复搜索。结合迭代加深，在时间预算内自动选择最优搜索深度。
 
 **Functional Requirements:**
 
-#### FR-4: 悔棋操作
+#### FR-8: Zobrist 哈希
 
-玩家点击悔棋按钮后，棋盘恢复到上一步的状态。
-
-**Consequences:**
-- PvAI 模式：撤回玩家落子 + AI 回应（共两步），轮回到玩家回合
-- PvP 模式：撤回最近一步，轮回到上一个玩家
-- 游戏已结束时不可悔棋（弹框状态下按钮不可用）
-- 棋盘为空时不可悔棋
-- 悔棋后棋子动画正常、最后落子标记正确更新
-- 连续悔棋可撤回整局（直到棋盘为空）
-
-**Out of Scope:** 选择性悔棋（撤回特定步骤）、悔棋次数限制
-
-#### FR-5: 悔棋 UI
-
-左上角显示悔棋按钮，游戏进行中可点击。
+Board 维护 64 位 Zobrist 哈希值，每次落子/移除时 O(1) 增量更新。
 
 **Consequences:**
-- 游戏进行中按钮可点击
-- 棋盘为空或游戏结束时按钮置灰/不可点击
-- 点击后立即生效，无确认弹框
+- Board 新增 `ulong ZobristKey` 属性
+- PlacePiece 和 RemovePiece 时异或更新
+- 起始空盘哈希值固定，可复现
 
-### 4.3 GameConfig 运行时接入
+#### FR-9: 置换表
 
-**Description:** 已有的 GameConfig ScriptableObject 从"仅 Editor 预览"升级为运行时各组件的配置来源。一次配置，全局生效。Realizes UJ-3.
+MinimaxAI 使用 Dictionary 缓存已搜索的棋盘状态（哈希键 + 深度 + 分数 + 最佳走法）。
+
+**Consequences:**
+- 命中置换表时直接返回缓存结果，不进入递归
+- 缓存条目包含：哈希键、搜索深度、评估分数、最佳走法、节点类型（exact/alpha/beta）
+- 置换表大小可配置（默认 1M 条目）
+- 每次新对弈清空置换表
+
+#### FR-10: 迭代加深 + 时间控制
+
+Hard AI 使用迭代加深：从深度 1 开始，逐层加深，在时间预算内返回当前最佳结果。
+
+**Consequences:**
+- 默认时间预算 2 秒
+- 超时立即返回上一深度完成的最佳走法
+- 上一深度的最佳走法作为下一深度搜索的第一个候选（提高剪枝效率）
+- 搜索深度可达 5-6 层（得益于置换表缓存）
+
+**Out of Scope:** 并行搜索、多线程
+
+### 4.2 AI 自对弈模式
+
+**Description:** 新增游戏模式，两个 AI 策略自动对弈。玩家可选择双方 AI 配置，观看对局或快速模拟，查看结果统计。
 
 **Functional Requirements:**
 
-#### FR-6: GameManager 从 GameConfig 读取设置
+#### FR-11: 自对弈模式入口
 
-GameManager 启动时从 GameConfig 读取 defaultGameMode、aiFirst、defaultAIDifficulty。
-
-**Consequences:**
-- GameManager 的 gameMode、aiFirst、aiDifficulty 初始值来自 GameConfig
-- Inspector 上的 SerializeField 仍可覆盖（Editor 调试用）
-- GameConfig 为 null 时使用硬编码默认值，不报错
-
-#### FR-7: BoardView 从 GameConfig 读取视觉参数
-
-BoardView 初始化时从 GameConfig 读取 cellSize、pieceScale、boardColor、hoverColor、lastMoveColor、winningColor。
+GameMode 枚举新增 AIvsAI。UI 新增自对弈配置界面：选择黑方/白方 AI 策略和难度。
 
 **Consequences:**
-- 棋盘格子大小、棋子缩放、颜色均由 GameConfig 控制
-- GameConfig 为 null 时使用现有 SerializeField 默认值
+- GameMode 新增 `AIvsAI` 值
+- 自对弈配置 UI：两个下拉框分别选择黑方/白方 AI（SimpleAI / MinimaxAI-Medium / MinimaxAI-Hard）
+- 点击开始后自动对弈，人类无需操作
+
+#### FR-12: 自对弈执行
+
+GameManager 支持自动交替调用双方 AI，每步落子后触发渲染和判定。
+
+**Consequences:**
+- AI 回合不再需要等待人类点击
+- 每步之间可选延迟（可配置，默认 0.5 秒，设为 0 则瞬时完成）
+- 支持中途暂停/继续
+
+#### FR-13: 对弈统计
+
+每局自对弈记录数据并显示统计信息。
+
+**Consequences:**
+- 显示：总步数、耗时、黑方/白方 AI 策略名称
+- 游戏结束时弹框显示结果（黑胜/白胜/平局）+ 步数
+- 可选：批量对弈模式（连续 N 局，汇总胜率统计）
+
+**Out of Scope:** 对弈记录持久化保存、棋谱回放
 
 ## 5. Non-Goals (Explicit)
 
 - 在线对战 / 网络功能
 - 教程系统 / 策略提示
 - 多种棋盘皮肤
-- 棋局保存/加载
-- AudioManager 接入（下个迭代）
+- 棋局保存/加载文件
 - 移动端适配
+- 神经网络 / 强化学习（v4+）
 
 ## 6. MVP Scope
 
 ### 6.1 In Scope
 
-- 三档 AI（Simple / Medium / Hard）
-- AI 难度 UI 切换
-- MinimaxAI depth=3
-- 悔棋（PvAI 撤两步，PvP 撤一步）
-- 悔棋 UI 按钮
-- GameManager 从 GameConfig 读取设置
-- BoardView 从 GameConfig 读取视觉参数
+- Board 添加 Zobrist 哈希
+- MinimaxAI 置换表缓存
+- 迭代加深 + 时间控制
+- AIvsAI 游戏模式
+- 自对弈 UI 配置和执行
+- 对弈结果统计
 
-### 6.2 Out of Scope for MVP
+### 6.2 Out of Scope for v3
 
-- AudioManager 接入 — 方法已定义但无人调用，需单独迭代
-- Board.Grid 封装 — 影响面广，非功能性需求
-- 测试启用 — GomokuTests 当前全部注释，需安装 Test Framework
+- 批量对弈模式 — 单局自对弈已满足基本对比需求
+- 搜索节点数/命中率实时显示 — 调试信息，非核心功能
+- AudioManager 接入 — 非本迭代重点
 
 ## 7. Success Metrics
 
 **Primary**
-- **SM-1**: 能与三档 AI 分别完成一局对弈，难度体感递增。Validates FR-1, FR-2.
-- **SM-2**: 悔棋后棋盘状态与视觉完全一致，可连续悔棋到空盘。Validates FR-4, FR-5.
-- **SM-3**: 修改 GameConfig asset 后运行游戏，参数生效。Validates FR-6, FR-7.
+- **SM-4**: Hard AI 在 2 秒内搜索到深度 5+，落子质量显著高于 v2 的 depth=3。Validates FR-8, FR-9, FR-10.
+- **SM-5**: SimpleAI vs MinimaxAI-Hard 自对弈 10 局，Hard 胜率 > 90%。Validates FR-11, FR-12.
+- **SM-6**: 自对弈模式可完整观看一局 AI 对弈，统计正确显示。Validates FR-11, FR-12, FR-13.
 
 **Counter-metrics**
-- **SM-C1**: Hard AI 落子时间不超过 2 秒 — 不能为追求强度牺牲响应速度。Counterbalances SM-1.
+- **SM-C2**: 置换表内存占用不超过 100MB — 不能为追求深度牺牲内存。Counterbalances SM-4.
 
 ## 8. Open Questions
 
-1. MediumAI 具体算法选择？可选方案：SimpleAI + 部分防守规则增强、MinimaxAI depth=1、或混合策略。
-2. 悔棋是否需要快捷键支持？（当前仅有 UI 按钮）
+1. 自对弈批量模式是否纳入 v3？单局已够用，批量可作为 Story 级别追加
+2. 搜索节点数/置换表命中率是否需要在 UI 显示？可作为开发者调试选项
 
 ## 9. Assumptions Index
 
-- `[ASSUMPTION]` MediumAI 可通过 SimpleAI 增强规则或浅层 Minimax 实现，不需要全新算法 — §4.1 FR-1
-- `[ASSUMPTION]` MinimaxAI depth=3 在 15×15 棋盘上候选位置有限时可在 2 秒内完成 — §4.1 FR-3
-- `[ASSUMPTION]` GameConfig 运行时接入不需要热重载（改配置需重启游戏）— §4.3 FR-6, FR-7
+- `[ASSUMPTION]` Zobrist 哈希增量更新在 PlacePiece/RemovePiece 中正确维护 — §4.1 FR-8
+- `[ASSUMPTION]` 置换表命中率在 15×15 棋盘中盘阶段可达 20%+ — §4.1 FR-9
+- `[ASSUMPTION]` 迭代加深 + 置换表可让 Hard AI 在 2 秒内完成 depth=5 搜索 — §4.1 FR-10
+- `[ASSUMPTION]` AIvsAI 模式可复用现有 GameManager 事件系统渲染棋盘 — §4.2 FR-12

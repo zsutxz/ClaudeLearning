@@ -1,4 +1,4 @@
-using UnityEngine;
+using System;
 
 namespace Gomoku
 {
@@ -9,11 +9,30 @@ namespace Gomoku
     {
         public const int BOARD_SIZE = 15;  // 15x15 棋盘
 
+        // Zobrist 哈希表：每个位置×每种棋子 对应一个 64 位随机数
+        // 索引方式：_zobristTable[x * BOARD_SIZE + y, pieceIndex]
+        // pieceIndex: 0=Black, 1=White
+        private static readonly ulong[,] _zobristTable = new ulong[BOARD_SIZE * BOARD_SIZE, 2];
+
+        static Board()
+        {
+            var rng = new System.Random(42);
+            for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++)
+            {
+                for (int p = 0; p < 2; p++)
+                {
+                    _zobristTable[i, p] = ((ulong)rng.Next() << 32) | (ulong)rng.Next();
+                }
+            }
+        }
+
         private PieceType[,] _grid;
         private int _pieceCount;
+        private ulong _zobristKey;
 
         public int PieceCount => _pieceCount;
         public PieceType[,] Grid => _grid;
+        public ulong ZobristKey => _zobristKey;
 
         public Board()
         {
@@ -34,6 +53,7 @@ namespace Gomoku
                 }
             }
             _pieceCount = 0;
+            _zobristKey = 0;
         }
 
         /// <summary>
@@ -56,6 +76,7 @@ namespace Gomoku
 
             _grid[x, y] = piece;
             _pieceCount++;
+            _zobristKey ^= _zobristTable[x * BOARD_SIZE + y, (int)piece - 1];
             return true;
         }
 
@@ -67,6 +88,7 @@ namespace Gomoku
             if (!IsValidPosition(x, y) || _grid[x, y] == PieceType.None)
                 return false;
 
+            _zobristKey ^= _zobristTable[x * BOARD_SIZE + y, (int)_grid[x, y] - 1];
             _grid[x, y] = PieceType.None;
             _pieceCount--;
             return true;
