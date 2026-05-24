@@ -41,7 +41,9 @@
       "Bash(done)",
       "mcp__agent-sdk-bridge__official_sdk_create_agent",
       "mcp__agent-sdk-bridge__list_providers",
-      "mcp__agent-sdk-bridge__official_sdk_chat"
+      "mcp__agent-sdk-bridge__official_sdk_chat",
+      "Bash(npx bmad-method@alpha install)",
+      "Bash(npx bmad-method@latest install)"
     ],
     "deny": [],
     "ask": []

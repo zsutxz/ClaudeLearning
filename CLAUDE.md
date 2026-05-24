@@ -2,59 +2,96 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## 规则
-- **语言**：使用中文交流
-- **Git**：不自动提交，手动提交前需明确确认
-- **文档**：每个项目编写 FORCold.md，用通俗生动的语言解释项目（技术架构、设计决策、经验教训、最佳实践）
+## 语言和Git规则
+- **语言**：使用中文进行交流
+- **Git规则**：不自动提交任何代码更改，手动提交前需要明确确认
 
-## 项目概览
+## Project Overview
 
-多项目技术试验仓库，核心子项目：
+多项目技术试验仓库，包含独立的子项目。每个子项目有自己的依赖和运行方式。
 
-| 项目 | 说明 | 技术栈 |
-|------|------|--------|
-| **AgentSdkTest/** | 多模型AI代理统一接口 | Python, Claude/OpenAI/DeepSeek/Ollama/Mock |
-| **Research/** | 技术调研代理（继承UniversalTaskAgent） | Python, 文献检索/数据处理/报告生成 |
-| **_bmad/** | BMAD企业级开发框架 | YAML工作流, Builder/Model/GameDev模块 |
-| **.claude/** | Claude技能系统（169+技能） | Skills, MCP, Agents |
+## 子项目
 
-## 核心架构
+### AgentSdkTest — 多模型AI代理框架
+Python 3.10+ 项目，提供统一的AI代理接口，支持 Claude(智谱AI)/OpenAI/DeepSeek/Ollama 多模型切换。
 
-**代理继承体系**：`UniversalAIAgent` → `UniversalTaskAgent` → `ResearchAgent` / `UniversalCodeAgent`
-所有代理通过 `provider` 参数切换模型，支持同步和异步调用。
-
-**模型选择**：GLM-4.7（默认，智谱AI）、GPT-4o-mini、DeepSeek-Coder、Ollama（本地）、Mock（测试）
-
-**关键入口**：
-- AgentSdkTest 核心：`lib/multi_agent.py`（UniversalAIAgent）、`lib/config.py`（配置）
-- Research 核心：`research_agent.py` → `modules/`（literature_retriever, data_processor, report_generator）
-- BMAD 工作流：`*workflow-init`、`*prd`、`*create-architecture`、`*dev-story`、`*sprint-planning`
-
-## 运行命令
+核心架构：`UniversalAIAgent`（基类）→ `UniversalTaskAgent` / `UniversalCodeAgent` / `UniversalTalkAgent`，通过 `provider` 参数切换模型。工厂模式在 `lib/factory.py`。
 
 ```bash
-# AgentSdkTest（需在该目录下运行）
-cd AgentSdkTest && python quick_start.py          # 交互式菜单
-cd AgentSdkTest && python examples/02_multi_model.py  # 多模型示例
-cd AgentSdkTest && python run_all_examples.py     # 运行所有示例
-
-# Research（需在该目录下运行，依赖AgentSdkTest）
-cd Research && python example_usage.py
-cd Research && pytest test/
-
-# 环境变量：AgentSdkTest/config/.env（优先）→ AgentSdkTest/.env（备用）
+cd AgentSdkTest
+pip install -r requirements.txt           # 安装依赖
+python quick_start.py                      # 交互式菜单（推荐）
+python examples/02_multi_model.py          # 多模型示例
+python run_all_examples.py                 # 运行所有示例
 ```
 
-## 导入规则
-- **AgentSdkTest**：`from lib.multi_agent import UniversalAIAgent`（必须在 AgentSdkTest/ 目录下）
-- **Research**：`from research_agent import ResearchAgent`（必须在 Research/ 目录下，会自动 append AgentSdkTest 路径）
+环境变量配置在 `config/.env`，加载优先级：`config/.env` > `.env`。API密钥格式为智谱AI（id.secret）。
 
-## MCP配置
-- `.mcp.json` - 根目录配置（agent-sdk-bridge 自定义桥接）
-- PYTHONPATH: 项目根目录 + AgentSdkTest
+**导入路径**：必须在 AgentSdkTest 目录下运行，使用 `from lib.multi_agent import UniversalAIAgent`。
 
-## 常见陷阱
-- Research Agent 是异步的，必须用 `asyncio.run()` 调用
-- 导入 `lib.*` 模块必须在 AgentSdkTest/ 目录下执行
-- API密钥格式（智谱AI）：`id.secret`
-- `.env` 文件已在 `.gitignore` 中，不会提交
+### Research — 技术调研代理
+继承 `UniversalTaskAgent`，添加文献检索、数据处理、报告生成、质量检查模块。
+
+```bash
+cd Research
+pip install -r requirements.txt
+python example_usage.py                    # 运行示例
+pytest test/                               # 运行测试
+```
+
+所有方法都是异步的，需要 `asyncio.run()` 调用。Research 自动将 AgentSdkTest 添加到 `sys.path`。
+
+### gamego — 五子棋 (Unity)
+Unity 2021.3 LTS 五子棋游戏，支持 PvP/PvAI。AI 策略有 SimpleAI（规则优先级）和 MinimaxAI（Alpha-Beta 剪枝）。通过 Unity Editor 菜单 Tools > Gomoku 设置场景。测试在 Test Runner PlayMode 标签运行。
+
+### Prompt/ — 提示词模板集合
+中文提示词模板文件（Gemini、翻译、排版、分析等），纯 Markdown 文本。
+
+### _bmad/ — BMAD 企业框架
+BMAD 工作流通过 Claude Code 技能系统调用，使用 `bmad-bmm-*` / `bmad-bmgd-*` / `bmad-bmb-*` 前缀的技能名。
+
+## 全局架构关系
+
+```
+AgentSdkTest/lib/multi_agent.py  ←──  Research/research_agent.py (继承)
+       UniversalAIAgent (基类)
+            ├── UniversalTaskAgent → ResearchAgent (调研)
+            ├── UniversalCodeAgent (代码)
+            └── UniversalTalkAgent (对话，未实现)
+```
+
+MCP 服务器配置在根目录 `.mcp.json`（agent-sdk-bridge 桥接 MCP 协议）。AgentSdkTest 有独立的 `.mcp.json`。
+
+## 关键注意事项
+
+- **运行目录**：AgentSdkTest 和 Research 各自必须在自己的目录下运行（导入路径依赖）
+- **环境变量**：`.env` 文件已在 `.gitignore` 排除，通过 `python-dotenv` 加载
+- **文档目录**：`docs/` 包含 BMAD 生成的 PRD、架构文档、故事文件和 sprint 状态
+- **scripts/**：包含 codex 等辅助脚本
+
+## gstack
+所有网页浏览使用 gstack 的 /browse 技能，禁止使用 mcp__claude-in-chrome__* 工具。
+可用技能：/office-hours, /plan-ceo-review, /plan-eng-review, /plan-design-review,
+/design-consultation, /design-shotgun, /design-html, /review, /ship, /land-and-deploy,
+/canary, /benchmark, /browse, /open-gstack-browser, /qa, /qa-only, /design-review,
+/setup-browser-cookies, /setup-deploy, /setup-gbrain, /sync-gbrain, /retro, /investigate,
+/document-release, /document-generate, /codex, /cso, /autoplan, /pair-agent, /careful, /freeze,
+/guard, /unfreeze, /gstack-upgrade, /learn.
+
+## 技能路由
+
+当用户的请求匹配到可用技能时，通过 Skill 工具调用。不确定时优先调用技能。
+
+路由规则：
+- 产品创意/头脑风暴 → 调用 /office-hours
+- 战略/范围讨论 → 调用 /plan-ceo-review
+- 架构设计 → 调用 /plan-eng-review
+- 设计系统/方案评审 → 调用 /design-consultation 或 /plan-design-review
+- 完整评审流程 → 调用 /autoplan
+- Bug/报错 → 调用 /investigate
+- QA/测试网站 → 调用 /qa 或 /qa-only
+- 代码审查/diff 检查 → 调用 /review
+- 视觉优化 → 调用 /design-review
+- 发布/部署/PR → 调用 /ship 或 /land-and-deploy
+- 保存进度 → 调用 /context-save
+- 恢复上下文 → 调用 /context-restore
