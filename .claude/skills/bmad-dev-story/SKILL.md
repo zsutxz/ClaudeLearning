@@ -1,8 +1,11 @@
+<<<<<<<< HEAD:.claude/skills/bmad-dev-story/workflow.md
+========
 ---
 name: bmad-dev-story
 description: 'Execute story implementation following a context filled story spec file. Use when the user says "dev this story [story file]" or "implement the next story in the sprint plan"'
 ---
 
+>>>>>>>> c78702521bd12acfbc91cb463643089d6185e014:.claude/skills/bmad-dev-story/SKILL.md
 # Dev Story Workflow
 
 **Goal:** Execute story implementation following a context filled story spec file.
@@ -13,6 +16,16 @@ description: 'Execute story implementation following a context filled story spec
 - Only modify the story file in these areas: Tasks/Subtasks checkboxes, Dev Agent Record (Debug Log, Completion Notes), File List, Change Log, and Status
 - Execute ALL steps in exact order; do NOT skip steps
 - Absolutely DO NOT stop because of "milestones", "significant progress", or "session boundaries". Continue in a single execution until the story is COMPLETE (all ACs satisfied and all tasks/subtasks checked) UNLESS a HALT condition is triggered or the USER gives other instruction.
+<<<<<<<< HEAD:.claude/skills/bmad-dev-story/workflow.md
+- Do NOT schedule a "next session" or request review pauses unless a HALT condition applies. Only Step 6 decides completion.
+- User skill level ({user_skill_level}) affects conversation style ONLY, not code updates.
+
+---
+
+## INITIALIZATION
+
+### Configuration Loading
+========
 - Do NOT schedule a "next session" or request review pauses unless a HALT condition applies. Only Step 9 decides completion.
 - User skill level ({user_skill_level}) affects conversation style ONLY, not code updates.
 
@@ -46,6 +59,7 @@ Execute each entry in `{workflow.activation_steps_prepend}` in order before proc
 Treat every entry in `{workflow.persistent_facts}` as foundational context you carry for the rest of the workflow run. Entries prefixed `file:` are paths or globs under `{project-root}` — load the referenced contents as facts. All other entries are facts verbatim.
 
 ### Step 4: Load Config
+>>>>>>>> c78702521bd12acfbc91cb463643089d6185e014:.claude/skills/bmad-dev-story/SKILL.md
 
 Load config from `{project-root}/_bmad/bmm/config.yaml` and resolve:
 
@@ -55,6 +69,9 @@ Load config from `{project-root}/_bmad/bmm/config.yaml` and resolve:
 - `implementation_artifacts`
 - `date` as system-generated current datetime
 
+<<<<<<<< HEAD:.claude/skills/bmad-dev-story/workflow.md
+### Paths
+========
 ### Step 5: Greet the User
 
 Greet `{user_name}`, speaking in `{communication_language}`.
@@ -66,11 +83,22 @@ Execute each entry in `{workflow.activation_steps_append}` in order.
 Activation is complete. Begin the workflow below.
 
 ## Paths
+>>>>>>>> c78702521bd12acfbc91cb463643089d6185e014:.claude/skills/bmad-dev-story/SKILL.md
 
 - `story_file` = `` (explicit story path; auto-discovered if empty)
 - `sprint_status` = `{implementation_artifacts}/sprint-status.yaml`
 
+<<<<<<<< HEAD:.claude/skills/bmad-dev-story/workflow.md
+### Context
+
+- `project_context` = `**/project-context.md` (load if exists)
+
+---
+
+## EXECUTION
+========
 ## Execution
+>>>>>>>> c78702521bd12acfbc91cb463643089d6185e014:.claude/skills/bmad-dev-story/SKILL.md
 
 <workflow>
   <critical>Communicate all responses in {communication_language} and language MUST be tailored to {user_skill_level}</critical>
