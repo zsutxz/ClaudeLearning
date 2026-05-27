@@ -58,3 +58,11 @@ class ProviderResponse(BaseModel):
     usage: TokenUsage
     model: str
     finish_reason: str
+
+
+class ToolSchema(BaseModel):
+    """JSON Schema description of a tool for LLM function calling."""
+
+    name: str
+    description: str
+    parameters: dict[str, object]
