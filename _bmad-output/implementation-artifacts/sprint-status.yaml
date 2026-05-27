@@ -1,5 +1,5 @@
 # generated: 2026-05-26
-# last_updated: 2026-05-26
+# last_updated: 2026-05-27
 # project: HeAgent
 # project_key: NOKEY
 # tracking_system: file-system
@@ -39,9 +39,9 @@ development_status:
   epic-1: in-progress
   1-1-project-initialization: done
   1-2-core-types-exceptions: done
-  1-3-configuration-management: backlog
-  1-4-base-provider-protocol: backlog
-  1-5-openai-provider: backlog
+  1-3-configuration-management: done
+  1-4-base-provider-protocol: done
+  1-5-openai-provider: done
   1-6-anthropic-provider: backlog
   1-7-provider-chain-credential-rotation: backlog
   1-8-error-classification-retry: backlog

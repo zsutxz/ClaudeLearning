@@ -53,7 +53,10 @@
       "Bash(git config *)",
       "Skill(bmad-create-story)",
       "Bash(sed -i 's/Status: ready-for-dev/Status: done/' _bmad-output/implementation-artifacts/1-2-core-types-exceptions.md)",
-      "Bash(sed -i 's/1-2-core-types-exceptions: in-progress/1-2-core-types-exceptions: done/' _bmad-output/implementation-artifacts/sprint-status.yaml)"
+      "Bash(sed -i 's/1-2-core-types-exceptions: in-progress/1-2-core-types-exceptions: done/' _bmad-output/implementation-artifacts/sprint-status.yaml)",
+      "Skill(bmad-code-review)",
+      "mcp__plugin_ecc_context7__resolve-library-id",
+      "mcp__plugin_ecc_context7__query-docs"
     ],
     "deny": [],
     "ask": []
