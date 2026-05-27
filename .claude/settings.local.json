@@ -43,7 +43,17 @@
       "mcp__agent-sdk-bridge__list_providers",
       "mcp__agent-sdk-bridge__official_sdk_chat",
       "Bash(npx bmad-method@alpha install)",
-      "Bash(npx bmad-method@latest install)"
+      "Bash(npx bmad-method@latest install)",
+      "Bash(git -C \"E:/AI/ClaudeLearning\" diff HEAD~3 -- gamego/)",
+      "Bash(python3 *)",
+      "Skill(bmad-dev-story)",
+      "Skill(bmad-create-epics-and-stories)",
+      "Skill(bmad-create-architecture)",
+      "Bash(claude *)",
+      "Bash(git config *)",
+      "Skill(bmad-create-story)",
+      "Bash(sed -i 's/Status: ready-for-dev/Status: done/' _bmad-output/implementation-artifacts/1-2-core-types-exceptions.md)",
+      "Bash(sed -i 's/1-2-core-types-exceptions: in-progress/1-2-core-types-exceptions: done/' _bmad-output/implementation-artifacts/sprint-status.yaml)"
     ],
     "deny": [],
     "ask": []
