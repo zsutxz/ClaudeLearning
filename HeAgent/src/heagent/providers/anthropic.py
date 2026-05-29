@@ -49,10 +49,10 @@ def _parse_tool_use_blocks(blocks: list[object]) -> list[ToolCall]:
 class AnthropicProvider:
     """Provider for Anthropic Claude API."""
 
-    def __init__(self, api_key: str, model: str = "claude-sonnet-4-6", max_tokens: int = 4096) -> None:
+    def __init__(self, api_key: str, model: str = "claude-sonnet-4-6", max_tokens: int = 4096, base_url: str | None = None) -> None:
         self._model = model
         self._max_tokens = max_tokens
-        self._client = AsyncAnthropic(api_key=api_key)
+        self._client = AsyncAnthropic(api_key=api_key, base_url=base_url)
 
     async def send(self, messages: list[Message], *, tools: list[ToolSchema] | None = None) -> ProviderResponse:
         system = _extract_system(messages)
