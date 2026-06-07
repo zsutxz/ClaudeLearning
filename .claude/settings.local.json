@@ -56,7 +56,8 @@
       "Bash(sed -i 's/1-2-core-types-exceptions: in-progress/1-2-core-types-exceptions: done/' _bmad-output/implementation-artifacts/sprint-status.yaml)",
       "Skill(bmad-code-review)",
       "mcp__plugin_ecc_context7__resolve-library-id",
-      "mcp__plugin_ecc_context7__query-docs"
+      "mcp__plugin_ecc_context7__query-docs",
+      "Bash(PYTHONPATH=\"D:/work/AI/ClaudeLearning:D:/work/AI/ClaudeLearning/AgentSdkTest\" echo '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{},\"clientInfo\":{\"name\":\"test\",\"version\":\"1.0.0\"}}}')"
     ],
     "deny": [],
     "ask": []

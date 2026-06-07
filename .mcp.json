@@ -6,7 +6,7 @@
         "-m",
         "mcp_servers.agent_bridge"
       ],
-      "cwd": "D:\\work\\AI\\ClaudeLearning",
+      "cwd": "D:\\work\\AI\\ClaudeLearning\\AgentSdkTest",
       "env": {
         "PYTHONPATH": "D:\\work\\AI\\ClaudeLearning;D:\\work\\AI\\ClaudeLearning\\AgentSdkTest"
       }
