@@ -1,69 +1,11 @@
 {
-  "hooks": {
-    "Stop": [],
-    "SessionEnd": [],
-    "PostToolUse": [
-      {
-        "matcher": "mcp__filesystem__write_file",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo PostToolUse hook triggered for mcp__filesystem__write_file >> .claude\\post-hook-test.log"
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "mcp__filesystem__write_file",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo PreToolUse hook triggered for mcp__filesystem__write_file >> .claude\\pre-hook-test.log"
-          }
-        ]
-      }
-    ]
+  "permissions": {
+    "allow": [
+      "Bash(git checkout:*)"
+  ],
+    "deny": [],
+    "ask": []
   },
-  "mcpServers": {
-    "context7": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "@upstash/context7-mcp"
-      ],
-      "env": {}
-    },
-    "filesystem": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "@modelcontextprotocol/server-filesystem",
-        "D:\\work\\AI\\ClaudeTest"
-      ],
-      "env": {}
-    },
-    "playwright": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "@modelcontextprotocol/server-playwright"
-      ],
-      "env": {}
-    },
-    "sequential-thinking": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "@modelcontextprotocol/server-sequential-thinking"
-      ],
-      "env": {}
-    }
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "git rev-parse --abbrev-ref HEAD",
-    "padding": 1
-  },
-  "$schema": "https://json.schemastore.org/claude-code-settings.json"
+  "enableAllProjectMcpServers": true,
+  "outputStyle": "default"
 }

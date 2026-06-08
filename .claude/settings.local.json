@@ -1,70 +1,21 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [
-      "Bash(pip install:*)",
-      "mcp__filesystem__list_directory",
-      "Bash(git checkout:*)",
-      "Skill(pdf)",
-      "mcp__filesystem__read_file",
-      "mcp__filesystem__write_file",
-      "mcp__filesystem__directory_tree",
-      "Bash(.claudestatusline.bat)",
-      "Bash(cmd:*)",
-      "mcp__playwright__browser_navigate",
-      "mcp__playwright__browser_snapshot",
-      "mcp__playwright__browser_wait_for",
-      "mcp__playwright__browser_click",
-      "mcp__playwright__browser_close",
-      "Bash(git commit:*)",
-      "Bash(dir:*)",
-      "mcp__filesystem__create_directory",
-      "Bash(mkdir:*)",
-      "Bash(xcopy:*)",
-      "Bash(cp:*)",
-      "mcp__filesystem__read_multiple_files",
-      "mcp__filesystem__search_files",
-      "mcp__filesystem__edit_file",
-      "mcp__fetch__fetch",
-      "mcp__filesystem__get_file_info",
-      "WebSearch",
-      "WebFetch(domain:techcrunch.com)",
-      "WebFetch(domain:www.theverge.com)",
-      "Bash(find:*)",
-      "Bash(dotnet build:*)",
-      "Skill(translate-to-chinese)",
-      "Bash(rm:*)",
-      "Bash(python Test/TestMultiLlm.py:*)",
-      "Bash(python -m py_compile:*)",
-      "Bash(python:*)",
-      "Bash(for file in *.py)",
-      "Bash(do echo \"Checking $file...\")",
-      "Bash(done)",
-      "mcp__agent-sdk-bridge__official_sdk_create_agent",
-      "mcp__agent-sdk-bridge__list_providers",
-      "mcp__agent-sdk-bridge__official_sdk_chat",
-      "Bash(npx bmad-method@alpha install)",
-      "Bash(npx bmad-method@latest install)",
-      "Bash(git -C \"E:/AI/ClaudeLearning\" diff HEAD~3 -- gamego/)",
-      "Bash(python3 *)",
-      "Skill(bmad-dev-story)",
-      "Skill(bmad-create-epics-and-stories)",
-      "Skill(bmad-create-architecture)",
-      "Bash(claude *)",
-      "Bash(git config *)",
-      "Skill(bmad-create-story)",
-      "Bash(sed -i 's/Status: ready-for-dev/Status: done/' _bmad-output/implementation-artifacts/1-2-core-types-exceptions.md)",
-      "Bash(sed -i 's/1-2-core-types-exceptions: in-progress/1-2-core-types-exceptions: done/' _bmad-output/implementation-artifacts/sprint-status.yaml)",
-      "Skill(bmad-code-review)",
-      "mcp__plugin_ecc_context7__resolve-library-id",
-      "mcp__plugin_ecc_context7__query-docs",
-      "Bash(PYTHONPATH=\"D:/work/AI/ClaudeLearning:D:/work/AI/ClaudeLearning/AgentSdkTest\" echo '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{},\"clientInfo\":{\"name\":\"test\",\"version\":\"1.0.0\"}}}')"
-    ],
-    "deny": [],
-    "ask": []
+      "Bash(python3 -c ' *)",
+      "Bash(python -c ' *)",
+      "Bash(python3 *)"
+    ]
   },
-  "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": [
-    "agent-sdk-bridge"
-  ],
-  "outputStyle": "default"
+  "hooks": {
+    "Stop": [],
+    "SessionEnd": [],
+    "PostToolUse": [],
+    "PreToolUse": []
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "git rev-parse --abbrev-ref HEAD",
+    "padding": 1
+  }
 }
