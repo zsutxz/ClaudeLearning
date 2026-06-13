@@ -68,7 +68,6 @@ Updating 5 marketplace(s)...
   claude plugin install ecc@everything-claude-code
   ```
 - **BMAD 框架**：`_bmad/` 目录已不存在（上次 commit 已清理），跳过检查
-- **claude-code-tips** 和 **claude-updater** skill 已从项目级迁移至全局 `~/.claude/skills/`
 
 ---
 

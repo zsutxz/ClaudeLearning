@@ -63,8 +63,9 @@ AgentSdkTest/
 # 安装核心依赖
 pip install -r requirements.txt
 
-# 可选依赖
-pip install mcp-server-filesystem # MCP文件服务器
+# MCP 文件系统服务器（可选，无需 pip 安装）
+# 由 Claude Code 通过 .mcp.json 配置，npx 自动拉取 npm 包
+# @modelcontextprotocol/server-filesystem（官方维护，非 pip 包）
 ```
 
 ### 环境变量配置
@@ -238,10 +239,9 @@ pip install -r requirements.txt
 #### 3. MCP服务器问题
 **症状**: MCP连接失败、文件访问错误
 **解决方案**:
-```bash
-# 安装MCP文件系统服务器
-pip install mcp-server-filesystem
-```
+- 检查 `.mcp.json` 是否配置了 `@modelcontextprotocol/server-filesystem`（通过 `npx -y` 运行，无需 pip）
+- 确认本机已安装 Node.js / npx（filesystem server 是 npm 包，不是 pip 包）
+- 清理 npx 缓存重试：`npx clear-npx-cache`
 
 ## 📚 相关资源
 

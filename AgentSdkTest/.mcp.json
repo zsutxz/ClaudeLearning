@@ -1,11 +1,16 @@
 {
   "mcpServers": {
     "filesystem": {
-      "command": "python",
-      "args": ["-m", "mcp_server_filesystem"],
-      "env": {
-        "ALLOWED_PATHS": "./"
-      }
+      "type": "stdio",
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "D:/work/AI/ClaudeLearning/AgentSdkTest"
+      ],
+      "env": {}
     }
   }
 }
