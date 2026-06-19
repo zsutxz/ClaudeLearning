@@ -17,17 +17,29 @@ AgentSdkTest/
 ├── lib/                       # 核心库模块
 │   ├── __init__.py
 │   ├── multi_agent.py         # 多模型统一接口 (核心功能)
-│   ├── agent_factory.py       # 代理工厂
+│   ├── factory.py             # 代理工厂 (AgentFactory)
+│   ├── multi_agent_system.py  # 多智能体协作系统
 │   ├── config.py              # 配置管理
+│   ├── example_helpers.py     # 示例公共辅助函数
 │   └── utils.py               # 工具函数
 ├── examples/                  # 示例代码目录
-│   ├── 01_basic_chat.py       # 基础对话示例
-│   ├── 02_multi_model.py      # 多模型支持示例 (核心)
-│   ├── 03_tools_usage.py      # 工具使用示例
-│   ├── 04_mcp_integration.py  # MCP 集成示例
-│   ├── 05_session_management.py  # 会话管理示例
-│   ├── 06_stream_response.py  # 流式响应示例
-│   └── 07_advanced_agent.py   # 高级代理示例
+│   ├── claude_agent_sdk/      # Claude Agent SDK 功能测试
+│   │   ├── TestBasicChat.py       # 基础对话
+│   │   ├── TestAgentSdk.py        # SDK 综合测试
+│   │   ├── TestMcpIntegration.py  # MCP 集成
+│   │   ├── TestTool.py            # 工具使用
+│   │   ├── TestHook.py            # Hook 功能
+│   │   ├── TestSlash.py           # Slash 命令
+│   │   ├── TestSkill.py           # Skill 功能
+│   │   └── TestTodos.py           # Todos 功能
+│   └── universal_agent/       # UniversalAIAgent 渐进示例
+│       ├── 01_test_deepseek.py        # DeepSeek 测试
+│       ├── 02_multi_model.py          # 多模型支持示例 (核心)
+│       ├── 03_session_management.py   # 会话管理示例
+│       ├── 04_stream_response.py      # 流式响应示例
+│       ├── 05_advanced_agent.py       # 高级代理示例
+│       └── 06_multi_agent_system.py   # 多智能体协作示例
+├── mcp_servers/               # 自带 MCP 服务器（agent_bridge 等）
 ├── config/                    # 配置文件目录
 │   ├── .env.example           # 环境变量模板
 │   └── mcp_config.json        # MCP 配置
@@ -43,9 +55,9 @@ AgentSdkTest/
 - **核心SDK**: `claude-agent-sdk` (Anthropic官方)
 - **主要模型**: GLM-4.7 (智谱AI)
 - **多模型支持**:
-  - Claude (glm-4.7, glm-4.7 - 智谱AI)
+  - Claude (glm-4.7, glm-4.6 - 智谱AI)
   - OpenAI (gpt-4o-mini, gpt-4)
-  - DeepSeek (deepseek-chat)
+  - DeepSeek (deepseek-chat, deepseek-coder)
   - Ollama (llama2, mistral - 本地模型)
   - Mock (测试用)
 
@@ -54,6 +66,7 @@ AgentSdkTest/
 - **模块化设计**: lib/ 核心库 + examples/ 示例代码
 - **专业化代理**: UniversalCodeAgent、UniversalTaskAgent 等
 - **工厂模式**: AgentFactory 提供灵活的代理创建方式
+- **多智能体协作**: multi_agent_system.py 提供通信总线与协调器
 - **MCP协议集成**: 支持 Model Context Protocol 服务器
 
 ## ⚙️ 开发环境配置
@@ -97,7 +110,7 @@ DEEPSEEK_BASE_URL=https://api.deepseek.com/v1
 python quick_start.py
 
 # 直接运行示例
-python examples/02_multi_model.py  # 多模型支持示例
+python examples/universal_agent/02_multi_model.py  # 多模型支持示例
 
 # 批量运行所有示例
 python run_all_examples.py
@@ -106,13 +119,16 @@ python run_all_examples.py
 ### 核心功能测试
 ```bash
 # 多模型接口测试
-python examples/02_multi_model.py
+python examples/universal_agent/02_multi_model.py
 
-# 代码代理测试
-python examples/07_advanced_agent.py
+# 代码/高级代理测试
+python examples/universal_agent/05_advanced_agent.py
 
 # 会话管理测试
-python examples/05_session_management.py
+python examples/universal_agent/03_session_management.py
+
+# Claude Agent SDK 基础对话
+python examples/claude_agent_sdk/TestBasicChat.py
 ```
 
 ## 📝 核心功能模块
@@ -124,7 +140,7 @@ python examples/05_session_management.py
 - 支持同步和流式响应
 - 对话历史管理和上下文维护
 
-### 2. 代理工厂 (lib/agent_factory.py)
+### 2. 代理工厂 (lib/factory.py)
 - **AgentFactory**: 工厂类，封装代理创建逻辑
 - **create_multi_agent**: 便捷函数，创建多模型代理
 - **create_chat_agent**: 创建聊天代理
@@ -132,16 +148,22 @@ python examples/05_session_management.py
 - **create_task_agent**: 创建任务代理
 - **create_file_agent**: 创建文件操作代理
 
-### 3. 配置管理 (lib/config.py)
+### 3. 多智能体协作 (lib/multi_agent_system.py)
+- **AgentMessage**: 智能体间消息格式
+- **AgentCommunicationBus**: 通信总线
+- **AgentCoordinator**: 智能体协调器，负责任务分发
+- **MultiAgentSystem**: 多智能体系统高层接口
+
+### 4. 配置管理 (lib/config.py)
 - **Config**: 配置数据类
 - **get_config**: 获取全局配置实例
 - **load_env_file**: 从.env文件加载环境变量
 - 支持多种AI提供商的配置管理
 
-### 4. 示例代码 (examples/)
-- 7个渐进式示例，从基础到高级
-- 涵盖所有核心功能的使用方法
-- 可独立运行，也可通过quick_start.py运行
+### 5. 示例代码 (examples/)
+- `examples/universal_agent/`: 6 个 UniversalAIAgent 渐进示例（DeepSeek 测试 → 多模型 → 会话 → 流式 → 高级代理 → 多智能体）
+- `examples/claude_agent_sdk/`: 8 个 Claude Agent SDK 功能测试（基础对话、SDK 综合、MCP、工具、Hook、Slash、Skill、Todos）
+- 可独立运行，也可通过 `quick_start.py` 统一菜单运行
 
 ## 🔧 核心配置选项
 
@@ -176,7 +198,7 @@ options = ClaudeAgentOptions(
 ## 🎮 开发工作流
 
 ### 新功能开发模式
-1. **创建示例文件**: 在 `examples/` 目录创建新示例
+1. **创建示例文件**: 在 `examples/universal_agent/` 或 `examples/claude_agent_sdk/` 创建新示例
 2. **使用核心库**: 从 `lib/` 导入所需模块
 3. **测试验证**: 使用 `quick_start.py` 或直接运行
 4. **文档更新**: 更新 README.md 和 CLAUDE.md
@@ -225,7 +247,7 @@ options = ClaudeAgentOptions(
 cat .env | grep API_KEY
 
 # 测试基础功能
-python examples/02_multi_model.py
+python examples/universal_agent/02_multi_model.py
 ```
 
 #### 2. 依赖包问题
@@ -252,12 +274,11 @@ pip install -r requirements.txt
 
 ### 项目参考
 - [lib/multi_agent.py](./lib/multi_agent.py) - 多模型统一接口
-- [lib/agent_factory.py](./lib/agent_factory.py) - 代理工厂
-- [examples/02_multi_model.py](./examples/02_multi_model.py) - 多模型示例
+- [lib/factory.py](./lib/factory.py) - 代理工厂
+- [lib/multi_agent_system.py](./lib/multi_agent_system.py) - 多智能体协作系统
+- [examples/universal_agent/02_multi_model.py](./examples/universal_agent/02_multi_model.py) - 多模型示例
 - [README.md](./README.md) - 项目说明文档
 
 ---
 
 *Claude Agent SDK 整合项目 - 多模型支持 + 模块化架构*
-
-*最后更新: 2025-01-05*

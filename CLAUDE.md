@@ -69,7 +69,7 @@ AgentSdkTest/lib/multi_agent.py  ←──  Research/research_agent.py (继承)
 
 ## 网页浏览
 
-网页浏览与自动化使用 Playwright MCP（`mcp__playwright__*` 工具，如 `browser_navigate`、`browser_snapshot`、`browser_click`）。gstack 已于 2026-06 移除，其功能由已安装的 bmad / ecc / document-skills 插件覆盖。
+网页浏览与自动化优先使用 chrome-devtools MCP（ecc 插件提供，`mcp__plugin_ecc_chrome-devtools__*` 工具，如 `navigate_page`、`take_snapshot`、`click`）；若额外安装了 Playwright MCP，也可使用其 `browser_*` 工具。gstack 已于 2026-06 移除，其功能由已安装的 bmad / ecc / document-skills 插件覆盖。
 
 ## 技能路由
 
@@ -81,7 +81,7 @@ AgentSdkTest/lib/multi_agent.py  ←──  Research/research_agent.py (继承)
 - 架构设计 → bmad-create-architecture 或 ecc:plan
 - 设计系统/前端方案 → ecc:design-system 或 document-skills:frontend-design
 - Bug/报错/构建错误 → bmad-investigate 或 ecc:build-fix
-- QA/测试网站 → ecc:browser-qa 或 document-skills:webapp-testing（用 Playwright MCP 驱动）
+- QA/测试网站 → ecc:browser-qa 或 document-skills:webapp-testing（浏览器自动化驱动）
 - 代码审查/diff 检查 → ecc:code-review 或内置 code-review
 - 视觉/前端优化 → document-skills:frontend-design 或 ecc:frontend-design-direction
 - 发布/PR → ecc:pr 或 ecc:review-pr
