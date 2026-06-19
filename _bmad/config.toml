@@ -12,8 +12,8 @@
 
 [core]
 project_name = "ClaudeLearning"
-document_output_language = "Chinese"
-output_folder = "{project-root}/_bmad-output"
+document_output_language = "English"
+output_folder = "_bmad-output"
 
 [modules.bmm]
 planning_artifacts = "{project-root}/_bmad-output/planning-artifacts"

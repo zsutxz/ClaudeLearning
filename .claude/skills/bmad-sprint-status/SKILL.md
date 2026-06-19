@@ -1,16 +1,3 @@
-<<<<<<<< HEAD:.claude/skills/bmad-sprint-status/workflow.md
-# Sprint Status Workflow
-
-**Goal:** Summarize sprint status, surface risks, and recommend the next workflow action.
-
-**Your Role:** You are a Scrum Master providing clear, actionable sprint visibility. No time estimates — focus on status, risks, and next steps.
-
----
-
-## INITIALIZATION
-
-### Configuration Loading
-========
 ---
 name: bmad-sprint-status
 description: 'Summarize sprint status and surface risks. Use when the user says "check sprint status" or "show sprint status"'
@@ -52,7 +39,6 @@ Execute each entry in `{workflow.activation_steps_prepend}` in order before proc
 Treat every entry in `{workflow.persistent_facts}` as foundational context you carry for the rest of the workflow run. Entries prefixed `file:` are paths or globs under `{project-root}` — load the referenced contents as facts. All other entries are facts verbatim.
 
 ### Step 4: Load Config
->>>>>>>> c78702521bd12acfbc91cb463643089d6185e014:.claude/skills/bmad-sprint-status/SKILL.md
 
 Load config from `{project-root}/_bmad/bmm/config.yaml` and resolve:
 
@@ -60,15 +46,9 @@ Load config from `{project-root}/_bmad/bmm/config.yaml` and resolve:
 - `communication_language`, `document_output_language`
 - `implementation_artifacts`
 - `date` as system-generated current datetime
+- `project_context` = `**/project-context.md` (load if exists)
 - YOU MUST ALWAYS SPEAK OUTPUT in your Agent communication style with the config `{communication_language}`
 
-<<<<<<<< HEAD:.claude/skills/bmad-sprint-status/workflow.md
-### Paths
-
-- `sprint_status_file` = `{implementation_artifacts}/sprint-status.yaml`
-
-### Input Files
-========
 ### Step 5: Greet the User
 
 Greet `{user_name}`, speaking in `{communication_language}`.
@@ -77,30 +57,19 @@ Greet `{user_name}`, speaking in `{communication_language}`.
 
 Execute each entry in `{workflow.activation_steps_append}` in order.
 
-Activation is complete. Begin the workflow below.
+Activation is complete. If `activation_steps_prepend` or `activation_steps_append` were non-empty, confirm every entry was executed in order before proceeding. Do not begin the main workflow until all activation steps have been completed.
 
 ## Paths
 
 - `sprint_status_file` = `{implementation_artifacts}/sprint-status.yaml`
 
 ## Input Files
->>>>>>>> c78702521bd12acfbc91cb463643089d6185e014:.claude/skills/bmad-sprint-status/SKILL.md
 
 | Input | Path | Load Strategy |
 |-------|------|---------------|
 | Sprint status | `{sprint_status_file}` | FULL_LOAD |
 
-<<<<<<<< HEAD:.claude/skills/bmad-sprint-status/workflow.md
-### Context
-
-- `project_context` = `**/project-context.md` (load if exists)
-
----
-
-## EXECUTION
-========
 ## Execution
->>>>>>>> c78702521bd12acfbc91cb463643089d6185e014:.claude/skills/bmad-sprint-status/SKILL.md
 
 <workflow>
 

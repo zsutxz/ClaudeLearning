@@ -1,11 +1,8 @@
-<<<<<<<< HEAD:.claude/skills/bmad-create-epics-and-stories/workflow.md
-========
 ---
 name: bmad-create-epics-and-stories
 description: 'Break requirements into epics and user stories. Use when the user says "create the epics and stories list"'
 ---
 
->>>>>>>> c78702521bd12acfbc91cb463643089d6185e014:.claude/skills/bmad-create-epics-and-stories/SKILL.md
 # Create Epics and Stories
 
 **Goal:** Transform PRD requirements and Architecture decisions into comprehensive stories organized by user value, creating detailed, actionable stories with complete acceptance criteria for the Developer agent.
@@ -64,8 +61,6 @@ Run: `python3 {project-root}/_bmad/scripts/resolve_customization.py --skill {ski
 
 Any missing file is skipped. Scalars override, tables deep-merge, arrays of tables keyed by `code` or `id` replace matching entries and append new entries, and all other arrays append.
 
-<<<<<<<< HEAD:.claude/skills/bmad-create-epics-and-stories/workflow.md
-========
 ### Step 2: Execute Prepend Steps
 
 Execute each entry in `{workflow.activation_steps_prepend}` in order before proceeding.
@@ -91,9 +86,8 @@ Greet `{user_name}`, speaking in `{communication_language}`.
 
 Execute each entry in `{workflow.activation_steps_append}` in order.
 
-Activation is complete. Begin the workflow below.
+Activation is complete. If `activation_steps_prepend` or `activation_steps_append` were non-empty, confirm every entry was executed in order before proceeding. Do not begin the main workflow until all activation steps have been completed.
 
 ## Execution
 
->>>>>>>> c78702521bd12acfbc91cb463643089d6185e014:.claude/skills/bmad-create-epics-and-stories/SKILL.md
 Read fully and follow: `./steps/step-01-validate-prerequisites.md` to begin the workflow.

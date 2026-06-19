@@ -1,11 +1,8 @@
-<<<<<<<< HEAD:.claude/skills/bmad-dev-story/workflow.md
-========
 ---
 name: bmad-dev-story
 description: 'Execute story implementation following a context filled story spec file. Use when the user says "dev this story [story file]" or "implement the next story in the sprint plan"'
 ---
 
->>>>>>>> c78702521bd12acfbc91cb463643089d6185e014:.claude/skills/bmad-dev-story/SKILL.md
 # Dev Story Workflow
 
 **Goal:** Execute story implementation following a context filled story spec file.
@@ -13,19 +10,9 @@ description: 'Execute story implementation following a context filled story spec
 **Your Role:** Developer implementing the story.
 - Communicate all responses in {communication_language} and language MUST be tailored to {user_skill_level}
 - Generate all documents in {document_output_language}
-- Only modify the story file in these areas: Tasks/Subtasks checkboxes, Dev Agent Record (Debug Log, Completion Notes), File List, Change Log, and Status
+- Only modify the story file in these areas: YAML frontmatter `baseline_commit`, Tasks/Subtasks checkboxes, Dev Agent Record (Debug Log, Completion Notes), File List, Change Log, and Status
 - Execute ALL steps in exact order; do NOT skip steps
 - Absolutely DO NOT stop because of "milestones", "significant progress", or "session boundaries". Continue in a single execution until the story is COMPLETE (all ACs satisfied and all tasks/subtasks checked) UNLESS a HALT condition is triggered or the USER gives other instruction.
-<<<<<<<< HEAD:.claude/skills/bmad-dev-story/workflow.md
-- Do NOT schedule a "next session" or request review pauses unless a HALT condition applies. Only Step 6 decides completion.
-- User skill level ({user_skill_level}) affects conversation style ONLY, not code updates.
-
----
-
-## INITIALIZATION
-
-### Configuration Loading
-========
 - Do NOT schedule a "next session" or request review pauses unless a HALT condition applies. Only Step 9 decides completion.
 - User skill level ({user_skill_level}) affects conversation style ONLY, not code updates.
 
@@ -59,7 +46,6 @@ Execute each entry in `{workflow.activation_steps_prepend}` in order before proc
 Treat every entry in `{workflow.persistent_facts}` as foundational context you carry for the rest of the workflow run. Entries prefixed `file:` are paths or globs under `{project-root}` — load the referenced contents as facts. All other entries are facts verbatim.
 
 ### Step 4: Load Config
->>>>>>>> c78702521bd12acfbc91cb463643089d6185e014:.claude/skills/bmad-dev-story/SKILL.md
 
 Load config from `{project-root}/_bmad/bmm/config.yaml` and resolve:
 
@@ -68,10 +54,8 @@ Load config from `{project-root}/_bmad/bmm/config.yaml` and resolve:
 - `user_skill_level`
 - `implementation_artifacts`
 - `date` as system-generated current datetime
+- `project_context` = `**/project-context.md` (load if exists)
 
-<<<<<<<< HEAD:.claude/skills/bmad-dev-story/workflow.md
-### Paths
-========
 ### Step 5: Greet the User
 
 Greet `{user_name}`, speaking in `{communication_language}`.
@@ -80,30 +64,19 @@ Greet `{user_name}`, speaking in `{communication_language}`.
 
 Execute each entry in `{workflow.activation_steps_append}` in order.
 
-Activation is complete. Begin the workflow below.
+Activation is complete. If `activation_steps_prepend` or `activation_steps_append` were non-empty, confirm every entry was executed in order before proceeding. Do not begin the main workflow until all activation steps have been completed.
 
 ## Paths
->>>>>>>> c78702521bd12acfbc91cb463643089d6185e014:.claude/skills/bmad-dev-story/SKILL.md
 
 - `story_file` = `` (explicit story path; auto-discovered if empty)
 - `sprint_status` = `{implementation_artifacts}/sprint-status.yaml`
 
-<<<<<<<< HEAD:.claude/skills/bmad-dev-story/workflow.md
-### Context
-
-- `project_context` = `**/project-context.md` (load if exists)
-
----
-
-## EXECUTION
-========
 ## Execution
->>>>>>>> c78702521bd12acfbc91cb463643089d6185e014:.claude/skills/bmad-dev-story/SKILL.md
 
 <workflow>
   <critical>Communicate all responses in {communication_language} and language MUST be tailored to {user_skill_level}</critical>
   <critical>Generate all documents in {document_output_language}</critical>
-  <critical>Only modify the story file in these areas: Tasks/Subtasks checkboxes, Dev Agent Record (Debug Log, Completion Notes), File List,
+  <critical>Only modify the story file in these areas: YAML frontmatter `baseline_commit`, Tasks/Subtasks checkboxes, Dev Agent Record (Debug Log, Completion Notes), File List,
     Change Log, and Status</critical>
   <critical>Execute ALL steps in exact order; do NOT skip steps</critical>
   <critical>Absolutely DO NOT stop because of "milestones", "significant progress", or "session boundaries". Continue in a single execution
@@ -288,26 +261,40 @@ Activation is complete. Begin the workflow below.
   </step>
 
   <step n="4" goal="Mark story in-progress" tag="sprint-status">
+    <action>If story file YAML frontmatter already contains `baseline_commit`, preserve the existing value and do not overwrite it</action>
+
     <check if="{{sprint_status}} file exists">
       <action>Load the FULL file: {{sprint_status}}</action>
       <action>Read all development_status entries to find {{story_key}}</action>
-      <action>Get current status value for development_status[{{story_key}}]</action>
+      <action>Set {{current_status}} to development_status[{{story_key}}]</action>
+    </check>
 
-      <check if="current status == 'ready-for-dev' OR review_continuation == true">
+    <check if="{{sprint_status}} file does NOT exist">
+      <action>Set {{current_status}} to the story file Status section value</action>
+    </check>
+
+    <check if="{{current_status}} == 'ready-for-dev' AND story file YAML frontmatter does NOT contain baseline_commit">
+      <action>Run `git rev-parse HEAD` to capture current commit into {{baseline_commit}}; if git/version control is unavailable, set {{baseline_commit}} = `NO_VCS`</action>
+      <action>If story file YAML frontmatter exists, add `baseline_commit: {{baseline_commit}}` to the frontmatter</action>
+      <action>If story file has no YAML frontmatter, create frontmatter at the top containing only `baseline_commit: {{baseline_commit}}`</action>
+    </check>
+
+    <check if="{{sprint_status}} file exists">
+      <check if="{{current_status}} == 'ready-for-dev' OR (review_continuation == true AND {{current_status}} != 'in-progress')">
         <action>Update the story in the sprint status report to = "in-progress"</action>
         <action>Update last_updated field to current date</action>
         <output>🚀 Starting work on story {{story_key}}
-          Status updated: ready-for-dev → in-progress
+          Status updated: {{current_status}} → in-progress
         </output>
       </check>
 
-      <check if="current status == 'in-progress'">
+      <check if="{{current_status}} == 'in-progress'">
         <output>⏯️ Resuming work on story {{story_key}}
           Story is already marked in-progress
         </output>
       </check>
 
-      <check if="current status is neither ready-for-dev nor in-progress">
+      <check if="{{current_status}} is neither ready-for-dev nor in-progress">
         <output>⚠️ Unexpected story status: {{current_status}}
           Expected ready-for-dev or in-progress. Continuing anyway...
         </output>

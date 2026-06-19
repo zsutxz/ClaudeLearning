@@ -1,33 +1,3 @@
-<<<<<<<< HEAD:.claude/skills/bmad-retrospective/workflow.md
-# Retrospective Workflow
-
-**Goal:** Post-epic review to extract lessons and assess success.
-
-**Your Role:** Scrum Master facilitating retrospective.
-- No time estimates — NEVER mention hours, days, weeks, months, or ANY time-based predictions. AI has fundamentally changed development speed.
-- Communicate all responses in {communication_language} and language MUST be tailored to {user_skill_level}
-- Generate all documents in {document_output_language}
-- Document output: Retrospective analysis. Concise insights, lessons learned, action items. User skill level ({user_skill_level}) affects conversation style ONLY, not retrospective content.
-- Facilitation notes:
-  - Psychological safety is paramount - NO BLAME
-  - Focus on systems, processes, and learning
-  - Everyone contributes with specific examples preferred
-  - Action items must be achievable with clear ownership
-  - Two-part format: (1) Epic Review + (2) Next Epic Preparation
-- Party mode protocol:
-  - ALL agent dialogue MUST use format: "Name (Role): dialogue"
-  - Example: Bob (Scrum Master): "Let's begin..."
-  - Example: {user_name} (Project Lead): [User responds]
-  - Create natural back-and-forth with user actively participating
-  - Show disagreements, diverse perspectives, authentic team dynamics
-
----
-
-## INITIALIZATION
-
-### Configuration Loading
-
-========
 ---
 name: bmad-retrospective
 description: 'Post-epic review to extract lessons and assess success. Use when the user says "run a retrospective" or "lets retro the epic [epic]"'
@@ -86,7 +56,6 @@ Treat every entry in `{workflow.persistent_facts}` as foundational context you c
 
 ### Step 4: Load Config
 
->>>>>>>> c78702521bd12acfbc91cb463643089d6185e014:.claude/skills/bmad-retrospective/SKILL.md
 Load config from `{project-root}/_bmad/bmm/config.yaml` and resolve:
 
 - `project_name`, `user_name`
@@ -96,13 +65,6 @@ Load config from `{project-root}/_bmad/bmm/config.yaml` and resolve:
 - `date` as system-generated current datetime
 - YOU MUST ALWAYS SPEAK OUTPUT in your Agent communication style with the config `{communication_language}`
 
-<<<<<<<< HEAD:.claude/skills/bmad-retrospective/workflow.md
-### Paths
-
-- `sprint_status_file` = `{implementation_artifacts}/sprint-status.yaml`
-
-### Input Files
-========
 ### Step 5: Greet the User
 
 Greet `{user_name}`, speaking in `{communication_language}`.
@@ -111,14 +73,13 @@ Greet `{user_name}`, speaking in `{communication_language}`.
 
 Execute each entry in `{workflow.activation_steps_append}` in order.
 
-Activation is complete. Begin the workflow below.
+Activation is complete. If `activation_steps_prepend` or `activation_steps_append` were non-empty, confirm every entry was executed in order before proceeding. Do not begin the main workflow until all activation steps have been completed.
 
 ## Paths
 
 - `sprint_status_file` = `{implementation_artifacts}/sprint-status.yaml`
 
 ## Input Files
->>>>>>>> c78702521bd12acfbc91cb463643089d6185e014:.claude/skills/bmad-retrospective/SKILL.md
 
 | Input | Description | Path Pattern(s) | Load Strategy |
 |-------|-------------|------------------|---------------|
@@ -128,25 +89,11 @@ Activation is complete. Begin the workflow below.
 | prd | Product requirements for context | whole: `{planning_artifacts}/*prd*.md`, sharded: `{planning_artifacts}/*prd*/*.md` | FULL_LOAD |
 | document_project | Brownfield project documentation (optional) | sharded: `{planning_artifacts}/*.md` | INDEX_GUIDED |
 
-<<<<<<<< HEAD:.claude/skills/bmad-retrospective/workflow.md
-### Required Inputs
-
-- `agent_manifest` = `{project-root}/_bmad/_config/agent-manifest.csv`
-
-### Context
-
-- `project_context` = `**/project-context.md` (load if exists)
-
----
-
-## EXECUTION
-========
 ## Required Inputs
 
 - `agent_roster` = resolved via `python3 {project-root}/_bmad/scripts/resolve_config.py --project-root {project-root} --key agents` (merges four layers in order: `_bmad/config.toml`, `_bmad/config.user.toml`, `_bmad/custom/config.toml`, `_bmad/custom/config.user.toml`)
 
 ## Execution
->>>>>>>> c78702521bd12acfbc91cb463643089d6185e014:.claude/skills/bmad-retrospective/SKILL.md
 
 <workflow>
 
@@ -279,11 +226,7 @@ Amelia (Developer): "Perfect. Epic {{epic_number}} is complete and ready for ret
 </step>
 
 <step n="0.5" goal="Discover and load project documents">
-<<<<<<<< HEAD:.claude/skills/bmad-retrospective/workflow.md
-  <action>Load input files according to the Input Files table in INITIALIZATION. For SELECTIVE_LOAD inputs, load only the epic matching {{epic_number}}. For FULL_LOAD inputs, load the complete document. For INDEX_GUIDED inputs, check the index first and load relevant sections. After discovery, these content variables are available: {epics_content} (selective load for this epic), {architecture_content}, {prd_content}, {document_project_content}</action>
-========
   <action>Load input files according to the Input Files table above. For SELECTIVE_LOAD inputs, load only the epic matching {{epic_number}}. For FULL_LOAD inputs, load the complete document. For INDEX_GUIDED inputs, check the index first and load relevant sections. After discovery, these content variables are available: {epics_content} (selective load for this epic), {architecture_content}, {prd_content}, {document_project_content}</action>
->>>>>>>> c78702521bd12acfbc91cb463643089d6185e014:.claude/skills/bmad-retrospective/SKILL.md
   <note>After discovery, these content variables are available: {epics_content} (selective load for this epic), {architecture_content}, {prd_content}, {document_project_content}</note>
 </step>
 

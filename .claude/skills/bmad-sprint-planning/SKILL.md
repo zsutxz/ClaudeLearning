@@ -1,16 +1,3 @@
-<<<<<<<< HEAD:.claude/skills/bmad-sprint-planning/workflow.md
-# Sprint Planning Workflow
-
-**Goal:** Generate sprint status tracking from epics, detecting current story statuses and building a complete sprint-status.yaml file.
-
-**Your Role:** You are a Scrum Master generating and maintaining sprint tracking. Parse epic files, detect story statuses, and produce a structured sprint-status.yaml.
-
----
-
-## INITIALIZATION
-
-### Configuration Loading
-========
 ---
 name: bmad-sprint-planning
 description: 'Generate sprint status tracking from epics. Use when the user says "run sprint planning" or "generate sprint plan"'
@@ -52,7 +39,6 @@ Execute each entry in `{workflow.activation_steps_prepend}` in order before proc
 Treat every entry in `{workflow.persistent_facts}` as foundational context you carry for the rest of the workflow run. Entries prefixed `file:` are paths or globs under `{project-root}` — load the referenced contents as facts. All other entries are facts verbatim.
 
 ### Step 4: Load Config
->>>>>>>> c78702521bd12acfbc91cb463643089d6185e014:.claude/skills/bmad-sprint-planning/SKILL.md
 
 Load config from `{project-root}/_bmad/bmm/config.yaml` and resolve:
 
@@ -61,11 +47,8 @@ Load config from `{project-root}/_bmad/bmm/config.yaml` and resolve:
 - `implementation_artifacts`
 - `planning_artifacts`
 - `date` as system-generated current datetime
+- `project_context` = `**/project-context.md` (load if exists)
 - YOU MUST ALWAYS SPEAK OUTPUT in your Agent communication style with the config `{communication_language}`
-<<<<<<<< HEAD:.claude/skills/bmad-sprint-planning/workflow.md
-
-### Paths
-========
 - Generate all documents in `{document_output_language}`
 
 ### Step 5: Greet the User
@@ -76,10 +59,9 @@ Greet `{user_name}`, speaking in `{communication_language}`.
 
 Execute each entry in `{workflow.activation_steps_append}` in order.
 
-Activation is complete. Begin the workflow below.
+Activation is complete. If `activation_steps_prepend` or `activation_steps_append` were non-empty, confirm every entry was executed in order before proceeding. Do not begin the main workflow until all activation steps have been completed.
 
 ## Paths
->>>>>>>> c78702521bd12acfbc91cb463643089d6185e014:.claude/skills/bmad-sprint-planning/SKILL.md
 
 - `tracking_system` = `file-system`
 - `project_key` = `NOKEY`
@@ -89,27 +71,13 @@ Activation is complete. Begin the workflow below.
 - `epics_pattern` = `*epic*.md`
 - `status_file` = `{implementation_artifacts}/sprint-status.yaml`
 
-<<<<<<<< HEAD:.claude/skills/bmad-sprint-planning/workflow.md
-### Input Files
-========
 ## Input Files
->>>>>>>> c78702521bd12acfbc91cb463643089d6185e014:.claude/skills/bmad-sprint-planning/SKILL.md
 
 | Input | Path | Load Strategy |
 |-------|------|---------------|
 | Epics | `{planning_artifacts}/*epic*.md` (whole) or `{planning_artifacts}/*epic*/*.md` (sharded) | FULL_LOAD |
 
-<<<<<<<< HEAD:.claude/skills/bmad-sprint-planning/workflow.md
-### Context
-
-- `project_context` = `**/project-context.md` (load if exists)
-
----
-
-## EXECUTION
-========
 ## Execution
->>>>>>>> c78702521bd12acfbc91cb463643089d6185e014:.claude/skills/bmad-sprint-planning/SKILL.md
 
 ### Document Discovery - Full Epic Loading
 
