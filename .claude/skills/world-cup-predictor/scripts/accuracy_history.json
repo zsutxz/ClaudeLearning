@@ -1,0 +1,38 @@
+{
+  "entries": [
+    {
+      "date": "20260611",
+      "analysis_date": "20260615",
+      "n": 11,
+      "correct_winner_pct": 36.4,
+      "correct_score_pct": 9.1,
+      "avg_goal_error": 1.87,
+      "avg_brier": 0.6052,
+      "goal_bias": 3.6,
+      "fav_accuracy": 50.0
+    },
+    {
+      "date": "20260614",
+      "analysis_date": "20260615",
+      "n": 11,
+      "correct_winner_pct": 36.4,
+      "correct_score_pct": 9.1,
+      "avg_goal_error": 1.87,
+      "avg_brier": 0.6052,
+      "goal_bias": 3.6,
+      "fav_accuracy": 50.0
+    },
+    {
+      "date": "20260615",
+      "analysis_date": "20260616",
+      "n": 16,
+      "correct_winner_pct": 31.2,
+      "correct_score_pct": 12.5,
+      "avg_goal_error": 1.94,
+      "avg_brier": 0.7004,
+      "goal_bias": 3.2,
+      "fav_accuracy": 40.0
+    }
+  ],
+  "version": "1.0"
+}
